@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfClient", "ARM-Simulator\WpfClient.csproj", "{032C7C6F-9BA8-40C7-87F1-6982817A273D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ARM-Simulator", "ARM-Simulator\ARM-Simulator.csproj", "{032C7C6F-9BA8-40C7-87F1-6982817A273D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ARM-Simulator.UnitTests", "ARM-Simulator.UnitTests\ARM-Simulator.UnitTests.csproj", "{81FCC314-B76C-4608-984C-8B668D0E1F3F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{032C7C6F-9BA8-40C7-87F1-6982817A273D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{032C7C6F-9BA8-40C7-87F1-6982817A273D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{032C7C6F-9BA8-40C7-87F1-6982817A273D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81FCC314-B76C-4608-984C-8B668D0E1F3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81FCC314-B76C-4608-984C-8B668D0E1F3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81FCC314-B76C-4608-984C-8B668D0E1F3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81FCC314-B76C-4608-984C-8B668D0E1F3F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
