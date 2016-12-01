@@ -25,7 +25,7 @@ namespace ARM_Simulator
             InitializeComponent();
 
             var test = new ViewModel.ARMDecoder();
-            test.Decode("mov r1, r2, r2");
+            test.Test();
         }
     }
 }

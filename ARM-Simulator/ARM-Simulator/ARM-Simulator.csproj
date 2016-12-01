@@ -63,6 +63,8 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Enumerations\ARMCommands.cs" />
+    <Compile Include="Enumerations\Register.cs" />
     <Compile Include="ViewModel\ARMDecoder.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
