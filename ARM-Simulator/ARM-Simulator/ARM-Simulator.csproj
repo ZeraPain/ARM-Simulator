@@ -63,9 +63,12 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Enumerations\ARMCommands.cs" />
-    <Compile Include="Enumerations\Register.cs" />
-    <Compile Include="ViewModel\ARMDecoder.cs" />
+    <Compile Include="Enumerations\ArmRelated.cs" />
+    <Compile Include="Interfaces\ICommand.cs" />
+    <Compile Include="Model\ArmCore.cs" />
+    <Compile Include="Model\ARMDecoder.cs" />
+    <Compile Include="Model\Commands\Mov.cs" />
+    <Compile Include="Model\ArmPipeline.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -99,7 +102,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Model\" />
+    <Folder Include="ViewModel\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

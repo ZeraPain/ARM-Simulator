@@ -1,5 +1,6 @@
 ﻿using System;
-using ARM_Simulator.ViewModel;
+using ARM_Simulator.Enumerations;
+using ARM_Simulator.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ARM_Simulator.UnitTests
@@ -7,55 +8,40 @@ namespace ARM_Simulator.UnitTests
     [TestClass]
     public class UnitTest1
     {
+        private void AssertFail<T>(ArmCore armCore, string command)
+        {
+            try
+            {
+                armCore.Pipeline.DirectExecute(command);
+                Assert.Fail();
+            }
+            catch (Exception ex)
+            {
+                Assert.IsTrue(ex is T);
+            }
+        }
+
         [TestMethod]
         public void TestMov()
         {
-            var decoder = new ARMDecoder();
-            decoder.Decode("mov r1, #0");
-            decoder.Decode("mov r1, #0x0");
+            var armCore = new ArmCore();
+            armCore.Pipeline.DirectExecute("mov r0, #77");
+            Assert.AreEqual(armCore.Registers[ArmRegister.R0], 77);
 
-            decoder.Decode("mov r1, r2");
-            decoder.Decode("mov r1, r2, LSL#2");
+            armCore.Pipeline.DirectExecute("mov r0, #0x3f");
+            Assert.AreEqual(armCore.Registers[ArmRegister.R0], 0x3f);
 
-            try
-            {
-                decoder.Decode("mov r1, r2, r2");
-                Assert.Fail();
-            }
-            catch (Exception ex)
-            {
-                Assert.IsTrue(ex is ArgumentException);
-            }
+            armCore.Pipeline.DirectExecute("mov r1, #2");
+            armCore.Pipeline.DirectExecute("mov r0, r1");
+            Assert.AreEqual(armCore.Registers[ArmRegister.R0], 2);
+            armCore.Pipeline.DirectExecute("mov r0, r1, lsl #2");
+            Assert.AreEqual(armCore.Registers[ArmRegister.R0], 8);
 
-            try
-            {
-                decoder.Decode("mov r1, r2, #0x");
-                Assert.Fail();
-            }
-            catch (Exception ex)
-            {
-                Assert.IsTrue(ex is ArgumentException);
-            }
+            AssertFail<ArgumentException>(armCore, "mov r1, r2, r2");
+            AssertFail<ArgumentException>(armCore, "mov r1, r2, #0x");
+            AssertFail<ArgumentException>(armCore, "mov r1");
+            AssertFail<FormatException>(armCore, "mov r1, #0ff");
 
-            try
-            {
-                decoder.Decode("mov r1");
-                Assert.Fail();
-            }
-            catch (Exception ex)
-            {
-                Assert.IsTrue(ex is ArgumentException);
-            }
-
-            try
-            {
-                decoder.Decode("mov r1, #0ff");
-                Assert.Fail();
-            }
-            catch (Exception ex)
-            {
-                Assert.IsTrue(ex is FormatException);
-            }
         }
     }
 }

@@ -24,7 +24,7 @@ namespace ARM_Simulator
         {
             InitializeComponent();
 
-            var test = new ViewModel.ARMDecoder();
+            var test = new Model.ArmCore();
             test.Test();
         }
     }
