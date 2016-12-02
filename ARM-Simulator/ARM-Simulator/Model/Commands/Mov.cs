@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using ARM_Simulator.Enumerations;
 using ARM_Simulator.Interfaces;
 
@@ -18,9 +17,12 @@ namespace ARM_Simulator.Model.Commands
         public Mov(string[] parameters)
         {
             _parameters = parameters;
-            _decoded = false;
+            _destReg = ArmRegister.None;
+            _srcReg = ArmRegister.None;
+            _immediate = 0;
             _shiftInst = ShiftInstruction.None;
             _shiftCount = 0;
+            _decoded = false;
         }
 
         public bool Decode()
@@ -59,20 +61,14 @@ namespace ARM_Simulator.Model.Commands
             return true;
         }
 
-        public bool Execute(Dictionary<ArmRegister, int> registers)
+        public bool Execute(ArmCore armCore)
         {
             if (!_decoded)
                 throw new Exception("Cannot execute an undecoded command");
 
-            if (!registers.ContainsKey(_destReg))
-                throw new Exception("Invalid Register was requested");
-
             if (_srcReg != ArmRegister.None) // Use Register
             {
-                if (!registers.ContainsKey(_srcReg))
-                    throw new Exception("Invalid Register was requested");
-
-                var value = registers[_srcReg];
+                var value = armCore.GetRegValue(_srcReg);
 
                 switch (_shiftInst)
                 {
@@ -94,12 +90,12 @@ namespace ARM_Simulator.Model.Commands
                         throw new ArgumentOutOfRangeException();
                 }
 
-                registers[_destReg] = value;
+                armCore.SetRegValue(_destReg, value);
                 return true;
             }
 
             // Use Immediate
-            registers[_destReg] = _immediate;
+            armCore.SetRegValue(_destReg, _immediate);
             return true;
         }
     }

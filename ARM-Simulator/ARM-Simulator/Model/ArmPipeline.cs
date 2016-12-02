@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using ARM_Simulator.Enumerations;
-using ARM_Simulator.Interfaces;
+﻿using ARM_Simulator.Interfaces;
 
 namespace ARM_Simulator.Model
 {
@@ -11,19 +9,16 @@ namespace ARM_Simulator.Model
         private ICommand _execute;
 
         private readonly ArmDecoder _armDecoder;
-        private readonly Dictionary<ArmRegister, int> _registers;
 
-        public ArmPipeline(Dictionary<ArmRegister, int> registers)
+        public ArmPipeline()
         {
+            _armDecoder = new ArmDecoder();
             _fetch = null;
             _decode = null;
             _execute = null;
-
-            _armDecoder = new ArmDecoder();
-            _registers = registers;
         }
 
-        public void Step(string fetchCommand)
+        public ICommand Tick(string fetchCommand)
         {
             if (_decode != null)
                 _execute = _decode;
@@ -31,15 +26,15 @@ namespace ARM_Simulator.Model
             if (_fetch != null)
                 _decode = _armDecoder.Decode(_fetch);
 
-            _fetch = fetchCommand;
+            _fetch = fetchCommand == string.Empty ? null : fetchCommand;
 
-            _execute?.Execute(_registers);
+            return _execute;
         }
 
-        public void DirectExecute(string command)
+        // Only needed for Unit tests!
+        public ICommand ForceDecode(string fetchCommand)
         {
-            var cmd = _armDecoder.Decode(command);
-            cmd.Execute(_registers);
+            return _armDecoder.Decode(fetchCommand);
         }
     }
 }

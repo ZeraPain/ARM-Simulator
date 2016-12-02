@@ -15,7 +15,8 @@
     internal enum ArmOpCode
     {
         None,
-        Mov
+        Mov,
+        Add
     }
 
     public enum ShiftInstruction

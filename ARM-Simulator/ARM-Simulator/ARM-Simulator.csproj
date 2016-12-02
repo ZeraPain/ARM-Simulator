@@ -63,10 +63,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Enumerations\ArmRelated.cs" />
+    <Compile Include="Enumerations\ArmResources.cs" />
     <Compile Include="Interfaces\ICommand.cs" />
     <Compile Include="Model\ArmCore.cs" />
-    <Compile Include="Model\ARMDecoder.cs" />
+    <Compile Include="Model\ArmDecoder.cs" />
+    <Compile Include="Model\Commands\Add.cs" />
     <Compile Include="Model\Commands\Mov.cs" />
     <Compile Include="Model\ArmPipeline.cs" />
     <Compile Include="View\MainWindow.xaml.cs">

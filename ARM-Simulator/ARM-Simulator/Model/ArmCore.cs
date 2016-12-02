@@ -1,43 +1,70 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ARM_Simulator.Enumerations;
 
 namespace ARM_Simulator.Model
 {
     public class ArmCore
     {
-        public Dictionary<ArmRegister, int> Registers { get; }
-        public ArmPipeline Pipeline { get; }
+        private readonly Dictionary<ArmRegister, int> _registers;
+        private readonly ArmPipeline _pipeline;
 
         public ArmCore()
         {
-            Registers = new Dictionary<ArmRegister, int>();
-            Registers.Add(ArmRegister.R0, 0);
-            Registers.Add(ArmRegister.R1, 0);
-            Registers.Add(ArmRegister.R2, 0);
-            Registers.Add(ArmRegister.R3, 0);
-            Registers.Add(ArmRegister.R4, 0);
-            Registers.Add(ArmRegister.R5, 0);
-            Registers.Add(ArmRegister.R6, 0);
-            Registers.Add(ArmRegister.R7, 0);
-            Registers.Add(ArmRegister.R8, 0);
-            Registers.Add(ArmRegister.R9, 0);
-            Registers.Add(ArmRegister.R10, 0);
-            Registers.Add(ArmRegister.R11, 0);
+            _registers = new Dictionary<ArmRegister, int>
+            {
+                {ArmRegister.R0, 0},
+                {ArmRegister.R1, 0},
+                {ArmRegister.R2, 0},
+                {ArmRegister.R3, 0},
+                {ArmRegister.R4, 0},
+                {ArmRegister.R5, 0},
+                {ArmRegister.R6, 0},
+                {ArmRegister.R7, 0},
+                {ArmRegister.R8, 0},
+                {ArmRegister.R9, 0},
+                {ArmRegister.R10, 0},
+                {ArmRegister.R11, 0}
+            };
 
-            Pipeline = new ArmPipeline(Registers);
+            _pipeline = new ArmPipeline();
         }
 
-        public void Test()
+        public void SetRegValue(ArmRegister reg, int value)
         {
-            Pipeline.Step("mov r0, #12");
-            Pipeline.Step("mov r1, #2");
-            Pipeline.Step("mov r0, r1, lsl #2");
-            Pipeline.Step("mov r0, r0");
-            Pipeline.Step("mov r0, r0");
-            Pipeline.Step("mov r0, r0");
-            Pipeline.Step("mov r0, r0");
-            Pipeline.Step("mov r0, r0");
-            Pipeline.Step("mov r0, r0");
+            if (!_registers.ContainsKey(reg))
+                throw new Exception("Invalid Register was requested");
+
+            _registers[reg] = value;
+        }
+
+        public int GetRegValue(ArmRegister reg)
+        {
+            if (!_registers.ContainsKey(reg))
+                throw new Exception("Invalid Register was requested");
+
+            return _registers[reg];
+        }
+
+        public void Tick(string fetchCommand)
+        {
+            _pipeline.Tick(fetchCommand)?.Execute(this);
+        }
+
+        public void DebugCommand()
+        {
+            DirectExecute("mov r0, #0");
+            Tick("mov r0, #12");
+            Tick("mov r0, #13");
+            Tick("mov r0, #14");
+            Tick("");
+            Tick("");
+        }
+
+        // Only needed for Unit tests!
+        public void DirectExecute(string command)
+        {
+            _pipeline.ForceDecode(command).Execute(this);
         }
     }
 }

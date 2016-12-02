@@ -14,11 +14,15 @@ namespace ARM_Simulator.Model
             switch (cmd.Opcode)
             {
                 case ArmOpCode.None:
-                     throw new ArgumentException("Unknown command");
+                     throw new ArgumentException("Invalid Opcode");
                 case ArmOpCode.Mov:
                     var mov = new Mov(cmd.Parameters);
                     mov.Decode();
                     return mov;
+                case ArmOpCode.Add:
+                    var add = new Add(cmd.Parameters);
+                    add.Decode();
+                    return add;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -26,6 +30,9 @@ namespace ARM_Simulator.Model
 
         private static Command ParseCommand(string command)
         {
+            if (command == string.Empty)
+                return new Command(ArmOpCode.None, null);
+
             var index = command.IndexOf(' ');
             if (index == -1)
                 index = command.IndexOf('\t');
@@ -36,7 +43,7 @@ namespace ARM_Simulator.Model
             ArmOpCode opcode;
             Enum.TryParse(command.Substring(0, index), true, out opcode);
             if (opcode == ArmOpCode.None)
-                throw new ArgumentException("Unable to parse an invalid ARM command");
+                throw new ArgumentException("Unable to parse an invalid Opcode");
 
             var parameters = command.Substring(index).Split(new []{','}, StringSplitOptions.RemoveEmptyEntries);
             for (var i = 0; i < parameters.Length; i++)
