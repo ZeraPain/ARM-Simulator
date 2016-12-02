@@ -68,8 +68,13 @@
     <Compile Include="Model\ArmCore.cs" />
     <Compile Include="Model\ArmDecoder.cs" />
     <Compile Include="Model\Commands\Add.cs" />
-    <Compile Include="Model\Commands\Mov.cs" />
+    <Compile Include="Model\Commands\Compare.cs" />
+    <Compile Include="Model\Commands\Logical.cs" />
+    <Compile Include="Model\Commands\Move.cs" />
     <Compile Include="Model\ArmPipeline.cs" />
+    <Compile Include="Model\Commands\Shift.cs" />
+    <Compile Include="Model\Commands\Substract.cs" />
+    <Compile Include="Model\Commands\Test.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

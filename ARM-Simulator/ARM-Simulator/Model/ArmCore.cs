@@ -24,7 +24,8 @@ namespace ARM_Simulator.Model
                 {ArmRegister.R8, 0},
                 {ArmRegister.R9, 0},
                 {ArmRegister.R10, 0},
-                {ArmRegister.R11, 0}
+                {ArmRegister.R11, 0},
+                {ArmRegister.Cpsr, 0x13 }
             };
 
             _pipeline = new ArmPipeline();
@@ -46,6 +47,15 @@ namespace ARM_Simulator.Model
             return _registers[reg];
         }
 
+        public void SetNzcvFlags(Flags mask, Flags flags)
+        {
+            var state = GetRegValue(ArmRegister.Cpsr);
+            state &= ~(mask.Value << 28); // Clear affected status bits
+            state |= flags.Value << 28; // Set affected status bits
+
+            SetRegValue(ArmRegister.Cpsr, state);
+        }
+
         public void Tick(string fetchCommand)
         {
             _pipeline.Tick(fetchCommand)?.Execute(this);
@@ -53,12 +63,7 @@ namespace ARM_Simulator.Model
 
         public void DebugCommand()
         {
-            DirectExecute("mov r0, #0");
-            Tick("mov r0, #12");
-            Tick("mov r0, #13");
-            Tick("mov r0, #14");
-            Tick("");
-            Tick("");
+
         }
 
         // Only needed for Unit tests!
