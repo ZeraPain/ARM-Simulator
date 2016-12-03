@@ -2,17 +2,17 @@
 
 namespace ARM_Simulator.Model
 {
-    public class ArmPipeline
+    public class Pipeline
     {
         private string _fetch;
         private ICommand _decode;
         private ICommand _execute;
 
-        private readonly ArmDecoder _armDecoder;
+        private readonly Parser _armDecoder;
 
-        public ArmPipeline()
+        public Pipeline()
         {
-            _armDecoder = new ArmDecoder();
+            _armDecoder = new Parser();
             _fetch = null;
             _decode = null;
             _execute = null;
@@ -24,7 +24,7 @@ namespace ARM_Simulator.Model
                 _execute = _decode;
 
             if (_fetch != null)
-                _decode = _armDecoder.Decode(_fetch);
+                _decode = _armDecoder.ParseLine(_fetch);
 
             _fetch = fetchCommand == string.Empty ? null : fetchCommand;
 
@@ -34,7 +34,7 @@ namespace ARM_Simulator.Model
         // Only needed for Unit tests!
         public ICommand ForceDecode(string fetchCommand)
         {
-            return _armDecoder.Decode(fetchCommand);
+            return _armDecoder.ParseLine(fetchCommand);
         }
     }
 }

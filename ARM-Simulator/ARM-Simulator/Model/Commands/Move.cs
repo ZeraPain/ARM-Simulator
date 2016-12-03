@@ -7,95 +7,134 @@ namespace ARM_Simulator.Model.Commands
     internal class Move : ICommand
     {
         // Required
-        private Command _command;
-        private ArmRegister _rd;
+        private Opcode? _opcode;
+        private bool _setConditionFlags;
+        private Register? _rd;
 
         // Optional
-        private ArmRegister _rm;
+        private Register? _rm;
         private short _immediate;
-        private ShiftInstruction _shiftInst;
+        private ShiftInstruction? _shiftInst;
         private byte _shiftCount;
         private bool _decoded;
 
-        public Move(Command command)
+        public Move()
         {
-            _command = command;
-            _rd = ArmRegister.None;
-            _rm = ArmRegister.None;
+            _setConditionFlags = false;
+            _opcode = null;
+            _rd = null;
+            _rm = null;
             _immediate = 0;
-            _shiftInst = ShiftInstruction.None;
+            _shiftInst = null;
             _shiftCount = 0;
             _decoded = false;
         }
 
-        public bool Decode()
+        public Move(Opcode? opcode, bool setConditionFlags, Register? rd, Register? rm, short immediate, ShiftInstruction? shiftInst, byte shiftCount)
         {
-            var parameters = _command.Parameters;
+            _opcode = opcode;
+            _setConditionFlags = setConditionFlags;
+            _rd = rd;
+            _rm = rm;
+            _immediate = immediate;
+            _shiftInst = shiftInst;
+            _shiftCount = shiftCount;
+            _decoded = true;
+        }
+
+        public bool Decode(Command command)
+        {
+            var parameters = command.Parameters;
+            _opcode = command.Opcode;
+            _setConditionFlags = command.SetConditionFlags;
 
             // Check for valid parameter count
             if (parameters.Length != 2 && parameters.Length != 3)
                 throw new ArgumentException("Invalid parameter count");
 
             // Parse Rd
-            _rd = ArmDecoder.ParseRegister(parameters[0]);
+            _rd = Parser.ParseRegister(parameters[0]);
 
-            switch (_command.Opcode)
+            if (!_setConditionFlags && command.Opcode == Opcode.Mov) // Not valid for Mvn
             {
-                case ArmOpCode.Movs:
-                case ArmOpCode.Mvn:
-                case ArmOpCode.Mvns:
-                    // Check for Rm or 8 bit immediate
-                    ArmDecoder.ParseOperand2(parameters[1], ref _rm, ref _immediate);
-                    break;
-                case ArmOpCode.Mov:
-                    // Check if an immediate needs to be moved
-                    if (parameters[1].StartsWith("#"))
-                    {
-                        if (parameters.Length != 2)
-                            throw new ArgumentException("Invalid parameter count");
+                if (parameters[1].StartsWith("#"))
+                {
+                    if (parameters.Length != 2)
+                        throw new ArgumentException("Invalid parameter count");
 
-                        // Parse 16 bit immediate
-                        _immediate = ArmDecoder.ParseImmediate(parameters[1], 16);
+                    // Parse 16 bit immediate
+                    _immediate = Parser.ParseImmediate(parameters[1], 12);
 
-                        _decoded = true;
-                        return true;
-                    }
-
-                    // Check for Rm or 8 bit immediate
-                    ArmDecoder.ParseOperand2(parameters[1], ref _rm, ref _immediate);
-                    break;
-                default:
-                    throw new ArgumentException("Invalid Opcode");
+                    _decoded = true;
+                    return true;
+                }
             }
 
+            // Check for Rm or 8 bit immediate
+            Parser.ParseOperand2(parameters[1], ref _rm, ref _immediate);
+
             // Check for shift instruction
-            if (_rm != ArmRegister.None && parameters.Length == 3)
-                ArmDecoder.ParseShiftInstruction(parameters[2], ref _shiftInst, ref _shiftCount);
+            if (_rm != null && parameters.Length == 3)
+                Parser.ParseShiftInstruction(parameters[2], ref _shiftInst, ref _shiftCount);
 
             _decoded = true;
             return true;
         }
 
-        public bool Execute(ArmCore armCore)
+        public int GetBitCommand()
+        {
+            if (!_decoded)
+                throw new Exception("Cannot convert an undecoded command");
+
+            var bw = new BitWriter();
+
+            bw.WriteBits(0, 28, 4); // Condition flags
+            bw.WriteBits(0, 27, 1); // Empty
+            bw.WriteBits(0, 26, 1); // Arithmetic
+            bw.WriteBits(_rm != null ? 0 : 1, 25, 1); // Bool immediate?
+            if (_opcode != null) bw.WriteBits((int)_opcode, 21, 4); // Opcode
+            bw.WriteBits(_setConditionFlags ? 1 : 0, 20, 1); // Set condition codes
+            bw.WriteBits(0, 16, 4); // Set Rn to 0
+            if (_rd != null) bw.WriteBits((int)_rd, 12, 4); // destination
+
+            if (_rm != null)
+            {
+                if (_shiftInst != null)
+                {
+                    bw.WriteBits(_shiftCount, 7, 5);
+                    bw.WriteBits((int)_shiftInst, 5, 2);
+                    bw.WriteBits(0, 4, 1);
+                }
+                bw.WriteBits((int)_rm, 0, 4);
+            }
+            else
+            {
+                bw.WriteBits(_immediate, 0, 12);
+            }
+
+            return bw.GetValue();
+        }
+
+        public bool Execute(Core armCore)
         {
             if (!_decoded)
                 throw new Exception("Cannot execute an undecoded command");
 
             // calculate with Rm
-            if (_rm != ArmRegister.None)
+            if (_rm != null)
             {
                 // Get value and shift if requested
                 var value = armCore.GetRegValue(_rm);
                 var carry = Shift.ShiftValue(ref value, _shiftInst, _shiftCount);
 
                 // XOR if MVN or MVNS
-                if (_command.Opcode == ArmOpCode.Mvn || _command.Opcode == ArmOpCode.Mvns)
+                if (_opcode == Opcode.Mvn)
                 {
                     value ^= -1; // XOR with 0xFFFFFFFF
                 }
 
                 // Set status flags if requested
-                if (_command.Opcode == ArmOpCode.Movs || _command.Opcode == ArmOpCode.Mvns)
+                if (_setConditionFlags)
                 {
                     armCore.SetNzcvFlags(new Flags(true, true, true, false),
                         new Flags(value < 0, value == 0, carry, false));
@@ -107,9 +146,16 @@ namespace ARM_Simulator.Model.Commands
             }
 
             // XOR immediate if requested
-            if (_command.Opcode == ArmOpCode.Mvn || _command.Opcode == ArmOpCode.Mvns)
+            if (_opcode == Opcode.Mvn)
             {
                 _immediate ^= -1; // XOR with 0xFFFFFFFF
+            }
+
+            // Set status flags if requested
+            if (_setConditionFlags)
+            {
+                armCore.SetNzcvFlags(new Flags(true, true, true, false),
+                    new Flags(_immediate < 0, _immediate == 0, false, false));
             }
 
             // Write immediate to Rd

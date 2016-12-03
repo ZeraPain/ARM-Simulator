@@ -63,15 +63,19 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Enumerations\ArmResources.cs" />
+    <Compile Include="Enumerations\BitReader.cs" />
+    <Compile Include="Enumerations\BitWriter.cs" />
+    <Compile Include="Enumerations\Resources.cs" />
     <Compile Include="Interfaces\ICommand.cs" />
-    <Compile Include="Model\ArmCore.cs" />
-    <Compile Include="Model\ArmDecoder.cs" />
+    <Compile Include="Model\Core.cs" />
+    <Compile Include="Model\Decoder.cs" />
+    <Compile Include="Model\Parser.cs" />
     <Compile Include="Model\Commands\Add.cs" />
     <Compile Include="Model\Commands\Compare.cs" />
     <Compile Include="Model\Commands\Logical.cs" />
     <Compile Include="Model\Commands\Move.cs" />
-    <Compile Include="Model\ArmPipeline.cs" />
+    <Compile Include="Model\Memory.cs" />
+    <Compile Include="Model\Pipeline.cs" />
     <Compile Include="Model\Commands\Shift.cs" />
     <Compile Include="Model\Commands\Substract.cs" />
     <Compile Include="Model\Commands\Test.cs" />

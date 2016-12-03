@@ -52,7 +52,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="UnitTestCommands.cs" />
+    <Compile Include="TestCompare.cs" />
+    <Compile Include="TestLogical.cs" />
+    <Compile Include="TestMove.cs" />
+    <Compile Include="TestSubstract.cs" />
+    <Compile Include="TestAdd.cs" />
+    <Compile Include="TestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTestSystem.cs" />
   </ItemGroup>

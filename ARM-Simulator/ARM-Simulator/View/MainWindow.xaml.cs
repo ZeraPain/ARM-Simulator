@@ -11,7 +11,7 @@ namespace ARM_Simulator.View
         {
             InitializeComponent();
 
-            var test = new Model.ArmCore();
+            var test = new Model.Core();
             test.DebugCommand();
         }
     }
