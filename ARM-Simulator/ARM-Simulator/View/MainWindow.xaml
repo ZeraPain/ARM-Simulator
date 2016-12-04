@@ -21,7 +21,14 @@
                 <MenuItem Command="Copy"/>
                 <MenuItem Command="Paste"/>
             </MenuItem>
+            <Button x:Name="BtnRun" Content="Run" Width="55" Click="BtnRun_Click"/>
+            <Button x:Name="BtnStep" Content="Step" Width="55" Click="BtnStep_Click"/>
+            <Button x:Name="BtnContinue" Content="Continue" Width="55" Click="BtnContinue_Click"/>
         </Menu>
+     
+            
+       
+        
         <RichTextBox AcceptsReturn="True" Name="TxtEditor"/>
         </DockPanel>
 </Window>
