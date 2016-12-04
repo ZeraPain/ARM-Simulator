@@ -6,7 +6,22 @@
         xmlns:local="clr-namespace:ARM_Simulator"
         mc:Ignorable="d"
         Title="Arm Simulator" Height="350" Width="525">
-    <Grid>
-        
-    </Grid>
+    <Window.CommandBindings>
+        <CommandBinding Command="Save" CanExecute="SaveCommand_CanExecute" Executed="SaveCommand_Executed" />
+    </Window.CommandBindings>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header ="_Menu" Click="MenuItem_Click">
+                <MenuItem Header ="_New" Click="MenuNew_Click"/>
+                <MenuItem Header ="_Open" Click="MenuOpen_Click"/>
+                <MenuItem Command="Save" Click="MenuSave_OnClick "/>
+                </MenuItem>
+            <MenuItem Header ="_Edit">
+                <MenuItem Command="Cut"/>
+                <MenuItem Command="Copy"/>
+                <MenuItem Command="Paste"/>
+            </MenuItem>
+        </Menu>
+        <RichTextBox AcceptsReturn="True" Name="TxtEditor"/>
+        </DockPanel>
 </Window>
