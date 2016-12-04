@@ -1,17 +1,16 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
+using Microsoft.Win32;
 
-
-namespace ARM_Simulator
+namespace ARM_Simulator.View
 {
     /// <summary>
     /// Interaktionslogik für MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow:Window
     {
         public MainWindow()
         {
