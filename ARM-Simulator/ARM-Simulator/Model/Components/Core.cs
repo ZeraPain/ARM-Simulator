@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using ARM_Simulator.Enumerations;
+using ARM_Simulator.Interfaces;
+using ARM_Simulator.Utilitiy;
 
-namespace ARM_Simulator.Model
+namespace ARM_Simulator.Model.Components
 {
     public class Core
     {
         private readonly Dictionary<Register, int> _registers;
-        private readonly Pipeline _pipeline;
         private readonly Decoder _decoder;
+        private readonly Memory _ram;
 
-        public Core()
+        private int _fetch;
+        private ICommand _decode;
+
+        public Core(Memory ram)
         {
             _registers = new Dictionary<Register, int>
             {
@@ -26,11 +30,15 @@ namespace ARM_Simulator.Model
                 {Register.R9, 0},
                 {Register.R10, 0},
                 {Register.R11, 0},
+                {Register.R12, 0},
+                {Register.Lr, 0},
+                {Register.Sp, 0},
+                {Register.Pc, 0},
                 {Register.Cpsr, 0x13 }
             };
 
-            _pipeline = new Pipeline();
             _decoder = new Decoder();
+            _ram = ram;
         }
 
         public void SetRegValue(Register? reg, int value)
@@ -58,45 +66,35 @@ namespace ARM_Simulator.Model
             SetRegValue(Register.Cpsr, state);
         }
 
-        public void Tick(string fetchCommand)
+        public void Tick()
         {
-            _pipeline.Tick(fetchCommand)?.Execute(this);
+            // Pipeline
+            Execute();
+            Decode();
+            Fetch();
+
+            SetRegValue(Register.Pc, GetRegValue(Register.Pc) + 4);
         }
 
-        public void DebugCommand()
+        private void Fetch()
         {
-            DirectExecute("mov r1, #2");
-            DirectExecute("mvn r2, #2");
-            DirectExecute("tst r1, r2");
-
-            DirectExecute("mov r1, #8");
-            DirectExecute("movs r0, r1, lsl#29");
-
-            DirectExecute("mov r2, #0x4");
-            DirectExecute("mov r3, r2, lsl#28");
-
-            DirectExecute("add r4, r3, r3");
-
-            DirectExecute("mov r0, #3");
-            DirectExecute("movs r1, #5");
-            DirectExecute("mvn r2, #3");
-            DirectExecute("teq r0, r1");
-
-            DirectExecute("mov r2, #0x4");
-            DirectExecute("mov r3, r2, lsl#28");
-
-            DirectExecute("mov r0, r1, lsl #2");
-            DirectExecute("adds r1, r1, r0, LSL#28");
-            DirectExecute("adds r1, r1, r0, LSL#28");
-
-            DirectExecute("adds r2, r2, #1");
+            _fetch = _ram.ReadInt((uint)(GetRegValue(Register.Pc) + 8));
         }
 
-        // Only needed for Unit tests!
-        public void DirectExecute(string command)
+        private void Decode()
         {
-            var test = _pipeline.ForceDecode(command);
-            var cmd = _decoder.Decode(test.GetBitCommand());
+            _decode = _decoder.Decode(_fetch);
+        }
+
+        private void Execute()
+        {
+            _decode?.Execute(this);
+        }
+
+        // Necessary for Unit tests
+        public void TestCommand(ICommand command)
+        {
+            var cmd = _decoder.Decode(command.Encode());
             cmd.Execute(this);
         }
     }

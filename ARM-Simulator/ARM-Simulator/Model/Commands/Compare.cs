@@ -1,6 +1,8 @@
 ﻿using System;
 using ARM_Simulator.Enumerations;
 using ARM_Simulator.Interfaces;
+using ARM_Simulator.Model.Components;
+using ARM_Simulator.Utilitiy;
 
 namespace ARM_Simulator.Model.Commands
 {
@@ -39,7 +41,7 @@ namespace ARM_Simulator.Model.Commands
             _decoded = true;
         }
 
-        public bool Decode(Command command)
+        public bool Parse(Command command)
         {
             var parameters = command.Parameters;
             _opcode = command.Opcode;
@@ -62,7 +64,7 @@ namespace ARM_Simulator.Model.Commands
             return true;
         }
 
-        public int GetBitCommand()
+        public int Encode()
         {
             if (!_decoded)
                 throw new Exception("Cannot convert an undecoded command");

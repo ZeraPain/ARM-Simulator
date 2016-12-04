@@ -1,6 +1,6 @@
 ﻿using System;
-using ARM_Simulator.Enumerations;
 using ARM_Simulator.Model;
+using ARM_Simulator.Utilitiy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ARM_Simulator.UnitTests
@@ -11,18 +11,18 @@ namespace ARM_Simulator.UnitTests
     [TestClass]
     public class TestBase
     {
-        protected readonly Core _armCore;
+        protected Simulator TestSimulator;
 
         public TestBase()
         {
-            _armCore = new Core();
+            TestSimulator = new Simulator();
         }
 
-        protected void AssertFail<T>(Core armCore, string command)
+        protected void AssertFail<T>(string command)
         {
             try
             {
-                armCore.DirectExecute(command);
+                TestSimulator.TestCommand(command);
                 Assert.Fail();
             }
             catch (Exception ex)
@@ -33,7 +33,7 @@ namespace ARM_Simulator.UnitTests
 
         protected byte GetConditionFlags()
         {
-            return (byte)((_armCore.GetRegValue(Register.Cpsr) & 0xf0000000) >> 28);
+            return (byte)((TestSimulator.ArmCore.GetRegValue(Register.Cpsr) & 0xf0000000) >> 28);
         }
     }
 }

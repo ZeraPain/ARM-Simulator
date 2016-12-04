@@ -1,7 +1,8 @@
 ﻿using System;
-using ARM_Simulator.Enumerations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
+using ARM_Simulator.Model.Components;
+using ARM_Simulator.Utilitiy;
 
 namespace ARM_Simulator.Model
 {
@@ -18,36 +19,36 @@ namespace ARM_Simulator.Model
                 case Opcode.Mov:
                 case Opcode.Mvn:
                     var mov = new Move();
-                    mov.Decode(command);
+                    mov.Parse(command);
                     return mov;
                 case Opcode.Add:
                     var add = new Add();
-                    add.Decode(command);
-                    var test = add.GetBitCommand();
+                    add.Parse(command);
+                    var test = add.Encode();
                     var dc = new Decoder();
                     dc.Decode(test);
                     return add;
                 case Opcode.Sub:
                 case Opcode.Rsb:
                     var sub = new Substract();
-                    sub.Decode(command);
+                    sub.Parse(command);
                     return sub;
                 case Opcode.And:
                 case Opcode.Eor:
                 case Opcode.Orr:
                 case Opcode.Bic:
                     var log = new Logical();
-                    log.Decode(command);
+                    log.Parse(command);
                     return log;
                 case Opcode.Tst:
                 case Opcode.Teq:
                     var tst = new Test();
-                    tst.Decode(command);
+                    tst.Parse(command);
                     return tst;
                 case Opcode.Cmp:
                 case Opcode.Cmn:
                     var cmp = new Compare();
-                    cmp.Decode(command);
+                    cmp.Parse(command);
                     return cmp;
                 default:
                     throw new ArgumentOutOfRangeException();

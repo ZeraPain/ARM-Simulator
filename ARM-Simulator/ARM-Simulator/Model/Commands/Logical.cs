@@ -1,6 +1,8 @@
 ﻿using System;
 using ARM_Simulator.Enumerations;
 using ARM_Simulator.Interfaces;
+using ARM_Simulator.Model.Components;
+using ARM_Simulator.Utilitiy;
 
 namespace ARM_Simulator.Model.Commands
 {
@@ -45,7 +47,7 @@ namespace ARM_Simulator.Model.Commands
             _decoded = true;
         }
 
-        public bool Decode(Command command)
+        public bool Parse(Command command)
         {
             var parameters = command.Parameters;
             _opcode = command.Opcode;
@@ -70,7 +72,7 @@ namespace ARM_Simulator.Model.Commands
             return true;
         }
 
-        public int GetBitCommand()
+        public int Encode()
         {
             if (!_decoded)
                 throw new Exception("Cannot convert an undecoded command");
@@ -83,8 +85,8 @@ namespace ARM_Simulator.Model.Commands
             bw.WriteBits(_rm != null ? 0 : 1, 25, 1); // Bool immediate?
             if (_opcode != null) bw.WriteBits((int)_opcode, 21, 4); // Opcode
             bw.WriteBits(_setConditionFlags ? 1 : 0, 20, 1); // Set condition codes
-            bw.WriteBits((int)_rn, 16, 4); // 1st operand
-            bw.WriteBits((int)_rd, 12, 4); // destination
+            if (_rn != null) bw.WriteBits((int)_rn, 16, 4); // 1st operand
+            if (_rd != null) bw.WriteBits((int)_rd, 12, 4); // destination
 
             if (_rm != null)
             {

@@ -1,5 +1,5 @@
 ﻿using System;
-using ARM_Simulator.Enumerations;
+using ARM_Simulator.Utilitiy;
 
 namespace ARM_Simulator.Model.Commands
 {

@@ -1,13 +1,17 @@
 ﻿using ARM_Simulator.Enumerations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
+using ARM_Simulator.Utilitiy;
 
-namespace ARM_Simulator.Model
+namespace ARM_Simulator.Model.Components
 {
     internal class Decoder
     {
         public ICommand Decode(int command)
         {
+            if (command == 0)
+                return null;
+
             var bitReader = new BitReader(command);
 
             var conditionFlags = (short)bitReader.ReadBits(28, 4);

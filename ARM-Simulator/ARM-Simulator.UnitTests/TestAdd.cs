@@ -1,5 +1,5 @@
 ﻿using System;
-using ARM_Simulator.Enumerations;
+using ARM_Simulator.Utilitiy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ARM_Simulator.UnitTests
@@ -13,44 +13,44 @@ namespace ARM_Simulator.UnitTests
         [TestMethod]
         public void TestSyntax()
         {
-            AssertFail<ArgumentException>(_armCore, "add");
-            AssertFail<ArgumentException>(_armCore, "add ,");
-            AssertFail<ArgumentException>(_armCore, "add r1, #0");
-            AssertFail<ArgumentException>(_armCore, "add r1, r2");
-            AssertFail<ArgumentException>(_armCore, "add r1, r2, ");
-            AssertFail<FormatException>(_armCore, "add r1, r2, #0x");
-            AssertFail<FormatException>(_armCore, "add r1, r2, #");
-            AssertFail<FormatException>(_armCore, "add r1, r2, #0f");
+            AssertFail<ArgumentException>("add");
+            AssertFail<ArgumentException>("add ,");
+            AssertFail<ArgumentException>("add r1, #0");
+            AssertFail<ArgumentException>("add r1, r2");
+            AssertFail<ArgumentException>("add r1, r2, ");
+            AssertFail<FormatException>("add r1, r2, #0x");
+            AssertFail<FormatException>("add r1, r2, #");
+            AssertFail<FormatException>("add r1, r2, #0f");
         }
 
         [TestMethod]
         public void TestCalculation()
         {
-            _armCore.DirectExecute("mov r0, #3");
-            _armCore.DirectExecute("mov r1, #5");
-            _armCore.DirectExecute("mov r2, #0x4");
-            _armCore.DirectExecute("mov r3, r2, lsl#28");
+            TestSimulator.TestCommand("mov r0, #3");
+            TestSimulator.TestCommand("mov r1, #5");
+            TestSimulator.TestCommand("mov r2, #0x4");
+            TestSimulator.TestCommand("mov r3, r2, lsl#28");
 
-            _armCore.DirectExecute("add r4, r0, #7");
-            Assert.AreEqual(_armCore.GetRegValue(Register.R4), 10);
+            TestSimulator.TestCommand("add r4, r0, #7");
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), 10);
 
-            _armCore.DirectExecute("adds r4, r0, #7");
-            Assert.AreEqual(_armCore.GetRegValue(Register.R4), 10);
+            TestSimulator.TestCommand("adds r4, r0, #7");
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), 10);
             Assert.AreEqual(GetConditionFlags(), 0);
 
-            _armCore.DirectExecute("add r4, r3, r3");
-            Assert.AreEqual(_armCore.GetRegValue(Register.R4), int.MinValue);
+            TestSimulator.TestCommand("add r4, r3, r3");
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), int.MinValue);
 
-            _armCore.DirectExecute("adds r4, r3, r3");
-            Assert.AreEqual(_armCore.GetRegValue(Register.R4), int.MinValue);
+            TestSimulator.TestCommand("adds r4, r3, r3");
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), int.MinValue);
             Assert.AreEqual(GetConditionFlags(), 9);
 
-            _armCore.DirectExecute("adds r4, r1, r2, lsl#2");
-            Assert.AreEqual(_armCore.GetRegValue(Register.R4), 21);
+            TestSimulator.TestCommand("adds r4, r1, r2, lsl#2");
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), 21);
             Assert.AreEqual(GetConditionFlags(), 0);
 
-            _armCore.DirectExecute("add r4, r1, r1, lsl#2");
-            Assert.AreEqual(_armCore.GetRegValue(Register.R4), 25);
+            TestSimulator.TestCommand("add r4, r1, r1, lsl#2");
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), 25);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace ARM_Simulator.Enumerations
+﻿namespace ARM_Simulator.Utilitiy
 {
     public struct Command
     {
@@ -55,18 +55,22 @@
 
     public enum Register
     {
-        R0,
-        R1,
-        R2,
-        R3,
-        R4,
-        R5,
-        R6,
-        R7,
-        R8,
-        R9,
-        R10,
-        R11,
+        R0 = 0,
+        R1 = 1,
+        R2 = 2,
+        R3 = 3,
+        R4 = 4,
+        R5 = 5,
+        R6 = 6,
+        R7 = 7,
+        R8 = 8,
+        R9 = 9,
+        R10 = 10,
+        R11 = 11,
+        R12 = 12,
+        Lr = 13,
+        Sp = 14,
+        Pc = 15,
         Cpsr
     }
 }
