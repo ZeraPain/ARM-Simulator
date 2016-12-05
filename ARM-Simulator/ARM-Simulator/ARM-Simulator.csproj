@@ -63,6 +63,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Model\Commands\DataAccess.cs" />
     <Compile Include="Model\Simulator.cs" />
     <Compile Include="Utilitiy\BitReader.cs" />
     <Compile Include="Utilitiy\BitWriter.cs" />

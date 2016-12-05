@@ -9,29 +9,26 @@ namespace ARM_Simulator.Model.Commands
     internal class Logical : ICommand
     {
         // Required
-        private Opcode? _opcode;
-        private bool _setConditionFlags;
+        private readonly Opcode? _opcode;
+        private readonly bool _setConditionFlags;
         private Register? _rd;
         private Register? _rn;
 
         // Optional
+        private readonly string[] _parameters;
         private Register? _rm;
         private short _immediate;
         private ShiftInstruction? _shiftInst;
         private byte _shiftCount;
         private bool _decoded;
 
-        public Logical()
+        public Logical(Opcode opcode, bool setConditionFlags, string[] parameters)
         {
-            _opcode = null;
-            _setConditionFlags = false;
-            _rd = null;
-            _rn = null;
-            _rm = null;
-            _immediate = 0;
-            _shiftInst = null;
-            _shiftCount = 0;
+            _opcode = opcode;
+            _setConditionFlags = setConditionFlags;
+            _parameters = parameters;
             _decoded = false;
+            Parse();
         }
 
         public Logical(Opcode opcode, bool setConditionFlags, Register? rd, Register? rn, Register? rm, short immediate, ShiftInstruction? shiftInst, byte shiftCount)
@@ -47,29 +44,27 @@ namespace ARM_Simulator.Model.Commands
             _decoded = true;
         }
 
-        public bool Parse(Command command)
+        public void Parse()
         {
-            var parameters = command.Parameters;
-            _opcode = command.Opcode;
-            _setConditionFlags = command.SetConditionFlags;
+            if (_decoded)
+                throw new Exception("Cannot parse a decoded command");
 
             // Check Parameter Count
-            if (parameters.Length != 3 && parameters.Length != 4)
+            if (_parameters.Length != 3 && _parameters.Length != 4)
                 throw new ArgumentException("Invalid parameter count");
 
             // Parse Destination Register / Source Register
-            _rd = Parser.ParseRegister(parameters[0]);
-            _rn = Parser.ParseRegister(parameters[1]);
+            _rd = Parser.ParseRegister(_parameters[0]);
+            _rn = Parser.ParseRegister(_parameters[1]);
 
             // Check for Rm or 8 bit immediate
-            Parser.ParseOperand2(parameters[2], ref _rm, ref _immediate);
+            Parser.ParseOperand2(_parameters[2], ref _rm, ref _immediate);
 
             // Check for Shift Instruction
-            if (_rm != null && parameters.Length == 4)
-                Parser.ParseShiftInstruction(parameters[3], ref _shiftInst, ref _shiftCount);
+            if (_rm != null && _parameters.Length == 4)
+                Parser.ParseShiftInstruction(_parameters[3], ref _shiftInst, ref _shiftCount);
 
             _decoded = true;
-            return true;
         }
 
         public int Encode()

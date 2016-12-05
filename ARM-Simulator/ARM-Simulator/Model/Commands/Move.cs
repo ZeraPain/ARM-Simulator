@@ -9,27 +9,25 @@ namespace ARM_Simulator.Model.Commands
     internal class Move : ICommand
     {
         // Required
-        private Opcode? _opcode;
-        private bool _setConditionFlags;
+        private readonly Opcode? _opcode;
+        private readonly bool _setConditionFlags;
         private Register? _rd;
 
         // Optional
+        private readonly string[] _parameters;
         private Register? _rm;
         private short _immediate;
         private ShiftInstruction? _shiftInst;
         private byte _shiftCount;
         private bool _decoded;
 
-        public Move()
+        public Move(Opcode opcode, bool setConditionFlags, string[] parameters)
         {
-            _setConditionFlags = false;
-            _opcode = null;
-            _rd = null;
-            _rm = null;
-            _immediate = 0;
-            _shiftInst = null;
-            _shiftCount = 0;
+            _opcode = opcode;
+            _setConditionFlags = setConditionFlags;
+            _parameters = parameters;
             _decoded = false;
+            Parse();
         }
 
         public Move(Opcode? opcode, bool setConditionFlags, Register? rd, Register? rm, short immediate, ShiftInstruction? shiftInst, byte shiftCount)
@@ -44,43 +42,41 @@ namespace ARM_Simulator.Model.Commands
             _decoded = true;
         }
 
-        public bool Parse(Command command)
+        public void Parse()
         {
-            var parameters = command.Parameters;
-            _opcode = command.Opcode;
-            _setConditionFlags = command.SetConditionFlags;
+            if (_decoded)
+                throw new Exception("Cannot parse a decoded command");
 
             // Check for valid parameter count
-            if (parameters.Length != 2 && parameters.Length != 3)
+            if (_parameters.Length != 2 && _parameters.Length != 3)
                 throw new ArgumentException("Invalid parameter count");
 
             // Parse Rd
-            _rd = Parser.ParseRegister(parameters[0]);
+            _rd = Parser.ParseRegister(_parameters[0]);
 
-            if (!_setConditionFlags && command.Opcode == Opcode.Mov) // Not valid for Mvn
+            if (!_setConditionFlags && _opcode == Opcode.Mov) // Not valid for Mvn
             {
-                if (parameters[1].StartsWith("#"))
+                if (_parameters[1].StartsWith("#"))
                 {
-                    if (parameters.Length != 2)
+                    if (_parameters.Length != 2)
                         throw new ArgumentException("Invalid parameter count");
 
                     // Parse 16 bit immediate
-                    _immediate = Parser.ParseImmediate(parameters[1], 12);
+                    _immediate = Parser.ParseImmediate(_parameters[1], 12);
 
                     _decoded = true;
-                    return true;
+                    return;
                 }
             }
 
             // Check for Rm or 8 bit immediate
-            Parser.ParseOperand2(parameters[1], ref _rm, ref _immediate);
+            Parser.ParseOperand2(_parameters[1], ref _rm, ref _immediate);
 
             // Check for shift instruction
-            if (_rm != null && parameters.Length == 3)
-                Parser.ParseShiftInstruction(parameters[2], ref _shiftInst, ref _shiftCount);
+            if (_rm != null && _parameters.Length == 3)
+                Parser.ParseShiftInstruction(_parameters[2], ref _shiftInst, ref _shiftCount);
 
             _decoded = true;
-            return true;
         }
 
         public int Encode()

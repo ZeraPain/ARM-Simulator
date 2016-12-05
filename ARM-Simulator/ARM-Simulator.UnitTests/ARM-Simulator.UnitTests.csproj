@@ -53,6 +53,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="TestCompare.cs" />
+    <Compile Include="TestDataAccess.cs" />
     <Compile Include="TestLogical.cs" />
     <Compile Include="TestMove.cs" />
     <Compile Include="TestSubstract.cs" />

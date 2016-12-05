@@ -24,9 +24,9 @@ namespace ARM_Simulator.Model
             return lines.Select(line => parser.ParseLine(line)).Select(command => command.Encode()).ToList();
         }
 
-        public void LoadSource(List<int> source)
+        public void Load(List<int> source)
         {
-            _memory.WriteSource(source);
+            _memory.LoadSource(source);
         }
 
         public void Run()

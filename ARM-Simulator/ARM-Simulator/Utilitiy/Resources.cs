@@ -28,6 +28,12 @@
         }
     }
 
+    public enum MemOpcode
+    {
+        Ldr = 0,
+        Str = 1
+    }
+
     public enum Opcode
     {
         And = 0,

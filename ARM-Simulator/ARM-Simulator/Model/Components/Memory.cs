@@ -18,12 +18,18 @@ namespace ARM_Simulator.Model.Components
             _codeSectionEnd = codeSectionEnd;
         }
 
-        public void WriteSource(List<int> source)
+        public int GetRamSize()
         {
-            if (source.Count * 4 > _codeSectionEnd)
-                throw new IndexOutOfRangeException("Source is too long");
+            return _ram.Length - 0x4;
+        }
 
+        public void LoadSource(List<int> source)
+        {
             var data = source.SelectMany(BitConverter.GetBytes).ToArray();
+
+            if (data.Length > _codeSectionEnd)
+                throw new IndexOutOfRangeException("Code section is too small to load the source");
+
             Array.Copy(data, 0x0, _ram, 0x8, data.Length);
         }
 
@@ -40,10 +46,10 @@ namespace ARM_Simulator.Model.Components
         private void Write(uint address, byte[] data)
         {
             if (address < _codeSectionEnd)
-                throw new AccessViolationException("Access denied");
+                throw new AccessViolationException("Cannot write to the code section");
 
             if (address + data.Length >= _ram.Length)
-                throw new IndexOutOfRangeException("Address is out of range");
+                throw new AccessViolationException("Memory out of range requested");
 
             Array.Copy(data, 0, _ram, address, data.Length);
         }

@@ -9,25 +9,23 @@ namespace ARM_Simulator.Model.Commands
     internal class Test : ICommand
     {
         // Required
-        private Opcode? _opcode;
+        private readonly Opcode? _opcode;
         private Register? _rn;
 
         // Optional
+        private readonly string[] _parameters;
         private Register? _rm;
         private short _immediate;
         private ShiftInstruction? _shiftInst;
         private byte _shiftCount;
         private bool _decoded;
 
-        public Test()
+        public Test(Opcode opcode, string[] parameters)
         {
-            _opcode = null;
-            _rn = null;
-            _rm = null;
-            _immediate = 0;
-            _shiftInst = null;
-            _shiftCount = 0;
+            _opcode = opcode;
+            _parameters = parameters;
             _decoded = false;
+            Parse();
         }
 
         public Test(Opcode opcode, Register? rn, Register? rm, short immediate, ShiftInstruction? shiftInst, byte shiftCount)
@@ -41,27 +39,26 @@ namespace ARM_Simulator.Model.Commands
             _decoded = true;
         }
 
-        public bool Parse(Command command)
+        public void Parse()
         {
-            var parameters = command.Parameters;
-            _opcode = command.Opcode;
+            if (_decoded)
+                throw new Exception("Cannot parse a decoded command");
 
             // Check Parameter Count
-            if (parameters.Length != 2 && parameters.Length != 3)
+            if (_parameters.Length != 2 && _parameters.Length != 3)
                 throw new ArgumentException("Invalid parameter count");
 
             // Parse Source Register
-            _rn = Parser.ParseRegister(parameters[0]);
+            _rn = Parser.ParseRegister(_parameters[0]);
 
             // Check for Rm or 8 bit immediate
-            Parser.ParseOperand2(parameters[1], ref _rm, ref _immediate);
+            Parser.ParseOperand2(_parameters[1], ref _rm, ref _immediate);
 
             // Check for Shift Instruction
-            if (_rm != null && parameters.Length == 3)
-                Parser.ParseShiftInstruction(parameters[2], ref _shiftInst, ref _shiftCount);
+            if (_rm != null && _parameters.Length == 3)
+                Parser.ParseShiftInstruction(_parameters[2], ref _shiftInst, ref _shiftCount);
 
             _decoded = true;
-            return true;
         }
 
         public int Encode()

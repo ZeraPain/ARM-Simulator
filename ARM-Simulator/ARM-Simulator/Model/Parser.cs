@@ -1,7 +1,6 @@
 ﻿using System;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
-using ARM_Simulator.Model.Components;
 using ARM_Simulator.Utilitiy;
 
 namespace ARM_Simulator.Model
@@ -10,126 +9,94 @@ namespace ARM_Simulator.Model
     {
         public ICommand ParseLine(string commandLine)
         {
-            var command = ParseCommand(commandLine);
-
-            switch (command.Opcode)
-            {
-                case null:
-                     throw new ArgumentException("Invalid Opcode");
-                case Opcode.Mov:
-                case Opcode.Mvn:
-                    var mov = new Move();
-                    mov.Parse(command);
-                    return mov;
-                case Opcode.Add:
-                    var add = new Add();
-                    add.Parse(command);
-                    var test = add.Encode();
-                    var dc = new Decoder();
-                    dc.Decode(test);
-                    return add;
-                case Opcode.Sub:
-                case Opcode.Rsb:
-                    var sub = new Substract();
-                    sub.Parse(command);
-                    return sub;
-                case Opcode.And:
-                case Opcode.Eor:
-                case Opcode.Orr:
-                case Opcode.Bic:
-                    var log = new Logical();
-                    log.Parse(command);
-                    return log;
-                case Opcode.Tst:
-                case Opcode.Teq:
-                    var tst = new Test();
-                    tst.Parse(command);
-                    return tst;
-                case Opcode.Cmp:
-                case Opcode.Cmn:
-                    var cmp = new Compare();
-                    cmp.Parse(command);
-                    return cmp;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        private static Command ParseCommand(string command)
-        {
-            var setConditionFlags = false;
-
-            if (command == string.Empty)
-                return new Command(null, false, null);
-
-            var index = command.IndexOf(' ');
+            var index = commandLine.IndexOf(' ');
             if (index == -1)
-                index = command.IndexOf('\t');
+                index = commandLine.IndexOf('\t');
 
-            if (index == -1 || command.Length < index + 1)
+            if (index == -1 || commandLine.Length < index + 1)
                 throw new ArgumentException("Invalid Syntax");
 
-            var opCodeString = command.Substring(0, index);
+            var arithmetic = ParseArithmetic(commandLine.Substring(0, index), commandLine.Substring(index));
+            if (arithmetic != null)
+                return arithmetic;
 
-            Opcode opcode;
-            var opCode = Enum.TryParse(opCodeString, true, out opcode) ? (Opcode?)opcode : null;
+            var dataaccess = ParseDataAccess(commandLine.Substring(0, index), commandLine.Substring(index));
+            if (dataaccess != null)
+                return dataaccess;
 
-            if (opCode == null)
+            throw new ArgumentException("Unable to parse an invalid Command");
+        }
+
+        private static ICommand ParseDataAccess(string cmdString, string parameterString)
+        {
+            if (cmdString.Length <= 2)
+                return null;
+
+            switch (cmdString.Substring(0, 3).ToLower())
             {
-                if (opCodeString.Length >= 3)
+                case "str":
+                    return new DataAccess(MemOpcode.Str, ParseParameters(parameterString, new[] { '[', ']' }));
+                case "ldr":
+                    return new DataAccess(MemOpcode.Ldr, ParseParameters(parameterString, new[] { '[', ']' }));
+            }
+
+            return null;
+        }
+
+        private static ICommand ParseArithmetic(string cmdString, string parameterString)
+        {
+            if (cmdString.Length <= 2)
+                return null;
+
+            if (cmdString.Length == 3)
+            {
+                switch (cmdString)
                 {
-                    switch (opCodeString.Substring(0, 3).ToLower())
-                    {
-                        case "mov":
-                            opCode = Opcode.Mov;
-                            setConditionFlags = ParseSetConditionFlags(opCodeString, 3);
-                            break;
-                        case "mvn":
-                            opCode = Opcode.Mvn;
-                            setConditionFlags = ParseSetConditionFlags(opCodeString, 3);
-                            break;
-                        case "add":
-                            opCode = Opcode.Add;
-                            setConditionFlags = ParseSetConditionFlags(opCodeString, 3);
-                            break;
-                        case "sub":
-                            opCode = Opcode.Sub;
-                            setConditionFlags = ParseSetConditionFlags(opCodeString, 3);
-                            break;
-                        case "rsb":
-                            opCode = Opcode.Rsb;
-                            setConditionFlags = ParseSetConditionFlags(opCodeString, 3);
-                            break;
-                        case "and":
-                            opCode = Opcode.And;
-                            setConditionFlags = ParseSetConditionFlags(opCodeString, 3);
-                            break;
-                        case "eor":
-                            opCode = Opcode.Eor;
-                            setConditionFlags = ParseSetConditionFlags(opCodeString, 3);
-                            break;
-                        case "orr":
-                            opCode = Opcode.Orr;
-                            setConditionFlags = ParseSetConditionFlags(opCodeString, 3);
-                            break;
-                        case "bic":
-                            opCode = Opcode.Bic;
-                            setConditionFlags = ParseSetConditionFlags(opCodeString, 3);
-                            break;
-                    }
+                    case "tst":
+                        return new Test(Opcode.Tst, ParseParameters(parameterString, new[] { ',' }));
+                    case "teq":
+                        return new Test(Opcode.Teq, ParseParameters(parameterString, new[] { ',' }));
+                    case "cmp":
+                        return new Compare(Opcode.Cmp, ParseParameters(parameterString, new[] { ',' }));
+                    case "cmn":
+                        return new Compare(Opcode.Cmn, ParseParameters(parameterString, new[] { ',' }));
                 }
             }
 
-            if (opCode == null)
-                throw new ArgumentException("Unable to parse an invalid Opcode");
+            switch (cmdString.Substring(0, 3).ToLower())
+            {
+                case "mov":
+                    return new Move(Opcode.Mov, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                case "mvn":
+                    return new Move(Opcode.Mvn, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                case "add":
+                    return new Add(Opcode.Add, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                case "sub":
+                    return new Substract(Opcode.Sub, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                case "rsb":
+                    return new Substract(Opcode.Rsb, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                case "and":
+                    return new Logical(Opcode.And, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                case "eor":
+                    return new Logical(Opcode.Eor, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                case "orr":
+                    return new Logical(Opcode.Orr, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                case "bic":
+                    return new Logical(Opcode.Bic, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+            }
 
-            var parameters = command.Substring(index).Split(new []{','}, StringSplitOptions.RemoveEmptyEntries);
+            return null;
+        }
+
+        private static string[] ParseParameters(string parameterString, char[] seperator)
+        {
+            var parameters = parameterString.Split(seperator, StringSplitOptions.RemoveEmptyEntries);
             for (var i = 0; i < parameters.Length; i++)
             {
                 parameters[i] = parameters[i].Replace(" ", string.Empty);
             }
 
-            return new Command(opCode, setConditionFlags, parameters);
+            return parameters;
         }
 
         private static bool ParseSetConditionFlags(string opCodeString, int index)

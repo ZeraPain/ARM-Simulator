@@ -9,7 +9,7 @@ namespace ARM_Simulator.Model.Components
     {
         private readonly Dictionary<Register, int> _registers;
         private readonly Decoder _decoder;
-        private readonly Memory _ram;
+        internal Memory Ram { get; }
 
         private int _fetch;
         private ICommand _decode;
@@ -32,13 +32,13 @@ namespace ARM_Simulator.Model.Components
                 {Register.R11, 0},
                 {Register.R12, 0},
                 {Register.Lr, 0},
-                {Register.Sp, 0},
+                {Register.Sp, ram.GetRamSize()},
                 {Register.Pc, 0},
                 {Register.Cpsr, 0x13 }
             };
 
             _decoder = new Decoder();
-            _ram = ram;
+            Ram = ram;
         }
 
         public void SetRegValue(Register? reg, int value)
@@ -69,29 +69,15 @@ namespace ARM_Simulator.Model.Components
         public void Tick()
         {
             // Pipeline
-            Execute();
-            Decode();
-            Fetch();
+            _decode?.Execute(this); // Execute
+            _decode = _decoder.Decode(_fetch); // Decode
+            _fetch = Ram.ReadInt((uint)(GetRegValue(Register.Pc) + 0x8)); // Fetch
 
-            SetRegValue(Register.Pc, GetRegValue(Register.Pc) + 4);
+            SetRegValue(Register.Pc, GetRegValue(Register.Pc) + 0x4);
         }
 
-        private void Fetch()
-        {
-            _fetch = _ram.ReadInt((uint)(GetRegValue(Register.Pc) + 8));
-        }
 
-        private void Decode()
-        {
-            _decode = _decoder.Decode(_fetch);
-        }
-
-        private void Execute()
-        {
-            _decode?.Execute(this);
-        }
-
-        // Necessary for Unit tests
+        // Used for Unit tests, skipped pipeline
         public void TestCommand(ICommand command)
         {
             var cmd = _decoder.Decode(command.Encode());
