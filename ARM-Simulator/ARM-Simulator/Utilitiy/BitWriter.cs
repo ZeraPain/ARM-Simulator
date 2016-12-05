@@ -1,4 +1,4 @@
-﻿namespace ARM_Simulator.Enumerations
+﻿namespace ARM_Simulator.Utilitiy
 {
     internal class BitWriter
     {
@@ -14,7 +14,7 @@
             for (var i = 0; i < count; i++)
             {
                 var valueBit = value & (1 << i);
-                if (valueBit > 0)
+                if (valueBit != 0)
                     _bitValue = _bitValue | 1 << (start + i);
             }
         }

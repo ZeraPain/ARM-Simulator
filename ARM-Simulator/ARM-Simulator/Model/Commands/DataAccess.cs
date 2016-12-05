@@ -10,10 +10,10 @@ namespace ARM_Simulator.Model.Commands
         {
             Arithmetic = false;
             Condition = condition;
-            _opcode = opcode;
+            MemOpcode = opcode;
             Immediate = 0;
             Decoded = false;
-            _postIndex = false;
+            PostIndex = false;
             Parse(parameters);
         }
 
@@ -21,12 +21,12 @@ namespace ARM_Simulator.Model.Commands
         {
             Arithmetic = false;
             Condition = condition;
-            _opcode = opcode;
+            MemOpcode = opcode;
             Rd = rd;
             Rn = rn;
             Rm = rm;
-            _writeBack = writeBack;
-            _postIndex = postIndex;
+            WriteBack = writeBack;
+            PostIndex = postIndex;
             Immediate = immediate;
             ShiftInst = shiftInst;
             ShiftCount = shiftCount;
@@ -44,7 +44,10 @@ namespace ARM_Simulator.Model.Commands
             if (source.Length > 1)
             {
                 if (source[1].StartsWith("#"))
-                    Immediate = Parser.ParseImmediate(source[1], 12);
+                {
+                    Immediate = Parser.ParseImmediate<short>(source[1]);
+                    if (Immediate > 4096) throw new ArgumentOutOfRangeException();
+                }
                 else
                     Rm = Parser.ParseRegister(source[1]);
             }
@@ -78,20 +81,21 @@ namespace ARM_Simulator.Model.Commands
             if (parameters.Length == 3)
             {
                 if (parameters[2].Equals("!"))
-                    _writeBack = true;
+                    WriteBack = true;
                 else if (parameters[2].StartsWith(","))
                 {
                     parameters[2] = parameters[2].Substring(1);
 
                     if (parameters[2].StartsWith("#"))
                     {
-                        Immediate = Parser.ParseImmediate(parameters[2], 12);
+                        Immediate = Parser.ParseImmediate<short>(parameters[2]);
+                        if (Immediate > 4096) throw new ArgumentOutOfRangeException();
                     }
                     else
                         Rm = Parser.ParseRegister(parameters[2]);
 
-                    _writeBack = true;
-                    _postIndex = true;
+                    WriteBack = true;
+                    PostIndex = true;
                 } 
                 else
                     throw new ArgumentException("Invalid syntax");
@@ -121,17 +125,17 @@ namespace ARM_Simulator.Model.Commands
                 value = Immediate;
             }
 
-            switch (_opcode)
+            switch (MemOpcode)
             {
                 case EMemOpcode.Ldr:
                     armCore.SetRegValue(Rd,
-                        _postIndex
+                        PostIndex
                             ? armCore.Ram.ReadInt((uint) armCore.GetRegValue(Rn))
                             : armCore.Ram.ReadInt((uint) (armCore.GetRegValue(Rn) + value)));
                     break;
                 case EMemOpcode.Str:
                     armCore.Ram.WriteInt(
-                        _postIndex
+                        PostIndex
                             ? (uint)armCore.GetRegValue(Rn)
                             : (uint)(armCore.GetRegValue(Rn) + value),
                             armCore.GetRegValue(Rd));
@@ -140,7 +144,7 @@ namespace ARM_Simulator.Model.Commands
                     throw new ArgumentOutOfRangeException();
             }
 
-            if (_writeBack)
+            if (WriteBack)
                 armCore.SetRegValue(Rn, armCore.GetRegValue(Rn) + value);
         }
     }

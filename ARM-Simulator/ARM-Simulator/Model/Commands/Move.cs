@@ -42,27 +42,7 @@ namespace ARM_Simulator.Model.Commands
             // Parse Rd
             Rd = Parser.ParseRegister(parameters[0]);
 
-            if (!SetConditionFlags && Opcode == EOpcode.Mov) // Not valid for Mvn
-            {
-                if (parameters[1].StartsWith("#"))
-                {
-                    if (parameters.Length != 2)
-                        throw new ArgumentException("Invalid parameter count");
-
-                    // Parse 16 bit immediate
-                    Immediate = Parser.ParseImmediate(parameters[1], 12);
-
-                    Decoded = true;
-                    return;
-                }
-            }
-
-            // Check for Rm or 8 bit immediate
-            Parser.ParseOperand2(parameters[1], ref Rm, ref Immediate);
-
-            // Check for shift instruction
-            if (Rm != null && parameters.Length == 3)
-                Parser.ParseShiftInstruction(parameters[2], ref ShiftInst, ref ShiftCount);
+            Parser.ParseOperand2(parameters[1], parameters.Length == 3 ? parameters[2] : null, ref Rm, ref Immediate, ref ShiftInst, ref ShiftCount);
 
             Decoded = true;
         }

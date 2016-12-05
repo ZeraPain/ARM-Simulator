@@ -1,4 +1,4 @@
-﻿namespace ARM_Simulator.Enumerations
+﻿namespace ARM_Simulator.Utilitiy
 {
     internal class BitReader
     {

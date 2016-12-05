@@ -1,5 +1,4 @@
 ﻿using System;
-using ARM_Simulator.Enumerations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Utilitiy;
@@ -24,9 +23,9 @@ namespace ARM_Simulator.Model.Commands
         protected bool SetConditionFlags;
 
         // Extended for Data Access
-        protected EMemOpcode? _opcode;
-        protected bool _writeBack;
-        protected bool _postIndex;
+        protected EMemOpcode? MemOpcode;
+        protected bool WriteBack;
+        protected bool PostIndex;
 
         public abstract void Parse(string[] parameters);
         public abstract void Execute(Core armCore);
@@ -52,11 +51,11 @@ namespace ARM_Simulator.Model.Commands
             {
                 bw.WriteBits(1, 26, 1); // Data Access
                 bw.WriteBits(Rm != null ? 0 : 1, 25, 1); // Bool immediate?
-                bw.WriteBits(_postIndex ? 1 : 0, 24, 1);
+                bw.WriteBits(PostIndex ? 1 : 0, 24, 1);
                 bw.WriteBits(0, 23, 1); // Up / Down
                 bw.WriteBits(1, 22, 1); // Unsigned
-                bw.WriteBits(_writeBack ? 1 : 0, 21, 1);
-                if (_opcode != null) bw.WriteBits((int)_opcode, 20, 1);
+                bw.WriteBits(WriteBack ? 1 : 0, 21, 1);
+                if (MemOpcode != null) bw.WriteBits((int)MemOpcode, 20, 1);
             }
 
             if (Rn != null) bw.WriteBits((int)Rn, 16, 4); // 1st operand

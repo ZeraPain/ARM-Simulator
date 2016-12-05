@@ -1,5 +1,4 @@
-﻿using ARM_Simulator.Enumerations;
-using ARM_Simulator.Interfaces;
+﻿using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
 using ARM_Simulator.Utilitiy;
 

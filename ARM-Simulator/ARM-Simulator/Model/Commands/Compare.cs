@@ -41,11 +41,7 @@ namespace ARM_Simulator.Model.Commands
             Rn = Parser.ParseRegister(parameters[0]);
 
             // Check for Rm or 8 bit immediate
-            Parser.ParseOperand2(parameters[1], ref Rm, ref Immediate);
-
-            // Check for Shift Instruction
-            if (Rm != null && parameters.Length == 3)
-                Parser.ParseShiftInstruction(parameters[2], ref ShiftInst, ref ShiftCount);
+            Parser.ParseOperand2(parameters[1], parameters.Length == 3 ? parameters[2] : null, ref Rm, ref Immediate, ref ShiftInst, ref ShiftCount);
 
             Decoded = true;
         }

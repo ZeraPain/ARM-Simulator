@@ -64,6 +64,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Model\Commands\Base.cs" />
+    <Compile Include="Model\Commands\Blocktransfer.cs" />
     <Compile Include="Model\Commands\DataAccess.cs" />
     <Compile Include="Model\Simulator.cs" />
     <Compile Include="Utilitiy\BitReader.cs" />
