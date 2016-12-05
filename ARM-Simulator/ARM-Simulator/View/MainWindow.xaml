@@ -3,10 +3,32 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ARM_Simulator"
+        xmlns:local="clr-namespace:ARM_Simulator.View"
         mc:Ignorable="d"
         Title="Arm Simulator" Height="350" Width="525">
-    <Grid>
+    <Window.CommandBindings>
+        <CommandBinding Command="Save" CanExecute="SaveCommand_CanExecute" Executed="SaveCommand_Executed" />
+    </Window.CommandBindings>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header ="_Menu" Click="MenuItem_Click">
+                <MenuItem Header ="_New" Click="MenuNew_Click"/>
+                <MenuItem Header ="_Open" Click="MenuOpen_Click"/>
+                <MenuItem Command="Save" Click="MenuSave_OnClick "/>
+                </MenuItem>
+            <MenuItem Header ="_Edit">
+                <MenuItem Command="Cut"/>
+                <MenuItem Command="Copy"/>
+                <MenuItem Command="Paste"/>
+            </MenuItem>
+            <Button x:Name="BtnRun" Content="Run" Width="55" Click="BtnRun_Click"/>
+            <Button x:Name="BtnStep" Content="Step" Width="55" Click="BtnStep_Click"/>
+            <Button x:Name="BtnContinue" Content="Continue" Width="55" Click="BtnContinue_Click"/>
+        </Menu>
+     
+            
+       
         
-    </Grid>
+        <RichTextBox AcceptsReturn="True" Name="TxtEditor"/>
+        </DockPanel>
 </Window>
