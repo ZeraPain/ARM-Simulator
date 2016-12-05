@@ -32,12 +32,17 @@ namespace ARM_Simulator.Model
             if (cmdString.Length <= 2)
                 return null;
 
+            var args = cmdString.Substring(3, cmdString.Length - 3).ToLower();
+            cmdString = cmdString.Substring(0, 3).ToLower();
+
+            var conditionFlags = ParseCondition(ref args);
+
             switch (cmdString.Substring(0, 3).ToLower())
             {
                 case "str":
-                    return new DataAccess(MemOpcode.Str, ParseParameters(parameterString, new[] { '[', ']' }));
+                    return new DataAccess(conditionFlags, EMemOpcode.Str, ParseParameters(parameterString, new[] { '[', ']' }));
                 case "ldr":
-                    return new DataAccess(MemOpcode.Ldr, ParseParameters(parameterString, new[] { '[', ']' }));
+                    return new DataAccess(conditionFlags, EMemOpcode.Ldr, ParseParameters(parameterString, new[] { '[', ']' }));
             }
 
             return null;
@@ -48,41 +53,40 @@ namespace ARM_Simulator.Model
             if (cmdString.Length <= 2)
                 return null;
 
-            if (cmdString.Length == 3)
-            {
-                switch (cmdString)
-                {
-                    case "tst":
-                        return new Test(Opcode.Tst, ParseParameters(parameterString, new[] { ',' }));
-                    case "teq":
-                        return new Test(Opcode.Teq, ParseParameters(parameterString, new[] { ',' }));
-                    case "cmp":
-                        return new Compare(Opcode.Cmp, ParseParameters(parameterString, new[] { ',' }));
-                    case "cmn":
-                        return new Compare(Opcode.Cmn, ParseParameters(parameterString, new[] { ',' }));
-                }
-            }
+            var args = cmdString.Substring(3, cmdString.Length - 3).ToLower();
+            cmdString = cmdString.Substring(0, 3).ToLower();
 
-            switch (cmdString.Substring(0, 3).ToLower())
+            var setConditionFlags = ParseSetConditionFlags(ref args);
+            var conditionFlags = ParseCondition(ref args);
+
+            switch (cmdString)
             {
                 case "mov":
-                    return new Move(Opcode.Mov, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                    return new Move(conditionFlags, EOpcode.Mov, setConditionFlags, ParseParameters(parameterString, new[] { ',' }));
                 case "mvn":
-                    return new Move(Opcode.Mvn, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                    return new Move(conditionFlags, EOpcode.Mvn, setConditionFlags, ParseParameters(parameterString, new[] { ',' }));
                 case "add":
-                    return new Add(Opcode.Add, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                    return new Add(conditionFlags, EOpcode.Add, setConditionFlags, ParseParameters(parameterString, new[] { ',' }));
                 case "sub":
-                    return new Substract(Opcode.Sub, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                    return new Substract(conditionFlags, EOpcode.Sub, setConditionFlags, ParseParameters(parameterString, new[] { ',' }));
                 case "rsb":
-                    return new Substract(Opcode.Rsb, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                    return new Substract(conditionFlags, EOpcode.Rsb, setConditionFlags, ParseParameters(parameterString, new[] { ',' }));
                 case "and":
-                    return new Logical(Opcode.And, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                    return new Logical(conditionFlags, EOpcode.And, setConditionFlags, ParseParameters(parameterString, new[] { ',' }));
                 case "eor":
-                    return new Logical(Opcode.Eor, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                    return new Logical(conditionFlags, EOpcode.Eor, setConditionFlags, ParseParameters(parameterString, new[] { ',' }));
                 case "orr":
-                    return new Logical(Opcode.Orr, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                    return new Logical(conditionFlags, EOpcode.Orr, setConditionFlags, ParseParameters(parameterString, new[] { ',' }));
                 case "bic":
-                    return new Logical(Opcode.Bic, ParseSetConditionFlags(cmdString, 3), ParseParameters(parameterString, new[] { ',' }));
+                    return new Logical(conditionFlags, EOpcode.Bic, setConditionFlags, ParseParameters(parameterString, new[] { ',' }));
+                case "tst":
+                    return new Test(conditionFlags, EOpcode.Tst, ParseParameters(parameterString, new[] { ',' }));
+                case "teq":
+                    return new Test(conditionFlags, EOpcode.Teq, ParseParameters(parameterString, new[] { ',' }));
+                case "cmp":
+                    return new Compare(conditionFlags, EOpcode.Cmp, ParseParameters(parameterString, new[] { ',' }));
+                case "cmn":
+                    return new Compare(conditionFlags, EOpcode.Cmn, ParseParameters(parameterString, new[] { ',' }));
             }
 
             return null;
@@ -99,18 +103,59 @@ namespace ARM_Simulator.Model
             return parameters;
         }
 
-        private static bool ParseSetConditionFlags(string opCodeString, int index)
+        private static bool ParseSetConditionFlags(ref string args)
         {
-            if (opCodeString.Length <= index)
+            if (string.IsNullOrEmpty(args))
                 return false;
 
-            return opCodeString.Substring(index, 1).ToUpper() == "S";
+            if (!args.StartsWith("s"))
+                return false;
+
+            args = args.Substring(1, args.Length - 1);
+            return true;
         }
 
-        public static Register? ParseRegister(string regString)
+        private static ECondition ParseCondition(ref string args)
         {
-            Register reg;
-            var register = Enum.TryParse(regString, true, out reg) ? (Register?)reg : null;
+            if (string.IsNullOrEmpty(args))
+                return ECondition.Always;
+
+            if (args.Length <= 1)
+                return ECondition.Always;
+
+            switch (args.Substring(0, 2))
+            {
+                case "eq":
+                    return ECondition.Equal;
+                case "ne":
+                    return ECondition.NotEqual;
+                case "mi":
+                    return ECondition.Minus;
+                case "pl":
+                    return ECondition.Plus;
+                case "vs":
+                    return ECondition.OverflowSet;
+                case "vc":
+                    return ECondition.OverflowClear;
+                case "ge":
+                    return ECondition.GreaterEqual;
+                case "lt":
+                    return ECondition.LessThan;
+                case "gt":
+                    return ECondition.GreaterThan;
+                case "le":
+                    return ECondition.LessEqual;
+                case "al":
+                    return ECondition.Always;
+                default:
+                    throw new ArgumentException("Unknown condition");
+            }
+        }
+
+        public static ERegister? ParseRegister(string regString)
+        {
+            ERegister reg;
+            var register = Enum.TryParse(regString, true, out reg) ? (ERegister?)reg : null;
 
             if (register == null)
                 throw new ArgumentException("Invalid register");
@@ -118,7 +163,7 @@ namespace ARM_Simulator.Model
             return register;
         }
 
-        public static void ParseOperand2(string operand2, ref Register? srcReg, ref short immediate)
+        public static void ParseOperand2(string operand2, ref ERegister? srcReg, ref short immediate)
         {
             if (operand2.StartsWith("#"))
             {
@@ -138,14 +183,14 @@ namespace ARM_Simulator.Model
             return value;
         }
 
-        public static void ParseShiftInstruction(string parameter, ref ShiftInstruction? shiftInst, ref byte shiftCount)
+        public static void ParseShiftInstruction(string parameter, ref EShiftInstruction? shiftInst, ref byte shiftCount)
         {
             var shiftParameters = parameter.Split('#');
             if (shiftParameters.Length != 2)
                 throw new ArgumentException("Invalid Shiftinstruction");
 
-            ShiftInstruction test;
-            shiftInst = Enum.TryParse(shiftParameters[0], true, out test) ? (ShiftInstruction?)test : null;
+            EShiftInstruction test;
+            shiftInst = Enum.TryParse(shiftParameters[0], true, out test) ? (EShiftInstruction?)test : null;
             if (shiftInst == null)
                 throw new ArgumentException("Invalid Shiftinstruction");
 

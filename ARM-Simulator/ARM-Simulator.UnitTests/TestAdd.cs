@@ -32,25 +32,25 @@ namespace ARM_Simulator.UnitTests
             TestSimulator.TestCommand("mov r3, r2, lsl#28");
 
             TestSimulator.TestCommand("add r4, r0, #7");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), 10);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R4), 10);
 
             TestSimulator.TestCommand("adds r4, r0, #7");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), 10);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R4), 10);
             Assert.AreEqual(GetConditionFlags(), 0);
 
             TestSimulator.TestCommand("add r4, r3, r3");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), int.MinValue);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R4), int.MinValue);
 
             TestSimulator.TestCommand("adds r4, r3, r3");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), int.MinValue);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R4), int.MinValue);
             Assert.AreEqual(GetConditionFlags(), 9);
 
             TestSimulator.TestCommand("adds r4, r1, r2, lsl#2");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), 21);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R4), 21);
             Assert.AreEqual(GetConditionFlags(), 0);
 
             TestSimulator.TestCommand("add r4, r1, r1, lsl#2");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), 25);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R4), 25);
         }
     }
 }

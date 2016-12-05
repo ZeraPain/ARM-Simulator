@@ -5,7 +5,7 @@ namespace ARM_Simulator.Model.Commands
 {
     internal class Shift
     {
-        public static bool ShiftValue(ref int value, ShiftInstruction? shiftInstruction, byte shiftCount)
+        public static bool ShiftValue(ref int value, EShiftInstruction? shiftInstruction, byte shiftCount)
         {
             var carry = 0;
 
@@ -16,19 +16,19 @@ namespace ARM_Simulator.Model.Commands
             {
                 case null:
                     break;
-                case ShiftInstruction.Lsr:
+                case EShiftInstruction.Lsr:
                     carry = shiftCount > 32 ? 0 : value & (1 << (shiftCount - 1));
                     value = value >> shiftCount;
                     break;
-                case ShiftInstruction.Lsl:
+                case EShiftInstruction.Lsl:
                     carry = shiftCount > 31 ? 0 : value & (1 << (32 - shiftCount));
                     value = value << shiftCount;
                     break;
-                case ShiftInstruction.Ror:
+                case EShiftInstruction.Ror:
                     carry = shiftCount > 31 ? 0 : value & (1 << (shiftCount - 1));
                     value = (value >> shiftCount) | (value << (32 - shiftCount));
                     break;
-                case ShiftInstruction.Asr:
+                case EShiftInstruction.Asr:
                     carry = shiftCount > 32 ? 0 : value & (1 << (shiftCount - 1));
                     value = value >> shiftCount;
                     value |= -1 << (32 - shiftCount);

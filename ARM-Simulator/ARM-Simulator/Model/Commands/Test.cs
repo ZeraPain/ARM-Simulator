@@ -1,125 +1,81 @@
 ﻿using System;
-using ARM_Simulator.Enumerations;
-using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Utilitiy;
 
 namespace ARM_Simulator.Model.Commands
 {
-    internal class Test : ICommand
+    internal class Test : Base
     {
-        // Required
-        private readonly Opcode? _opcode;
-        private Register? _rn;
-
-        // Optional
-        private readonly string[] _parameters;
-        private Register? _rm;
-        private short _immediate;
-        private ShiftInstruction? _shiftInst;
-        private byte _shiftCount;
-        private bool _decoded;
-
-        public Test(Opcode opcode, string[] parameters)
+        public Test(ECondition condition, EOpcode opcode, string[] parameters)
         {
-            _opcode = opcode;
-            _parameters = parameters;
-            _decoded = false;
-            Parse();
+            Arithmetic = true;
+            Condition = condition;
+            Opcode = opcode;
+            Decoded = false;
+            Parse(parameters);
         }
 
-        public Test(Opcode opcode, Register? rn, Register? rm, short immediate, ShiftInstruction? shiftInst, byte shiftCount)
+        public Test(ECondition condition, EOpcode opcode, ERegister? rn, ERegister? rm, short immediate, EShiftInstruction? shiftInst, byte shiftCount)
         {
-            _opcode = opcode;
-            _rn = rn;
-            _rm = rm;
-            _immediate = immediate;
-            _shiftInst = shiftInst;
-            _shiftCount = shiftCount;
-            _decoded = true;
+            Arithmetic = true;
+            Condition = condition;
+            Opcode = opcode;
+            Rn = rn;
+            Rm = rm;
+            Immediate = immediate;
+            ShiftInst = shiftInst;
+            ShiftCount = shiftCount;
+            Decoded = true;
         }
 
-        public void Parse()
+        public sealed override void Parse(string[] parameters)
         {
-            if (_decoded)
+            if (Decoded)
                 throw new Exception("Cannot parse a decoded command");
 
             // Check Parameter Count
-            if (_parameters.Length != 2 && _parameters.Length != 3)
+            if (parameters.Length != 2 && parameters.Length != 3)
                 throw new ArgumentException("Invalid parameter count");
 
             // Parse Source Register
-            _rn = Parser.ParseRegister(_parameters[0]);
+            Rn = Parser.ParseRegister(parameters[0]);
 
             // Check for Rm or 8 bit immediate
-            Parser.ParseOperand2(_parameters[1], ref _rm, ref _immediate);
+            Parser.ParseOperand2(parameters[1], ref Rm, ref Immediate);
 
             // Check for Shift Instruction
-            if (_rm != null && _parameters.Length == 3)
-                Parser.ParseShiftInstruction(_parameters[2], ref _shiftInst, ref _shiftCount);
+            if (Rm != null && parameters.Length == 3)
+                Parser.ParseShiftInstruction(parameters[2], ref ShiftInst, ref ShiftCount);
 
-            _decoded = true;
+            Decoded = true;
         }
 
-        public int Encode()
+        public override void Execute(Core armCore)
         {
-            if (!_decoded)
-                throw new Exception("Cannot convert an undecoded command");
-
-            var bw = new BitWriter();
-
-            bw.WriteBits(0, 28, 4); // Condition flags
-            bw.WriteBits(0, 27, 1); // Empty
-            bw.WriteBits(0, 26, 1); // Arithmetic
-            bw.WriteBits(_rm != null ? 0 : 1, 25, 1); // Bool immediate?
-            if (_opcode != null) bw.WriteBits((int)_opcode, 21, 4); // Opcode
-            bw.WriteBits(1, 20, 1); // Set condition codes
-            if (_rn != null) bw.WriteBits((int)_rn, 16, 4); // 1st operand
-            bw.WriteBits(0, 12, 4); // Set Rd to 0
-
-            if (_rm != null)
-            {
-                if (_shiftInst != null)
-                {
-                    bw.WriteBits(_shiftCount, 7, 5);
-                    bw.WriteBits((int)_shiftInst, 5, 2);
-                    bw.WriteBits(0, 4, 1);
-                }
-                bw.WriteBits((int)_rm, 0, 4);
-            }
-            else
-            {
-                bw.WriteBits(_immediate, 0, 12);
-            }
-
-            return bw.GetValue();
-        }
-
-        public bool Execute(Core armCore)
-        {
-            if (!_decoded)
+            if (!Decoded)
                 throw new Exception("Cannot execute an undecoded command");
 
-            var value = _rm != null ? armCore.GetRegValue(_rm) : _immediate;
-            var carry = _rm != null && Shift.ShiftValue(ref value, _shiftInst, _shiftCount);
+            if (!CheckConditions(armCore.GetRegValue(ERegister.Cpsr)))
+                return;
 
-            switch (_opcode)
+            var value = Rm != null ? armCore.GetRegValue(Rm) : Immediate;
+            var carry = Rm != null && Shift.ShiftValue(ref value, ShiftInst, ShiftCount);
+
+            switch (Opcode)
             {
-                case Opcode.Tst:
-                    value = armCore.GetRegValue(_rn) & value;
+                case EOpcode.Tst:
+                    value = armCore.GetRegValue(Rn) & value;
                     break;
-                case Opcode.Teq:
-                    value = armCore.GetRegValue(_rn) ^ value;
+                case EOpcode.Teq:
+                    value = armCore.GetRegValue(Rn) ^ value;
                     break;
                 default:
-                    throw new ArgumentException("Invalid Opcode");
+                    throw new ArgumentException("Invalid EOpcode");
             }
 
             // Set condition flags
             armCore.SetNzcvFlags(new Flags(true, true, true, false),
                     new Flags(value < 0, value == 0, carry, false));
-
-            return true;
         }
     }
 }

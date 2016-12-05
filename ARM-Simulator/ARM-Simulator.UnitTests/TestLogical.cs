@@ -28,19 +28,19 @@ namespace ARM_Simulator.UnitTests
             TestSimulator.TestCommand("mov r1, #5");
 
             TestSimulator.TestCommand("and r2, r0, r1");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R2), 1);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R2), 1);
 
             TestSimulator.TestCommand("eor r2, r0, r1");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R2), 6);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R2), 6);
 
             TestSimulator.TestCommand("orr r2, r0, r1");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R2), 7);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R2), 7);
 
             TestSimulator.TestCommand("bic r2, r0, r1");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R2), 2);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R2), 2);
 
             TestSimulator.TestCommand("bic r2, r1, r0");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R2), 4);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R2), 4);
         }
     }
 }

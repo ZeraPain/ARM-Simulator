@@ -31,18 +31,18 @@ namespace ARM_Simulator.UnitTests
             TestSimulator.TestCommand("mov r1, r1, lsl#16");
             TestSimulator.TestCommand("str r0, [r1, #0x100]!");
             TestSimulator.TestCommand("ldr r2, [r1]");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R1), 0x10100);
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R2), 7);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R1), 0x10100);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R2), 7);
 
             TestSimulator.TestCommand("str r0, [r1], #0x100");
             TestSimulator.TestCommand("ldr r2, [r1]");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R1), 0x10200);
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R2), 0);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R1), 0x10200);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R2), 0);
 
             TestSimulator.TestCommand("str r0, [r1, r0]");
             TestSimulator.TestCommand("ldr r2, [r1, r0]");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R1), 0x10200);
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R2), 7);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R1), 0x10200);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R2), 7);
         }
     }
 }

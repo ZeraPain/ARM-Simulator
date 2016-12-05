@@ -4,8 +4,8 @@ namespace ARM_Simulator.Interfaces
 {
     public interface ICommand
     {
-        void Parse();
-        bool Execute(Core armCore);
+        void Parse(string[] parameters);
+        void Execute(Core armCore);
         int Encode();
     }
 }

@@ -1,19 +1,5 @@
 ﻿namespace ARM_Simulator.Utilitiy
 {
-    public struct Command
-    {
-        public Opcode? Opcode { get; }
-        public bool SetConditionFlags { get; }
-        public string[] Parameters { get; }
-
-        public Command(Opcode? opcode, bool setConditionFlags, string[] parameters)
-        {
-            Opcode = opcode;
-            SetConditionFlags = setConditionFlags;
-            Parameters = parameters;
-        }
-    }
-
     public struct Flags
     {
         public byte Value { get; }
@@ -28,13 +14,13 @@
         }
     }
 
-    public enum MemOpcode
+    public enum EMemOpcode
     {
         Ldr = 0,
         Str = 1
     }
 
-    public enum Opcode
+    public enum EOpcode
     {
         And = 0,
         Eor = 1,
@@ -51,7 +37,7 @@
         Mvn = 15
     }
 
-    public enum ShiftInstruction
+    public enum EShiftInstruction
     {
         Lsl = 0,
         Lsr = 1,
@@ -59,7 +45,7 @@
         Asr = 3
     }
 
-    public enum Register
+    public enum ERegister
     {
         R0 = 0,
         R1 = 1,
@@ -78,5 +64,24 @@
         Sp = 14,
         Pc = 15,
         Cpsr
+    }
+
+    public enum ECondition
+    {
+        Equal = 0,
+        NotEqual = 1,
+        CarrySet = 2,
+        CarryClear = 3,
+        Minus = 4,
+        Plus = 5,
+        OverflowSet = 6,
+        OverflowClear = 7,
+        Higher = 8,
+        LowerOrSame = 9,
+        GreaterEqual = 10,
+        LessThan = 11,
+        GreaterThan = 12,
+        LessEqual = 13,
+        Always = 14
     }
 }

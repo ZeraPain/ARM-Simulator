@@ -32,24 +32,24 @@ namespace ARM_Simulator.UnitTests
             TestSimulator.TestCommand("mov r3, r2, lsl#28");
 
             TestSimulator.TestCommand("sub r4, r0, r1");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), -2);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R4), -2);
 
             TestSimulator.TestCommand("subs r4, r0, r1");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), -2);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R4), -2);
             Assert.AreEqual(GetConditionFlags(), 10);
 
             TestSimulator.TestCommand("sub r4, r0, #3");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), 0);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R4), 0);
 
             TestSimulator.TestCommand("subs r4, r0, #3");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), 0);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R4), 0);
             Assert.AreEqual(GetConditionFlags(), 4);
 
             TestSimulator.TestCommand("rsb r4, r1, r2, lsl#2");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), 11);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R4), 11);
 
             TestSimulator.TestCommand("rsbs r4, r2, r0");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R4), -1);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R4), -1);
             Assert.AreEqual(GetConditionFlags(), 10);
         }
     }

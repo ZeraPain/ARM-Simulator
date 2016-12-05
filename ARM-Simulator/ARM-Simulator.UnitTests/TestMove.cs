@@ -25,27 +25,27 @@ namespace ARM_Simulator.UnitTests
         public void TestCalculation()
         {
             TestSimulator.TestCommand("mov r0, #77");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R0), 77);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R0), 77);
 
             TestSimulator.TestCommand("mov r0, #0x3f");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R0), 0x3f);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R0), 0x3f);
 
             TestSimulator.TestCommand("mov r1, #2");
             TestSimulator.TestCommand("mov r0, r1");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R0), 2);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R0), 2);
 
             TestSimulator.TestCommand("mov r0, r1, lsl #2");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R0), 8);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R0), 8);
 
             TestSimulator.TestCommand("mvn r0, #0");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R0), -1);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R0), -1);
 
             TestSimulator.TestCommand("movs r0, #0");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R0), 0);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R0), 0);
             Assert.AreEqual(GetConditionFlags(), 4);
 
             TestSimulator.TestCommand("mvns r0, #0");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(Register.R0), -1);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R0), -1);
             Assert.AreEqual(GetConditionFlags(), 8);
 
             TestSimulator.TestCommand("mov r1, #8");
