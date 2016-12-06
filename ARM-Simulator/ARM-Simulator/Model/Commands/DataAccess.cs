@@ -6,22 +6,26 @@ namespace ARM_Simulator.Model.Commands
 {
     internal class DataAccess : Base
     {
-        public DataAccess(ECondition condition, EMemOpcode opcode, string[] parameters)
+        private ESize _size;
+
+        public DataAccess(ECondition condition, ERequestType opcode, ESize size, string[] parameters)
         {
-            Arithmetic = false;
+            Operation = EOperation.DataAccess;
             Condition = condition;
-            MemOpcode = opcode;
+            RequestType = opcode;
+            _size = size;
             Immediate = 0;
             Decoded = false;
             PostIndex = false;
             Parse(parameters);
         }
 
-        public DataAccess(ECondition condition, EMemOpcode opcode, bool writeBack, bool postIndex, ERegister? rd, ERegister? rn, ERegister? rm, short immediate, EShiftInstruction? shiftInst, byte shiftCount)
+        public DataAccess(ECondition condition, ERequestType opcode,  ESize size, bool writeBack, bool postIndex, ERegister? rd, ERegister? rn, ERegister? rm, int immediate, EShiftInstruction? shiftInst, byte shiftCount)
         {
-            Arithmetic = false;
+            Operation = EOperation.DataAccess;
             Condition = condition;
-            MemOpcode = opcode;
+            RequestType = opcode;
+            _size = size;
             Rd = rd;
             Rn = rn;
             Rm = rm;
@@ -70,7 +74,7 @@ namespace ARM_Simulator.Model.Commands
             if (parameters.Length != 2 && parameters.Length != 3)
                 throw new ArgumentException("Invalid parameter count");
 
-            // Parse Destination Register
+            // Parse Source Register
             if (!parameters[0].EndsWith(","))
                 throw new ArgumentException("Invalid syntax");
             Rd = Parser.ParseRegister(parameters[0].Substring(0, parameters[0].Length - 1));
@@ -96,7 +100,7 @@ namespace ARM_Simulator.Model.Commands
 
                     WriteBack = true;
                     PostIndex = true;
-                } 
+                }
                 else
                     throw new ArgumentException("Invalid syntax");
             }
@@ -104,12 +108,51 @@ namespace ARM_Simulator.Model.Commands
             Decoded = true;
         }
 
+        public override int Encode()
+        {
+            if (!Decoded)
+                throw new Exception("Cannot convert an undecoded command");
+
+            var bw = new BitWriter();
+
+            bw.WriteBits((int)Condition, 28, 4); // Condition
+            bw.WriteBits((int)Operation, 26, 2); // Operation
+
+            bw.WriteBits(Rm != null ? 1 : 0, 25, 1); // Bool immediate?
+            bw.WriteBits(PostIndex ? 0 : 1, 24, 1);
+            bw.WriteBits(0, 23, 1); // Up / Down
+            bw.WriteBits((int)_size, 22, 1); // byte or word
+            bw.WriteBits(WriteBack ? 1 : 0, 21, 1);
+            if (RequestType != null) bw.WriteBits((int)RequestType, 20, 1);
+
+            if (Rn != null) bw.WriteBits((int)Rn, 16, 4); // 1st operand
+            if (Rd != null) bw.WriteBits((int)Rd, 12, 4); // destination
+
+            // Operand 2
+            if (Rm != null)
+            {
+                if (ShiftInst != null)
+                {
+                    bw.WriteBits(ShiftCount, 7, 5);
+                    bw.WriteBits((int)ShiftInst, 5, 2);
+                    bw.WriteBits(0, 4, 1);
+                }
+                bw.WriteBits((int)Rm, 0, 4);
+            }
+            else
+            {
+                bw.WriteBits(Immediate, 0, 12);
+            }
+
+            return bw.GetValue();
+        }
+
         public override void Execute(Core armCore)
         {
             if (!Decoded)
                 throw new Exception("Cannot execute an undecoded command");
 
-            if (!CheckConditions(armCore.GetRegValue(ERegister.Cpsr)))
+            if (!CheckConditions(armCore.GetCpsr()))
                 return;
 
             int value;
@@ -125,15 +168,15 @@ namespace ARM_Simulator.Model.Commands
                 value = Immediate;
             }
 
-            switch (MemOpcode)
+            switch (RequestType)
             {
-                case EMemOpcode.Ldr:
+                case ERequestType.Load:
                     armCore.SetRegValue(Rd,
                         PostIndex
                             ? armCore.Ram.ReadInt((uint) armCore.GetRegValue(Rn))
                             : armCore.Ram.ReadInt((uint) (armCore.GetRegValue(Rn) + value)));
                     break;
-                case EMemOpcode.Str:
+                case ERequestType.Store:
                     armCore.Ram.WriteInt(
                         PostIndex
                             ? (uint)armCore.GetRegValue(Rn)

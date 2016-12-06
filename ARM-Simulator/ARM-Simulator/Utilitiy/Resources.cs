@@ -14,10 +14,24 @@
         }
     }
 
-    public enum EMemOpcode
+    public enum EOperation
     {
-        Ldr = 0,
-        Str = 1
+        Arithmetic = 0,
+        DataAccess = 1,
+        Blocktransfer = 2,
+        Branch = 2
+    }
+
+    public enum ERequestType
+    {
+        Store = 0,
+        Load = 1
+    }
+
+    public enum ESize
+    {
+        Word = 0,
+        Byte = 1
     }
 
     public enum EOpcode
@@ -62,8 +76,7 @@
         R12 = 12,
         Lr = 13,
         Sp = 14,
-        Pc = 15,
-        Cpsr
+        Pc = 15
     }
 
     public enum ECondition

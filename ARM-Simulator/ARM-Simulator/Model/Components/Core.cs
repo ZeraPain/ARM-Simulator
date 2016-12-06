@@ -14,6 +14,8 @@ namespace ARM_Simulator.Model.Components
         private int _fetch;
         private ICommand _decode;
 
+        private int _cpsr;
+
         public Core(Memory ram)
         {
             _registers = new Dictionary<ERegister, int>
@@ -31,12 +33,12 @@ namespace ARM_Simulator.Model.Components
                 {ERegister.R10, 0},
                 {ERegister.R11, 0},
                 {ERegister.R12, 0},
-                {ERegister.Lr, 0},
                 {ERegister.Sp, ram.GetRamSize()},
-                {ERegister.Pc, 0},
-                {ERegister.Cpsr, 0x13 }
+                {ERegister.Lr, 0},
+                {ERegister.Pc, 0}
             };
 
+            _cpsr = 0x13;
             _decoder = new Decoder();
             Ram = ram;
         }
@@ -59,11 +61,13 @@ namespace ARM_Simulator.Model.Components
 
         public void SetNzcvFlags(Flags mask, Flags flags)
         {
-            var state = GetRegValue(ERegister.Cpsr);
-            state &= ~(mask.Value << 28); // Clear affected status bits
-            state |= flags.Value << 28; // Set affected status bits
+            _cpsr &= ~(mask.Value << 28); // Clear affected status bits
+            _cpsr |= flags.Value << 28; // Set affected status bits
+        }
 
-            SetRegValue(ERegister.Cpsr, state);
+        public int GetCpsr()
+        {
+            return _cpsr;
         }
 
         public void Tick()
@@ -71,7 +75,7 @@ namespace ARM_Simulator.Model.Components
             // Pipeline
             _decode?.Execute(this); // Execute
             _decode = _decoder.Decode(_fetch); // Decode
-            _fetch = Ram.ReadInt((uint)(GetRegValue(ERegister.Pc) + 0x8)); // Fetch
+            _fetch = Ram.ReadInt((uint)GetRegValue(ERegister.Pc)); // Fetch
 
             SetRegValue(ERegister.Pc, GetRegValue(ERegister.Pc) + 0x4);
         }
@@ -81,7 +85,7 @@ namespace ARM_Simulator.Model.Components
         public void TestCommand(ICommand command)
         {
             var cmd = _decoder.Decode(command.Encode());
-            cmd.Execute(this);
+            cmd?.Execute(this);
         }
     }
 }

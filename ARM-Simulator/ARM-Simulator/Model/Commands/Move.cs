@@ -8,7 +8,7 @@ namespace ARM_Simulator.Model.Commands
     {
         public Move(ECondition condition, EOpcode opcode, bool setConditionFlags, string[] parameters)
         {
-            Arithmetic = true;
+            Operation = EOperation.Arithmetic;
             Condition = condition;
             Opcode = opcode;
             SetConditionFlags = setConditionFlags;
@@ -16,9 +16,9 @@ namespace ARM_Simulator.Model.Commands
             Parse(parameters);
         }
 
-        public Move(ECondition condition, EOpcode? opcode, bool setConditionFlags, ERegister? rd, ERegister? rm, short immediate, EShiftInstruction? shiftInst, byte shiftCount)
+        public Move(ECondition condition, EOpcode? opcode, bool setConditionFlags, ERegister? rd, ERegister? rm, int immediate, EShiftInstruction? shiftInst, byte shiftCount)
         {
-            Arithmetic = true;
+            Operation = EOperation.Arithmetic;
             Condition = condition;
             Opcode = opcode;
             SetConditionFlags = setConditionFlags;
@@ -47,12 +47,17 @@ namespace ARM_Simulator.Model.Commands
             Decoded = true;
         }
 
+        public override int Encode()
+        {
+            return EncodeArithmetic();
+        }
+
         public override void Execute(Core armCore)
         {
             if (!Decoded)
                 throw new Exception("Cannot execute an undecoded command");
 
-            if (!CheckConditions(armCore.GetRegValue(ERegister.Cpsr)))
+            if (!CheckConditions(armCore.GetCpsr()))
                 return;
 
             // calculate with Rm

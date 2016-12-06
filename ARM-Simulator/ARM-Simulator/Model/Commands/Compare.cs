@@ -8,16 +8,16 @@ namespace ARM_Simulator.Model.Commands
     {
         public Compare(ECondition condition, EOpcode opcode, string[] parameters)
         {
-            Arithmetic = true;
+            Operation = EOperation.Arithmetic;
             Condition = condition;
             Opcode = opcode;
             Decoded = false;
             Parse(parameters);
         }
 
-        public Compare(ECondition condition, EOpcode opcode, ERegister? rn, ERegister? rm, short immediate, EShiftInstruction? shiftInst, byte shiftCount)
+        public Compare(ECondition condition, EOpcode opcode, ERegister? rn, ERegister? rm, int immediate, EShiftInstruction? shiftInst, byte shiftCount)
         {
-            Arithmetic = true;
+            Operation = EOperation.Arithmetic;
             Condition = condition;
             Opcode = opcode;
             Rn = rn;
@@ -46,12 +46,17 @@ namespace ARM_Simulator.Model.Commands
             Decoded = true;
         }
 
+        public override int Encode()
+        {
+            return EncodeArithmetic();
+        }
+
         public override void Execute(Core armCore)
         {
             if (!Decoded)
                 throw new Exception("Cannot execute an undecoded command");
 
-            if (!CheckConditions(armCore.GetRegValue(ERegister.Cpsr)))
+            if (!CheckConditions(armCore.GetCpsr()))
                 return;
 
             int value;

@@ -20,7 +20,7 @@ namespace ARM_Simulator.Model.Components
 
         public int GetRamSize()
         {
-            return _ram.Length - 0x4;
+            return _ram.Length - 0x8;
         }
 
         public void LoadSource(List<int> source)
@@ -30,7 +30,7 @@ namespace ARM_Simulator.Model.Components
             if (data.Length > _codeSectionEnd)
                 throw new IndexOutOfRangeException("Code section is too small to load the source");
 
-            Array.Copy(data, 0x0, _ram, 0x8, data.Length);
+            Array.Copy(data, 0x0, _ram, 0x0, data.Length);
         }
 
         public void WriteInt(uint address, int data)

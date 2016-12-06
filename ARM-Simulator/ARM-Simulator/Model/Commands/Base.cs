@@ -7,13 +7,12 @@ namespace ARM_Simulator.Model.Commands
 {
     internal abstract class Base : ICommand
     {
-        protected bool Arithmetic;
-
         protected ECondition Condition;
+        protected EOperation Operation;
         protected ERegister? Rd;
         protected ERegister? Rn;
         protected ERegister? Rm;
-        protected short Immediate;
+        protected int Immediate;
         protected EShiftInstruction? ShiftInst;
         protected byte ShiftCount;
         protected bool Decoded;
@@ -22,15 +21,16 @@ namespace ARM_Simulator.Model.Commands
         protected EOpcode? Opcode;
         protected bool SetConditionFlags;
 
-        // Extended for Data Access
-        protected EMemOpcode? MemOpcode;
+        // Extended for Data Access, Blocktransfer
+        protected ERequestType? RequestType;
         protected bool WriteBack;
         protected bool PostIndex;
 
         public abstract void Parse(string[] parameters);
+        public abstract int Encode();
         public abstract void Execute(Core armCore);
 
-        public int Encode()
+        protected int EncodeArithmetic()
         {
             if (!Decoded)
                 throw new Exception("Cannot convert an undecoded command");
@@ -38,25 +38,11 @@ namespace ARM_Simulator.Model.Commands
             var bw = new BitWriter();
 
             bw.WriteBits((int)Condition, 28, 4); // Condition
-            bw.WriteBits(0, 27, 1); // Empty
+            bw.WriteBits((int)Operation, 26, 2); // Operation
 
-            if (Arithmetic)
-            {
-                bw.WriteBits(0, 26, 1); // Arithmetic
-                bw.WriteBits(Rm != null ? 0 : 1, 25, 1); // Bool use immediate
-                if (Opcode != null) bw.WriteBits((int)Opcode, 21, 4); // EOpcode
-                bw.WriteBits(SetConditionFlags ? 1 : 0, 20, 1); // Set condition flags
-            }
-            else
-            {
-                bw.WriteBits(1, 26, 1); // Data Access
-                bw.WriteBits(Rm != null ? 0 : 1, 25, 1); // Bool immediate?
-                bw.WriteBits(PostIndex ? 1 : 0, 24, 1);
-                bw.WriteBits(0, 23, 1); // Up / Down
-                bw.WriteBits(1, 22, 1); // Unsigned
-                bw.WriteBits(WriteBack ? 1 : 0, 21, 1);
-                if (MemOpcode != null) bw.WriteBits((int)MemOpcode, 20, 1);
-            }
+            bw.WriteBits(Rm != null ? 0 : 1, 25, 1); // Bool use immediate
+            if (Opcode != null) bw.WriteBits((int)Opcode, 21, 4); // EOpcode
+            bw.WriteBits(SetConditionFlags ? 1 : 0, 20, 1); // Set condition flags
 
             if (Rn != null) bw.WriteBits((int)Rn, 16, 4); // 1st operand
             if (Rd != null) bw.WriteBits((int)Rd, 12, 4); // destination
@@ -74,7 +60,8 @@ namespace ARM_Simulator.Model.Commands
             }
             else
             {
-                bw.WriteBits(Immediate, 0, 12);
+                bw.WriteBits(ShiftCount, 8, 4);
+                bw.WriteBits(Immediate, 0, 8);
             }
 
             return bw.GetValue();

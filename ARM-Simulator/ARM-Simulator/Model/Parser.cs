@@ -24,7 +24,33 @@ namespace ARM_Simulator.Model
             if (dataaccess != null)
                 return dataaccess;
 
+            var blocktransfer = ParseBlockTransfer(commandLine.Substring(0, index), commandLine.Substring(index));
+            if (blocktransfer != null)
+                return blocktransfer;
+
             throw new ArgumentException("Unable to parse an invalid Command");
+        }
+
+        private static ICommand ParseBlockTransfer(string cmdString, string parameterString)
+        {
+            if (cmdString.Length <= 2)
+                return null;
+
+            var args = cmdString.Substring(3, cmdString.Length - 3).ToLower();
+            cmdString = cmdString.Substring(0, 3).ToLower();
+
+            var condition = ParseCondition(ref args);
+            var parameters = ParseParameters(parameterString, new[] { '{', '}' });
+
+            switch (cmdString)
+            {
+                case "stm":
+                    return new Blocktransfer(condition, ERequestType.Store, parameters);
+                case "ldm":
+                    return new Blocktransfer(condition, ERequestType.Load, parameters);
+            }
+
+            return null;
         }
 
         private static ICommand ParseDataAccess(string cmdString, string parameterString)
@@ -36,14 +62,15 @@ namespace ARM_Simulator.Model
             cmdString = cmdString.Substring(0, 3).ToLower();
 
             var conditionFlags = ParseCondition(ref args);
+            var size = ParseSize(args);
             var parameters = ParseParameters(parameterString, new[] {'[', ']'});
 
             switch (cmdString)
             {
                 case "str":
-                    return new DataAccess(conditionFlags, EMemOpcode.Str, parameters);
+                    return new DataAccess(conditionFlags, ERequestType.Store, size, parameters);
                 case "ldr":
-                    return new DataAccess(conditionFlags, EMemOpcode.Ldr, parameters);
+                    return new DataAccess(conditionFlags, ERequestType.Load, size, parameters);
             }
 
             return null;
@@ -57,38 +84,38 @@ namespace ARM_Simulator.Model
             var args = cmdString.Substring(3, cmdString.Length - 3).ToLower();
             cmdString = cmdString.Substring(0, 3).ToLower();
 
-            var setConditionFlags = ParseSetConditionFlags(ref args);
-            var conditionFlags = ParseCondition(ref args);
+            var condition = ParseCondition(ref args);
+            var setConditionFlags = ParseSetConditionFlags(args);
             var parameters = ParseParameters(parameterString, new[] {','});
 
             switch (cmdString)
             {
                 case "mov":
-                    return new Move(conditionFlags, EOpcode.Mov, setConditionFlags, parameters);
+                    return new Move(condition, EOpcode.Mov, setConditionFlags, parameters);
                 case "mvn":
-                    return new Move(conditionFlags, EOpcode.Mvn, setConditionFlags, parameters);
+                    return new Move(condition, EOpcode.Mvn, setConditionFlags, parameters);
                 case "add":
-                    return new Add(conditionFlags, EOpcode.Add, setConditionFlags, parameters);
+                    return new Add(condition, EOpcode.Add, setConditionFlags, parameters);
                 case "sub":
-                    return new Substract(conditionFlags, EOpcode.Sub, setConditionFlags, parameters);
+                    return new Substract(condition, EOpcode.Sub, setConditionFlags, parameters);
                 case "rsb":
-                    return new Substract(conditionFlags, EOpcode.Rsb, setConditionFlags, parameters);
+                    return new Substract(condition, EOpcode.Rsb, setConditionFlags, parameters);
                 case "and":
-                    return new Logical(conditionFlags, EOpcode.And, setConditionFlags, parameters);
+                    return new Logical(condition, EOpcode.And, setConditionFlags, parameters);
                 case "eor":
-                    return new Logical(conditionFlags, EOpcode.Eor, setConditionFlags, parameters);
+                    return new Logical(condition, EOpcode.Eor, setConditionFlags, parameters);
                 case "orr":
-                    return new Logical(conditionFlags, EOpcode.Orr, setConditionFlags, parameters);
+                    return new Logical(condition, EOpcode.Orr, setConditionFlags, parameters);
                 case "bic":
-                    return new Logical(conditionFlags, EOpcode.Bic, setConditionFlags, parameters);
+                    return new Logical(condition, EOpcode.Bic, setConditionFlags, parameters);
                 case "tst":
-                    return new Test(conditionFlags, EOpcode.Tst, parameters);
+                    return new Test(condition, EOpcode.Tst, parameters);
                 case "teq":
-                    return new Test(conditionFlags, EOpcode.Teq, parameters);
+                    return new Test(condition, EOpcode.Teq, parameters);
                 case "cmp":
-                    return new Compare(conditionFlags, EOpcode.Cmp, parameters);
+                    return new Compare(condition, EOpcode.Cmp, parameters);
                 case "cmn":
-                    return new Compare(conditionFlags, EOpcode.Cmn, parameters);
+                    return new Compare(condition, EOpcode.Cmn, parameters);
             }
 
             return null;
@@ -105,16 +132,33 @@ namespace ARM_Simulator.Model
             return parameters;
         }
 
-        private static bool ParseSetConditionFlags(ref string args)
+        private static bool ParseSetConditionFlags(string args)
         {
             if (string.IsNullOrEmpty(args))
                 return false;
 
-            if (!args.StartsWith("s"))
+            if (args.Length < 1)
                 return false;
 
-            args = args.Substring(1, args.Length - 1);
-            return true;
+            return args == "s";
+        }
+
+        private static ESize ParseSize(string args)
+        {
+            if (string.IsNullOrEmpty(args))
+                return ESize.Word;
+
+            if (args.Length < 1)
+                return ESize.Word;
+
+            switch (args)
+            {
+                case "b":
+                case "sb":
+                    return ESize.Byte;
+                default:
+                    throw new ArgumentException("Unknown Size");
+            }
         }
 
         private static ECondition ParseCondition(ref string args)
@@ -122,45 +166,60 @@ namespace ARM_Simulator.Model
             if (string.IsNullOrEmpty(args))
                 return ECondition.Always;
 
-            if (args.Length <= 1)
+            if (args.Length < 2)
                 return ECondition.Always;
 
             switch (args.Substring(0, 2))
             {
                 case "eq":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.Equal;
                 case "ne":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.NotEqual;
                 case "cs":
                 case "hs":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.CarrySet;
                 case "cc":
                 case "lo":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.CarryClear;
                 case "mi":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.Minus;
                 case "pl":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.Plus;
                 case "vs":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.OverflowSet;
                 case "vc":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.OverflowClear;
                 case "hi":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.Higher;
                 case "ls":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.LowerOrSame;
                 case "ge":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.GreaterEqual;
                 case "lt":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.LessThan;
                 case "gt":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.GreaterThan;
                 case "le":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.LessEqual;
                 case "al":
+                    args = args.Substring(0, args.Length - 2);
                     return ECondition.Always;
                 default:
-                    throw new ArgumentException("Unknown condition");
+                    return ECondition.Always;
             }
         }
 
@@ -175,7 +234,7 @@ namespace ARM_Simulator.Model
             return register;
         }
 
-        public static void ParseOperand2(string operand2, string shiftValue, ref ERegister? srcReg, ref short immediate, ref EShiftInstruction? shiftInst, ref byte shiftCount)
+        public static void ParseOperand2(string operand2, string shiftValue, ref ERegister? srcReg, ref int immediate, ref EShiftInstruction? shiftInst, ref byte shiftCount)
         {
             if (operand2.StartsWith("#"))
             {
