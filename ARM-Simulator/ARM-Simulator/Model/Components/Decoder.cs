@@ -32,7 +32,7 @@ namespace ARM_Simulator.Model.Components
                 return new Arithmetic(conditions, opCode, setConditionFlags, rn, rd, shiftCount, shiftInst, rm);
             }
 
-            if ((command & 0x0e000080) == 0x00000010) // 4 bit rs, 1 clear, 2 bit shift, 1 clear 4 bit rm 
+            if ((command & 0x0e000090) == 0x00000010) // 4 bit rs, 1 clear, 2 bit shift, 1 clear 4 bit rm 
             {
                 var rs = (ERegister) br.ReadBits(8, 4);
                 var shiftInst = (EShiftInstruction)br.ReadBits(5, 2);
@@ -56,7 +56,6 @@ namespace ARM_Simulator.Model.Components
             {
                 case 0x08000000: // STM Rm, reg List
                     return new Blocktransfer(conditions, false, writeBack, rn, regList);
-
                 case 0x08100000: // LDM Rm, reg List
                     return new Blocktransfer(conditions, true, writeBack, rn, regList);
             }

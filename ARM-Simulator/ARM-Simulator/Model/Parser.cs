@@ -234,16 +234,35 @@ namespace ARM_Simulator.Model
             return (T)Convert.ChangeType(long.Parse(parameter), typeof(T));
         }
 
-        public static void ParseShiftInstruction(string parameter, ref EShiftInstruction shiftInst, ref byte shiftCount)
+        public static bool ParseShiftInstruction(string parameter, ref EShiftInstruction shiftInst, ref byte shiftCount, ref ERegister rs)
         {
-            var shiftParameters = parameter.Split('#');
-            if (shiftParameters.Length != 2)
+            if (parameter.Length < 4)
                 throw new ArgumentException("Invalid Shiftinstruction");
 
-            if (!Enum.TryParse(shiftParameters[0], true, out shiftInst))
+            if (!Enum.TryParse(parameter.Substring(0, 3), true, out shiftInst))
                 throw new ArgumentException("Invalid Shiftinstruction");
-                
-            shiftCount = ParseImmediate<byte>(shiftParameters[1]);
+
+            parameter = parameter.Substring(3, parameter.Length - 3);
+            if (!Enum.TryParse(parameter, true, out rs))
+            {
+                shiftCount = ParseImmediate<byte>(parameter);
+                if (shiftCount > 64) throw new ArgumentOutOfRangeException();
+                return false;
+            }
+
+            return true;
+        }
+
+        public static void ParseShiftInstruction(string parameter, ref EShiftInstruction shiftInst, ref byte shiftCount)
+        {
+            if (parameter.Length < 4)
+                throw new ArgumentException("Invalid Shiftinstruction");
+
+            if (!Enum.TryParse(parameter.Substring(0, 3), true, out shiftInst))
+                throw new ArgumentException("Invalid Shiftinstruction");
+
+            parameter = parameter.Substring(3, parameter.Length - 3);
+            shiftCount = ParseImmediate<byte>(parameter);
             if (shiftCount > 64) throw new ArgumentOutOfRangeException();
         }
     }

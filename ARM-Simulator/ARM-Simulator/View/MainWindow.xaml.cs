@@ -3,6 +3,8 @@ using System.IO;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
+using ARM_Simulator.Model;
+using ARM_Simulator.Utilitiy;
 using Microsoft.Win32;
 
 
@@ -16,6 +18,10 @@ namespace ARM_Simulator.View
         public MainWindow()
         {
             InitializeComponent();
+            var TestSimulator = new Simulator();
+            TestSimulator.TestCommand("mov r1, #2");
+            TestSimulator.TestCommand("mov r0, r1");
+            TestSimulator.TestCommand("mov r1, r1, lsl r1");
         }
 
         #region Helper

@@ -77,36 +77,29 @@ namespace ARM_Simulator.Model.Commands
             Decoded = true;
         }
 
-        private EOperand2 ParseOperand2(string operand2, string shiftValue,
-            ref byte rotate, ref byte immediate, ref byte shiftCount, ref EShiftInstruction shiftInst, ref ERegister rm, ref ERegister rs)
+        private EOperand2 ParseOperand2(string operand2, string shiftValue)
         {
             if (operand2.StartsWith("#")) // use immediate
             {
-                immediate = Parser.ParseImmediate<byte>(operand2);
-                shiftCount = 0;
+                Immediate = Parser.ParseImmediate<byte>(operand2);
+                ShiftCount = 0;
                 if (!string.IsNullOrEmpty(shiftValue)) // rotate right
                 {
-                    rotate = Parser.ParseImmediate<byte>(shiftValue);
-                    if (rotate > 16)
+                    Rotate = Parser.ParseImmediate<byte>(shiftValue);
+                    if (Rotate > 16)
                         throw new ArgumentOutOfRangeException();
 
                 }
                 return EOperand2.RotateImmediate;
             }
 
-            rm = Parser.ParseRegister(operand2); // use register
+            Rm = Parser.ParseRegister(operand2); // use register
 
-            if (!string.IsNullOrEmpty(shiftValue))
+            if (!string.IsNullOrEmpty(shiftValue) && Parser.ParseShiftInstruction(shiftValue, ref ShiftInst, ref ShiftCount, ref Rs))
             {
-                if (shiftValue.IndexOf("#", StringComparison.Ordinal) == -1) // shift register by value
-                {
-                    rs = Parser.ParseRegister(shiftValue);
-                }
-                else // shift register by immediate
-                {
-                    Parser.ParseShiftInstruction(shiftValue, ref shiftInst, ref shiftCount);
-                }
+                return EOperand2.RsShiftRm;
             }
+
             return EOperand2.ImmediateShiftRm;
         }
 
@@ -132,8 +125,7 @@ namespace ARM_Simulator.Model.Commands
                     Rd = Parser.ParseRegister(parameters[0]);
                     Rn = Parser.ParseRegister(parameters[1]);
 
-                    Operand2 = ParseOperand2(parameters[2], parameters.Length == 4 ? parameters[3] : null, 
-                        ref Rotate, ref Immediate, ref ShiftCount, ref ShiftInst, ref Rm, ref Rs);
+                    Operand2 = ParseOperand2(parameters[2], parameters.Length == 4 ? parameters[3] : null);
                     break;
                 case EOpcode.Mov:
                 case EOpcode.Mvn:
@@ -144,8 +136,7 @@ namespace ARM_Simulator.Model.Commands
                     // Parse Rd
                     Rd = Parser.ParseRegister(parameters[0]);
 
-                    Operand2 = ParseOperand2(parameters[1], parameters.Length == 3 ? parameters[2] : null,
-                        ref Rotate, ref Immediate, ref ShiftCount, ref ShiftInst, ref Rm, ref Rs);
+                    Operand2 = ParseOperand2(parameters[1], parameters.Length == 3 ? parameters[2] : null);
                     break;
                 case EOpcode.Tst:
                 case EOpcode.Teq:
@@ -158,8 +149,7 @@ namespace ARM_Simulator.Model.Commands
                     // Parse Rn
                     Rn = Parser.ParseRegister(parameters[0]);
 
-                    Operand2 = ParseOperand2(parameters[1], parameters.Length == 3 ? parameters[2] : null,
-                         ref Rotate, ref Immediate, ref ShiftCount, ref ShiftInst, ref Rm, ref Rs);
+                    Operand2 = ParseOperand2(parameters[1], parameters.Length == 3 ? parameters[2] : null);
                     break;
             }
 
@@ -208,7 +198,7 @@ namespace ARM_Simulator.Model.Commands
                     bw.WriteBits((int)Rm, 0, 4);
                     break;
                 case EOperand2.RsShiftRm:
-                    bw.WriteBits((int)Rs, 8, 5);
+                    bw.WriteBits((int)Rs, 8, 4);
                     bw.WriteBits(0, 7, 1);
                     bw.WriteBits((int)ShiftInst, 5, 2);
                     bw.WriteBits(1, 4, 1);
@@ -292,6 +282,8 @@ namespace ARM_Simulator.Model.Commands
                     carry = Helper.ShiftValue(ref value, ShiftInst, ShiftCount);
                     break;
                 case EOperand2.RsShiftRm:
+                    value = armCore.GetRegValue(Rm);
+                    carry = Helper.ShiftValue(ref value, ShiftInst, (byte)armCore.GetRegValue(Rs));
                     break;
             }
 
