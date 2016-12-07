@@ -45,9 +45,9 @@ namespace ARM_Simulator.Model
             switch (cmdString)
             {
                 case "stm":
-                    return new Blocktransfer(condition, ERequestType.Store, parameters);
+                    return new Blocktransfer(condition, false, parameters);
                 case "ldm":
-                    return new Blocktransfer(condition, ERequestType.Load, parameters);
+                    return new Blocktransfer(condition, true, parameters);
             }
 
             return null;
@@ -68,9 +68,9 @@ namespace ARM_Simulator.Model
             switch (cmdString)
             {
                 case "str":
-                    return new DataAccess(conditionFlags, ERequestType.Store, size, parameters);
+                    return new DataAccess(conditionFlags, false, size, parameters);
                 case "ldr":
-                    return new DataAccess(conditionFlags, ERequestType.Load, size, parameters);
+                    return new DataAccess(conditionFlags, true, size, parameters);
             }
 
             return null;
@@ -132,9 +132,6 @@ namespace ARM_Simulator.Model
             if (string.IsNullOrEmpty(args))
                 return false;
 
-            if (args.Length < 1)
-                return false;
-
             return args == "s";
         }
 
@@ -143,13 +140,9 @@ namespace ARM_Simulator.Model
             if (string.IsNullOrEmpty(args))
                 return ESize.Word;
 
-            if (args.Length < 1)
-                return ESize.Word;
-
             switch (args)
             {
                 case "b":
-                case "sb":
                     return ESize.Byte;
                 default:
                     throw new ArgumentException("Unknown Size");
@@ -218,36 +211,13 @@ namespace ARM_Simulator.Model
             }
         }
 
-        public static ERegister? ParseRegister(string regString)
+        public static ERegister ParseRegister(string regString)
         {
             ERegister reg;
-            var register = Enum.TryParse(regString, true, out reg) ? (ERegister?)reg : null;
-
-            if (register == null)
+            if (!Enum.TryParse(regString, true, out reg))
                 throw new ArgumentException("Invalid register");
 
-            return register;
-        }
-
-        public static void ParseOperand2(string operand2, string shiftValue, ref ERegister? srcReg, ref int immediate, ref EShiftInstruction? shiftInst, ref byte shiftCount)
-        {
-            if (operand2.StartsWith("#"))
-            {
-                immediate = ParseImmediate<byte>(operand2);
-                if (shiftValue != null)
-                {
-                    shiftCount = ParseImmediate<byte>(shiftValue);
-                    if (shiftCount > 16) throw new ArgumentOutOfRangeException();
-                }
-            }
-            else
-            {
-                srcReg = ParseRegister(operand2);
-                if (shiftValue != null)
-                {
-                    ParseShiftInstruction(shiftValue, ref shiftInst, ref shiftCount);
-                } 
-            }
+            return reg;
         }
 
         public static T ParseImmediate<T>(string parameter)
@@ -264,17 +234,15 @@ namespace ARM_Simulator.Model
             return (T)Convert.ChangeType(long.Parse(parameter), typeof(T));
         }
 
-        public static void ParseShiftInstruction(string parameter, ref EShiftInstruction? shiftInst, ref byte shiftCount)
+        public static void ParseShiftInstruction(string parameter, ref EShiftInstruction shiftInst, ref byte shiftCount)
         {
             var shiftParameters = parameter.Split('#');
             if (shiftParameters.Length != 2)
                 throw new ArgumentException("Invalid Shiftinstruction");
 
-            EShiftInstruction test;
-            shiftInst = Enum.TryParse(shiftParameters[0], true, out test) ? (EShiftInstruction?)test : null;
-            if (shiftInst == null)
+            if (!Enum.TryParse(shiftParameters[0], true, out shiftInst))
                 throw new ArgumentException("Invalid Shiftinstruction");
-
+                
             shiftCount = ParseImmediate<byte>(shiftParameters[1]);
             if (shiftCount > 64) throw new ArgumentOutOfRangeException();
         }

@@ -20,7 +20,7 @@ namespace ARM_Simulator.Model.Components
 
         public int GetRamSize()
         {
-            return _ram.Length - 0x8;
+            return _ram.Length;
         }
 
         public void LoadSource(List<int> source)
@@ -48,7 +48,7 @@ namespace ARM_Simulator.Model.Components
             if (address < _codeSectionEnd)
                 throw new AccessViolationException("Cannot write to the code section");
 
-            if (address + data.Length >= _ram.Length)
+            if (address + data.Length > _ram.Length)
                 throw new AccessViolationException("Memory out of range requested");
 
             Array.Copy(data, 0, _ram, address, data.Length);
@@ -66,7 +66,7 @@ namespace ARM_Simulator.Model.Components
 
         private byte[] Read(uint address, int length)
         {
-            if (address > _ram.Length)
+            if (address + length > _ram.Length)
                 throw new IndexOutOfRangeException("Undefined memory location");
 
             var buffer = new byte[length];

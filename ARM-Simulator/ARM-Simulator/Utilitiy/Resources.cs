@@ -14,18 +14,19 @@
         }
     }
 
-    public enum EOperation
+    public enum EOperand2
     {
-        Arithmetic = 0,
-        DataAccess = 1,
-        Blocktransfer = 2,
-        Branch = 2
+        None,
+        RotateImmediate,
+        ImmediateShiftRm,
+        RsShiftRm
     }
 
-    public enum ERequestType
+    public enum EOffset
     {
-        Store = 0,
-        Load = 1
+        None,
+        Immediate,
+        ImmediateShiftRm
     }
 
     public enum ESize

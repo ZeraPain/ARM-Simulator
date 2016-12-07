@@ -7,15 +7,24 @@ namespace ARM_Simulator.Model.Commands
 {
     internal class Arithmetic : ICommand
     {
+        // required
         protected ECondition Condition;
-        protected EOpcode? Opcode;
+        protected EOpcode Opcode;
         protected bool SetConditionFlags;
-        protected ERegister? Rd;
-        protected ERegister? Rn;
-        protected ERegister? Rm;
-        protected int Immediate;
-        protected EShiftInstruction? ShiftInst;
+        protected ERegister Rn;
+        protected ERegister Rd;
+
+        // rotate immediate
+        protected byte Rotate;
+        protected byte Immediate;
+
+        // shift rm
         protected byte ShiftCount;
+        protected ERegister Rm;
+        protected ERegister Rs;
+        protected EShiftInstruction ShiftInst;
+
+        protected EOperand2 Operand2;
         protected bool Decoded;
 
         public Arithmetic(ECondition condition, EOpcode opcode, bool setConditionFlags, string[] parameters)
@@ -27,18 +36,78 @@ namespace ARM_Simulator.Model.Commands
             Parse(parameters);
         }
 
-        public Arithmetic(ECondition condition, EOpcode opcode, bool setConditionFlags, ERegister? rd, ERegister? rn, ERegister? rm, int immediate, EShiftInstruction? shiftInst, byte shiftCount)
+        public Arithmetic(ECondition condition, EOpcode opcode, bool setConditionFlags, ERegister rn, ERegister rd, byte rotate, byte immediate)
         {
+            Operand2 = EOperand2.RotateImmediate;
             Condition = condition;
             Opcode = opcode;
             SetConditionFlags = setConditionFlags;
-            Rd = rd;
             Rn = rn;
-            Rm = rm;
+            Rd = rd;
+            Rotate = rotate;
             Immediate = immediate;
-            ShiftInst = shiftInst;
-            ShiftCount = shiftCount;
             Decoded = true;
+        }
+
+        public Arithmetic(ECondition condition, EOpcode opcode, bool setConditionFlags, ERegister rn, ERegister rd, byte shiftCount, EShiftInstruction shiftInst, ERegister rm)
+        {
+            Operand2 = EOperand2.ImmediateShiftRm;
+            Condition = condition;
+            Opcode = opcode;
+            SetConditionFlags = setConditionFlags;
+            Rn = rn;
+            Rd = rd;
+            ShiftCount = shiftCount;
+            ShiftInst = shiftInst;
+            Rm = rm;
+            Decoded = true;
+        }
+
+        public Arithmetic(ECondition condition, EOpcode opcode, bool setConditionFlags, ERegister rn, ERegister rd, ERegister rs, EShiftInstruction shiftInst, ERegister rm)
+        {
+            Operand2 = EOperand2.RsShiftRm;
+            Condition = condition;
+            Opcode = opcode;
+            SetConditionFlags = setConditionFlags;
+            Rn = rn;
+            Rd = rd;
+            Rs = rs;
+            ShiftInst = shiftInst;
+            Rm = rm;
+            Decoded = true;
+        }
+
+        private EOperand2 ParseOperand2(string operand2, string shiftValue,
+            ref byte rotate, ref byte immediate, ref byte shiftCount, ref EShiftInstruction shiftInst, ref ERegister rm, ref ERegister rs)
+        {
+            if (operand2.StartsWith("#")) // use immediate
+            {
+                immediate = Parser.ParseImmediate<byte>(operand2);
+                shiftCount = 0;
+                if (!string.IsNullOrEmpty(shiftValue)) // rotate right
+                {
+                    rotate = Parser.ParseImmediate<byte>(shiftValue);
+                    if (rotate > 16)
+                        throw new ArgumentOutOfRangeException();
+
+                }
+                return EOperand2.RotateImmediate;
+            }
+
+            rm = Parser.ParseRegister(operand2); // use register
+
+            if (!string.IsNullOrEmpty(shiftValue))
+            {
+                if (shiftValue.IndexOf("#", StringComparison.Ordinal) == -1) // shift register by value
+                {
+                    rs = Parser.ParseRegister(shiftValue);
+                }
+                else // shift register by immediate
+                {
+                    Parser.ParseShiftInstruction(shiftValue, ref shiftInst, ref shiftCount);
+                }
+            }
+            return EOperand2.ImmediateShiftRm;
         }
 
         public void Parse(string[] parameters)
@@ -63,8 +132,8 @@ namespace ARM_Simulator.Model.Commands
                     Rd = Parser.ParseRegister(parameters[0]);
                     Rn = Parser.ParseRegister(parameters[1]);
 
-                    Parser.ParseOperand2(parameters[2], parameters.Length == 4 ? parameters[3] : null, ref Rm,
-                        ref Immediate, ref ShiftInst, ref ShiftCount);
+                    Operand2 = ParseOperand2(parameters[2], parameters.Length == 4 ? parameters[3] : null, 
+                        ref Rotate, ref Immediate, ref ShiftCount, ref ShiftInst, ref Rm, ref Rs);
                     break;
                 case EOpcode.Mov:
                 case EOpcode.Mvn:
@@ -75,8 +144,8 @@ namespace ARM_Simulator.Model.Commands
                     // Parse Rd
                     Rd = Parser.ParseRegister(parameters[0]);
 
-                    Parser.ParseOperand2(parameters[1], parameters.Length == 3 ? parameters[2] : null, ref Rm,
-                        ref Immediate, ref ShiftInst, ref ShiftCount);
+                    Operand2 = ParseOperand2(parameters[1], parameters.Length == 3 ? parameters[2] : null,
+                        ref Rotate, ref Immediate, ref ShiftCount, ref ShiftInst, ref Rm, ref Rs);
                     break;
                 case EOpcode.Tst:
                 case EOpcode.Teq:
@@ -89,8 +158,8 @@ namespace ARM_Simulator.Model.Commands
                     // Parse Rn
                     Rn = Parser.ParseRegister(parameters[0]);
 
-                    Parser.ParseOperand2(parameters[1], parameters.Length == 3 ? parameters[2] : null, ref Rm,
-                        ref Immediate, ref ShiftInst, ref ShiftCount);
+                    Operand2 = ParseOperand2(parameters[1], parameters.Length == 3 ? parameters[2] : null,
+                         ref Rotate, ref Immediate, ref ShiftCount, ref ShiftInst, ref Rm, ref Rs);
                     break;
             }
 
@@ -105,61 +174,54 @@ namespace ARM_Simulator.Model.Commands
             var bw = new BitWriter();
 
             bw.WriteBits((int)Condition, 28, 4); // Condition
-            bw.WriteBits(0, 26, 2); // Operation
+            bw.WriteBits(0, 27, 1);
+            bw.WriteBits(0, 26, 1);
 
-            bw.WriteBits(Rm != null ? 0 : 1, 25, 1); // Bool use immediate
-            if (Opcode != null) bw.WriteBits((int)Opcode, 21, 4); // EOpcode
+            switch (Operand2)
+            {
+                case EOperand2.RotateImmediate:
+                    bw.WriteBits(1, 25, 1);
+                    break;
+                case EOperand2.ImmediateShiftRm:
+                case EOperand2.RsShiftRm:
+                    bw.WriteBits(0, 25, 1);
+                    break;
+            }
+
+            bw.WriteBits((int)Opcode, 21, 4); // Opcode
             bw.WriteBits(SetConditionFlags ? 1 : 0, 20, 1); // Set condition flags
 
-            if (Rn != null) bw.WriteBits((int)Rn, 16, 4); // 1st operand
-            if (Rd != null) bw.WriteBits((int)Rd, 12, 4); // destination
+            bw.WriteBits((int)Rn, 16, 4); // Rn
+            bw.WriteBits((int)Rd, 12, 4); // Rd
 
-            // Operand 2
-            if (Rm != null)
+            // Operand2
+            switch (Operand2)
             {
-                if (ShiftInst != null)
-                {
+                case EOperand2.RotateImmediate:
+                    bw.WriteBits(Rotate, 8, 4);
+                    bw.WriteBits(Immediate, 0, 8);
+                    break;
+                case EOperand2.ImmediateShiftRm:
                     bw.WriteBits(ShiftCount, 7, 5);
                     bw.WriteBits((int)ShiftInst, 5, 2);
                     bw.WriteBits(0, 4, 1);
-                }
-                bw.WriteBits((int)Rm, 0, 4);
-            }
-            else
-            {
-                bw.WriteBits(ShiftCount, 8, 4);
-                bw.WriteBits(Immediate, 0, 8);
+                    bw.WriteBits((int)Rm, 0, 4);
+                    break;
+                case EOperand2.RsShiftRm:
+                    bw.WriteBits((int)Rs, 8, 5);
+                    bw.WriteBits(0, 7, 1);
+                    bw.WriteBits((int)ShiftInst, 5, 2);
+                    bw.WriteBits(1, 4, 1);
+                    bw.WriteBits((int)Rm, 0, 4);
+                    break;
             }
 
             return bw.GetValue();
         }
 
-        public void Execute(Core armCore)
+        private int Calculation(Core armCore, int value)
         {
-            if (!Decoded)
-                throw new Exception("Cannot execute an undecoded command");
-
-            if (!Helper.CheckConditions(Condition, armCore.GetCpsr()))
-                return;
-
-            int value;
-            var carry = false;
-
-            // Add two registers
-            if (Rm != null)
-            {
-                // Get Register which may be shifted
-                value = armCore.GetRegValue(Rm);
-                carry = Helper.ShiftValue(ref value, ShiftInst, ShiftCount);
-            }
-            // Add immediate to Rd
-            else
-            {
-                value = Immediate;
-            }
-
             var result = 0;
-
             switch (Opcode)
             {
                 case EOpcode.Add:
@@ -205,39 +267,68 @@ namespace ARM_Simulator.Model.Commands
                     result = armCore.GetRegValue(Rn) ^ value;
                     break;
             }
+            return result;
+        }
 
-            if (SetConditionFlags)
+        public void Execute(Core armCore)
+        {
+            if (!Decoded)
+                throw new Exception("Cannot execute an undecoded command");
+
+            if (!Helper.CheckConditions(Condition, armCore.GetCpsr()))
+                return;
+
+            var value = 0;
+            var carry = false;
+
+            switch (Operand2)
             {
-                switch (Opcode)
-                {
-                    case EOpcode.Cmp:
-                    case EOpcode.Sub:
-                        armCore.SetNzcvFlags(new Flags(true, true, true, true),
-                            CheckFlags(armCore.GetRegValue(Rn), ~value + 1));
-                        break;
-                    case EOpcode.Rsb:
-                        armCore.SetNzcvFlags(new Flags(true, true, true, true),
-                            CheckFlags(value, ~armCore.GetRegValue(Rn) + 1));
-                        break;
-                    case EOpcode.Cmn:
-                    case EOpcode.Add:
-                        armCore.SetNzcvFlags(new Flags(true, true, true, true),
-                            CheckFlags(armCore.GetRegValue(Rn), value));
-                        break;
-                    case EOpcode.And:
-                    case EOpcode.Eor:
-                    case EOpcode.Tst:
-                    case EOpcode.Teq:
-                    case EOpcode.Orr:
-                    case EOpcode.Mov:
-                    case EOpcode.Bic:
-                    case EOpcode.Mvn:
-                        armCore.SetNzcvFlags(new Flags(true, true, true, false),
-                            new Flags(result < 0, result == 0, carry, false));
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                case EOperand2.RotateImmediate:
+                    value = Immediate;
+                    Helper.ShiftValue(ref value, EShiftInstruction.Ror, Rotate);
+                    break;
+                case EOperand2.ImmediateShiftRm:
+                    value = armCore.GetRegValue(Rm);
+                    carry = Helper.ShiftValue(ref value, ShiftInst, ShiftCount);
+                    break;
+                case EOperand2.RsShiftRm:
+                    break;
+            }
+
+            var result = Calculation(armCore, value);
+
+            if (!SetConditionFlags)
+                return;
+
+            switch (Opcode)
+            {
+                case EOpcode.Cmp:
+                case EOpcode.Sub:
+                    armCore.SetNzcvFlags(new Flags(true, true, true, true),
+                        CheckFlags(armCore.GetRegValue(Rn), ~value + 1));
+                    break;
+                case EOpcode.Rsb:
+                    armCore.SetNzcvFlags(new Flags(true, true, true, true),
+                        CheckFlags(value, ~armCore.GetRegValue(Rn) + 1));
+                    break;
+                case EOpcode.Cmn:
+                case EOpcode.Add:
+                    armCore.SetNzcvFlags(new Flags(true, true, true, true),
+                        CheckFlags(armCore.GetRegValue(Rn), value));
+                    break;
+                case EOpcode.And:
+                case EOpcode.Eor:
+                case EOpcode.Tst:
+                case EOpcode.Teq:
+                case EOpcode.Orr:
+                case EOpcode.Mov:
+                case EOpcode.Bic:
+                case EOpcode.Mvn:
+                    armCore.SetNzcvFlags(new Flags(true, true, true, false),
+                        new Flags(result < 0, result == 0, carry, false));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 

@@ -14,7 +14,6 @@ namespace ARM_Simulator.UnitTests
         {
             AssertFail<ArgumentException>("cmp r1,");
             AssertFail<ArgumentException>("cmp ,");
-            AssertFail<ArgumentException>("cmp r1, r2, ");
             AssertFail<FormatException>("cmp r1, #0x");
             AssertFail<FormatException>("cmp r1, #");
             AssertFail<FormatException>("cmp r1, #0f");

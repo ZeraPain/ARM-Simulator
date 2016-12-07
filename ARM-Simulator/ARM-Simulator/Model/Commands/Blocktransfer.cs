@@ -8,31 +8,28 @@ namespace ARM_Simulator.Model.Commands
     internal class Blocktransfer : ICommand
     {
         protected ECondition Condition;
-        protected ERegister? Rn;
-        protected int Registerlist;
-        protected bool Decoded;
-        protected ERequestType? RequestType;
+        protected bool Load;
         protected bool WriteBack;
-        protected bool PostIndex;
+        protected ERegister Rn;
+        protected int RegisterList;
 
-        public Blocktransfer(ECondition condition, ERequestType requestType, string[] parameters)
+        protected bool Decoded;
+
+        public Blocktransfer(ECondition condition, bool load, string[] parameters)
         {
             Condition = condition;
-            RequestType = requestType;
-            Registerlist = 0;
+            Load = load;
             Decoded = false;
-            PostIndex = false;
             Parse(parameters);
         }
 
-        public Blocktransfer(ECondition condition, ERequestType requestType, bool writeBack, bool postIndex, ERegister? rn, int registerlist)
+        public Blocktransfer(ECondition condition, bool load, bool writeBack, ERegister rn, short regList)
         {
             Condition = condition;
-            RequestType = requestType;
-            Rn = rn;
+            Load = load;
             WriteBack = writeBack;
-            PostIndex = postIndex;
-            Registerlist = registerlist;
+            Rn = rn;
+            RegisterList = regList;
             Decoded = true;
         }
 
@@ -67,21 +64,18 @@ namespace ARM_Simulator.Model.Commands
                 if (regRange.Length == 1)
                 {
                     var register = Parser.ParseRegister(regRange[0]);
-                    if (register != null) Registerlist |= 1 << (int)register;
+                    RegisterList |= 1 << (int)register;
                 }
                 else if (regRange.Length == 2)
                 {
                     var startReg = Parser.ParseRegister(regRange[0]);
                     var endReg = Parser.ParseRegister(regRange[1]);
-                    if (startReg != null && endReg != null)
-                    {
-                        if (endReg < startReg)
-                            throw new ArgumentException("Invalid syntax");
+                    if (endReg < startReg)
+                        throw new ArgumentException("Invalid syntax");
 
-                        for (var i = startReg; i <= endReg; i++)
-                        {
-                            Registerlist |= 1 << (int)i;
-                        }
+                    for (var i = startReg; i <= endReg; i++)
+                    {
+                        RegisterList |= 1 << (int)i;
                     }
                 }
                 else
@@ -101,18 +95,18 @@ namespace ARM_Simulator.Model.Commands
             var bw = new BitWriter();
 
             bw.WriteBits((int)Condition, 28, 4); // Condition
-            bw.WriteBits(2, 26, 2); // Operation
+            bw.WriteBits(1, 27, 1);
+            bw.WriteBits(0, 26, 1);
+            bw.WriteBits(0, 25, 1);
 
-            bw.WriteBits(0, 25, 1); // Bool immediate?
-            bw.WriteBits(PostIndex ? 0 : 1, 24, 1);
-            bw.WriteBits(0, 23, 1); // Up / Down
-            bw.WriteBits(0, 22, 1); // byte or word
+            bw.WriteBits(0, 24, 1); // preindex
+            bw.WriteBits(0, 23, 1); // unsigned
+            bw.WriteBits(0, 22, 1);
             bw.WriteBits(WriteBack ? 1 : 0, 21, 1);
-            if (RequestType != null) bw.WriteBits((int)RequestType, 20, 1);
+            bw.WriteBits(Load ? 1 : 0, 20, 1);
 
-            if (Rn != null) bw.WriteBits((int)Rn, 16, 4); // Basis register
-
-            bw.WriteBits(Registerlist, 0, 16); // Register list
+            bw.WriteBits((int)Rn, 16, 4);
+            bw.WriteBits(RegisterList, 0, 16);
 
             return bw.GetValue();
         }
@@ -126,35 +120,34 @@ namespace ARM_Simulator.Model.Commands
                 return;
 
             var basisAdr = armCore.GetRegValue(Rn);
-            for (var i = 0; i < 16; i++)
+
+            if (Load)
             {
-                if ((Registerlist & (1 << i)) != 0)
+                for (var i = 0; i < 16; i++)
                 {
-                    switch (RequestType)
-                    {
-                        case ERequestType.Store:
-                            var regValue = armCore.GetRegValue((ERegister) i);
-                            armCore.Ram.WriteInt((uint)basisAdr, regValue);
-                            basisAdr -= 4;
-                            break;
-                        case ERequestType.Load:
-                            var memValue = armCore.Ram.ReadInt((uint)basisAdr);
-                            armCore.SetRegValue((ERegister)i, memValue);
-                            basisAdr += 4;
-                            break;
-                    }
+                    if ((RegisterList & (1 << i)) == 0)
+                        continue;
+
+                    var memValue = armCore.Ram.ReadInt((uint) basisAdr);
+                    armCore.SetRegValue((ERegister) i, memValue);
+                    basisAdr += 4;
                 }
             }
+            else
+            {
+                for (var i = 15; i >= 0; i--)
+                {
+                    if ((RegisterList & (1 << i)) == 0)
+                        continue;
 
-            if (RequestType == ERequestType.Load)
-            {
-                
+                    basisAdr -= 4;
+                    var regValue = armCore.GetRegValue((ERegister)i);
+                    armCore.Ram.WriteInt((uint)basisAdr, regValue);
+                }
             }
-            else if (RequestType == ERequestType.Store)
-            {
-                
-            }
-            //throw new NotImplementedException();
+            
+            if (WriteBack)
+                armCore.SetRegValue(Rn, basisAdr);
         }
     }
 }

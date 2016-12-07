@@ -7,100 +7,188 @@ namespace ARM_Simulator.Model.Components
 {
     internal class Decoder
     {
-        private ECondition _condition;
-        private EOperation _operation;
-
-        private ICommand DecodeArithmetic(BitReader br)
+        private static ICommand DecodeArithmetic(int command)
         {
-            var useImmediate = br.ReadBits(25, 1) != 0;
-            
-            var opCode = (EOpcode)br.ReadBits(21, 4);
+            var br = new BitReader(command);
+
+            var conditions = (ECondition) br.ReadBits(28, 4);
+            var opCode = (EOpcode) br.ReadBits(21, 4);
             var setConditionFlags = br.ReadBits(20, 1) == 1;
-            var rn = (ERegister)br.ReadBits(16, 4);
-            var rd = (ERegister)br.ReadBits(12, 4);
-
-            var immediate = 0;
-            byte shiftCount;
-
-            EShiftInstruction? shiftInst = null;
-            ERegister? rm = null;
-
-            if (useImmediate)
-            {
-                shiftCount = (byte) br.ReadBits(8, 4);
-                immediate = (byte)br.ReadBits(0, 8);
-                Helper.ShiftValue(ref immediate, EShiftInstruction.Ror, shiftCount);
-            }
-            else
-            {
-                shiftCount = (byte) br.ReadBits(7, 5);
-                shiftInst = (EShiftInstruction) br.ReadBits(5, 2);
-                rm = (ERegister) br.ReadBits(0, 4);
-            }
-
-            switch (opCode)
-            {
-                case EOpcode.Add:
-                case EOpcode.Sub:
-                case EOpcode.Rsb:
-                case EOpcode.Mov:
-                case EOpcode.Mvn:
-                case EOpcode.And:
-                case EOpcode.Eor:
-                case EOpcode.Orr:
-                case EOpcode.Bic:
-                case EOpcode.Cmp:
-                case EOpcode.Cmn:
-                case EOpcode.Tst:
-                case EOpcode.Teq:
-                    return new Arithmetic(_condition, opCode, setConditionFlags, rd, rn, rm, immediate, shiftInst,
-                        shiftCount);
-                default:
-                    throw new ArgumentException("Invalid Opcode");
-            }
-        }
-
-        private ICommand DecodeDataAccess(BitReader br)
-        {
-            var useImmediate = br.ReadBits(25, 1) == 0;
-
-            var postIndex = br.ReadBits(24, 1) == 0;
-            var size = (ESize) br.ReadBits(22, 1);
-            var writeBack = br.ReadBits(21, 1) == 1;
-            var requestType = (ERequestType)br.ReadBits(20, 1);
             var rn = (ERegister) br.ReadBits(16, 4);
             var rd = (ERegister) br.ReadBits(12, 4);
 
-            var immediate = 0;
-            byte shiftCount = 0;
-
-            EShiftInstruction? shiftInst = null;
-            ERegister? rm = null;
-
-            if (useImmediate)
+            if ((command & 0x0e000000) == 0x02000000) // 4 bit rotate, 8 bit immediate
             {
-                immediate = br.ReadBits(0, 12);
-            }
-            else
-            {
-                shiftCount = (byte) br.ReadBits(7, 5);
-                shiftInst = (EShiftInstruction) br.ReadBits(5, 2);
-                rm = (ERegister) br.ReadBits(0, 4);
+                var rotate = (byte) br.ReadBits(8, 4);
+                var immediate = (byte) br.ReadBits(0, 8);
+                return new Arithmetic(conditions, opCode, setConditionFlags, rn, rd, rotate, immediate);
             }
 
-            return new DataAccess(_condition, requestType, size, writeBack, postIndex, rd, rn, rm, immediate, shiftInst,
-                shiftCount);
+            if ((command & 0x0e000010) == 0x00000000) // 5 bit shiftvalue, 2 bit shift, 1 clear, 4 bit rm
+            {
+                var shiftCount = (byte) br.ReadBits(7, 5);
+                var shiftInst = (EShiftInstruction) br.ReadBits(5, 2);
+                var rm = (ERegister) br.ReadBits(0, 4);
+                return new Arithmetic(conditions, opCode, setConditionFlags, rn, rd, shiftCount, shiftInst, rm);
+            }
+
+            if ((command & 0x0e000080) == 0x00000010) // 4 bit rs, 1 clear, 2 bit shift, 1 clear 4 bit rm 
+            {
+                var rs = (ERegister) br.ReadBits(8, 4);
+                var shiftInst = (EShiftInstruction)br.ReadBits(5, 2);
+                var rm = (ERegister)br.ReadBits(0, 4);
+                return new Arithmetic(conditions, opCode, setConditionFlags, rn, rd, rs, shiftInst, rm);
+            }
+
+            return null;
         }
 
-        private ICommand DecodeBlockTransfer(BitReader br)
+        private static ICommand DecodeBlockTransfer(int command)
         {
-            var postIndex = br.ReadBits(24, 1) == 0;
-            var writeBack = br.ReadBits(21, 1) == 1;
-            var requestType = (ERequestType)br.ReadBits(20, 1);
-            var rn = (ERegister)br.ReadBits(16, 4);
-            var immediate = br.ReadBits(0, 16);
+            var br = new BitReader(command);
 
-            return new Blocktransfer(_condition, requestType, writeBack, postIndex, rn, immediate);
+            var conditions = (ECondition)br.ReadBits(28, 4);
+            var writeBack = br.ReadBits(21, 1) == 1;
+            var rn = (ERegister)br.ReadBits(16, 4);
+            var regList = (short)br.ReadBits(0, 16);
+
+            switch (command & 0x0e500000)
+            {
+                case 0x08000000: // STM Rm, reg List
+                    return new Blocktransfer(conditions, false, writeBack, rn, regList);
+
+                case 0x08100000: // LDM Rm, reg List
+                    return new Blocktransfer(conditions, true, writeBack, rn, regList);
+            }
+
+            return null;
+        }
+
+        private static ICommand DecodeMul(int command)
+        {
+            var mulMask = (command & 0x0fe000f0);
+
+            switch (mulMask)
+            {
+                case 0x00000090: // MUL
+                    throw new NotImplementedException();
+                case 0x00200090: // MLA
+                    throw new NotImplementedException();
+                case 0x00800090: // UMULL
+                    throw new NotImplementedException();
+                case 0x00a00090: // UMLAL
+                    throw new NotImplementedException();
+                case 0x00c00090: // SMULL
+                    throw new NotImplementedException();
+                case 0x00e00090: // SMLAL
+                    throw new NotImplementedException();
+            }
+
+            return null;
+        }
+
+        private static ICommand DecodeSwap(int command)
+        {
+            var swpMask = (command & 0x0fc000f0);
+
+            switch (swpMask)
+            {
+                case 0x01000090: // SWP
+                    throw new NotImplementedException();
+                case 0x01400090: // SWPB
+                    throw new NotImplementedException();
+            }
+
+            return null;
+        }
+
+        private ICommand DecodeDataAccess(int command)
+        {
+            var br = new BitReader(command);
+
+            var conditions = (ECondition) br.ReadBits(28, 4);
+            var preIndex = br.ReadBits(24, 1) == 1;
+            var unsigned = br.ReadBits(23, 1) == 1;
+            var writeBack = br.ReadBits(21, 1) == 1;
+            var rn = (ERegister)br.ReadBits(16, 4);
+            var rd = (ERegister)br.ReadBits(12, 4);
+
+            short immediate;
+            byte shiftValue;
+            EShiftInstruction shiftInst;
+            ERegister rm;
+            switch (command & 0x0e100000) // DataAccess
+            {
+                case 0x04100000: // LDR + offset
+                    immediate = (short) br.ReadBits(0, 12);
+                    return new DataAccess(conditions, true, preIndex, unsigned, writeBack, ESize.Word, rn, rd, immediate);
+                case 0x06100000: // LDR + Rm shift value
+                    shiftValue = (byte) br.ReadBits(7, 5);
+                    shiftInst = (EShiftInstruction) br.ReadBits(5, 2);
+                    rm = (ERegister) br.ReadBits(0, 4);
+                    return new DataAccess(conditions, true, preIndex, unsigned, writeBack, ESize.Word, rn, rd, shiftValue, shiftInst, rm);
+                case 0x04500000: // LDRB + offset
+                    immediate = (short)br.ReadBits(0, 12);
+                    return new DataAccess(conditions, true, preIndex, unsigned, writeBack, ESize.Byte, rn, rd, immediate);
+                case 0x06500000: // LDRB + Rm shift value
+                    shiftValue = (byte)br.ReadBits(7, 5);
+                    shiftInst = (EShiftInstruction)br.ReadBits(5, 2);
+                    rm = (ERegister)br.ReadBits(0, 4);
+                    return new DataAccess(conditions, true, preIndex, unsigned, writeBack, ESize.Byte, rn, rd, shiftValue, shiftInst, rm);
+                case 0x04000000: // STR + offset
+                    immediate = (short)br.ReadBits(0, 12);
+                    return new DataAccess(conditions, false, preIndex, unsigned, writeBack, ESize.Word, rn, rd, immediate);
+                case 0x06000000: // STR + Rm shift value
+                    shiftValue = (byte)br.ReadBits(7, 5);
+                    shiftInst = (EShiftInstruction)br.ReadBits(5, 2);
+                    rm = (ERegister)br.ReadBits(0, 4);
+                    return new DataAccess(conditions, false, preIndex, unsigned, writeBack, ESize.Word, rn, rd, shiftValue, shiftInst, rm);
+                case 0x04400000: // STRB + offset
+                    immediate = (short)br.ReadBits(0, 12);
+                    return new DataAccess(conditions, false, preIndex, unsigned, writeBack, ESize.Byte, rn, rd, immediate);
+                case 0x06400000: // STRB + Rm shift value
+                    shiftValue = (byte)br.ReadBits(7, 5);
+                    shiftInst = (EShiftInstruction)br.ReadBits(5, 2);
+                    rm = (ERegister)br.ReadBits(0, 4);
+                    return new DataAccess(conditions, false, preIndex, unsigned, writeBack, ESize.Byte, rn, rd, shiftValue, shiftInst, rm);
+            }
+
+            switch (command & 0x0e1000f0) // Special DataAccess (thumb)
+            {
+                case 0x000000b0: // STRH + addr_mode
+                    throw new NotImplementedException();
+                case 0x001000b0: // LDRH + addr_mode
+                    throw new NotImplementedException();
+                case 0x001000d0: // LDRSB + addr_mode
+                    throw new NotImplementedException();
+                case 0x001000f0: // LDRSH + addr_mode
+                    throw new NotImplementedException();
+            }
+
+            return null;
+        }
+
+        private static ICommand DecodeMrs(int command)
+        {
+            var swpMask = (command & 0x0ff00000);
+
+            switch (swpMask)
+            {
+                case 0x01000000: // MRS CPSR
+                    throw new NotImplementedException();
+                case 0x01400000: // MRS SPSR
+                    throw new NotImplementedException();
+                case 0x01200000: // MRS CPSR_<field>
+                    throw new NotImplementedException();
+                case 0x03200000: // MRS CPSR_f
+                    throw new NotImplementedException();
+                case 0x01600000: // MRS SPSR_<field>
+                    throw new NotImplementedException();
+                case 0x03600000: // MRS SPSR_f
+                    throw new NotImplementedException();
+            }
+
+            return null;
         }
 
         public ICommand Decode(int command)
@@ -110,20 +198,33 @@ namespace ARM_Simulator.Model.Components
 
             var br = new BitReader(command);
 
-            _condition = (ECondition)br.ReadBits(28, 4);
-            _operation = (EOperation)br.ReadBits(26, 2);
+            // 12 bit
+            //if (((command & 0xff000f0) ^ 0x01200010) == 0) // BX
 
-            switch (_operation)
-            {
-                case EOperation.Arithmetic:
-                    return DecodeArithmetic(br);
-                case EOperation.DataAccess:
-                    return DecodeDataAccess(br);
-                case EOperation.Blocktransfer:
-                    return DecodeBlockTransfer(br);
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            // 11 bit
+            DecodeMul(command);
+
+            // 10 bit
+            DecodeSwap(command);
+
+            // 8 bit
+            var dataaccess = DecodeDataAccess(command);
+            if (dataaccess != null)
+                return dataaccess;
+
+            DecodeMrs(command);
+
+            // 5 bit
+            var blocktransfer = DecodeBlockTransfer(command);
+            if (blocktransfer != null)
+                return blocktransfer;
+
+            // 3 bit
+            var arithmetic = DecodeArithmetic(command);
+            if (arithmetic != null)
+                return arithmetic;
+
+            throw new ArgumentOutOfRangeException();
         }
     }
 }

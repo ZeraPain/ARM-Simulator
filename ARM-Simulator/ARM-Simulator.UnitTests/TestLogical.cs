@@ -15,7 +15,6 @@ namespace ARM_Simulator.UnitTests
         {
             AssertFail<ArgumentException>("tst r1,");
             AssertFail<ArgumentException>("tst ,");
-            AssertFail<ArgumentException>("tst r1, r2, ");
             AssertFail<FormatException>("tst r1, #0x");
             AssertFail<FormatException>("tst r1, #");
             AssertFail<FormatException>("tst r1, #0f");

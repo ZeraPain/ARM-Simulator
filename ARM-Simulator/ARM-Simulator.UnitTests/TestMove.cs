@@ -15,7 +15,6 @@ namespace ARM_Simulator.UnitTests
         {
             AssertFail<ArgumentException>("mov");
             AssertFail<ArgumentException>("mov ,");
-            AssertFail<ArgumentException>("mov r1, r2, r3");
             AssertFail<FormatException>("mov r1, #0x");
             AssertFail<FormatException>("mov r1, #");
             AssertFail<FormatException>("mov r1, #0f");
