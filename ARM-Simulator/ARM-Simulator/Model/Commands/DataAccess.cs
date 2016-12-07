@@ -1,19 +1,30 @@
 ﻿using System;
+using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Utilitiy;
 
 namespace ARM_Simulator.Model.Commands
 {
-    internal class DataAccess : Base
+    internal class DataAccess : ICommand
     {
-        private ESize _size;
+        protected ECondition Condition;
+        protected ERegister? Rd;
+        protected ERegister? Rn;
+        protected ERegister? Rm;
+        protected int Immediate;
+        protected EShiftInstruction? ShiftInst;
+        protected byte ShiftCount;
+        protected bool Decoded;
+        protected ERequestType? RequestType;
+        protected bool WriteBack;
+        protected bool PostIndex;
+        protected readonly ESize Size;
 
         public DataAccess(ECondition condition, ERequestType opcode, ESize size, string[] parameters)
         {
-            Operation = EOperation.DataAccess;
             Condition = condition;
             RequestType = opcode;
-            _size = size;
+            Size = size;
             Immediate = 0;
             Decoded = false;
             PostIndex = false;
@@ -22,10 +33,9 @@ namespace ARM_Simulator.Model.Commands
 
         public DataAccess(ECondition condition, ERequestType opcode,  ESize size, bool writeBack, bool postIndex, ERegister? rd, ERegister? rn, ERegister? rm, int immediate, EShiftInstruction? shiftInst, byte shiftCount)
         {
-            Operation = EOperation.DataAccess;
             Condition = condition;
             RequestType = opcode;
-            _size = size;
+            Size = size;
             Rd = rd;
             Rn = rn;
             Rm = rm;
@@ -65,7 +75,7 @@ namespace ARM_Simulator.Model.Commands
             }   
         }
 
-        public sealed override void Parse(string[] parameters)
+        public void Parse(string[] parameters)
         {
             if (Decoded)
                 throw new Exception("Cannot parse a decoded command");
@@ -108,7 +118,7 @@ namespace ARM_Simulator.Model.Commands
             Decoded = true;
         }
 
-        public override int Encode()
+        public int Encode()
         {
             if (!Decoded)
                 throw new Exception("Cannot convert an undecoded command");
@@ -116,12 +126,12 @@ namespace ARM_Simulator.Model.Commands
             var bw = new BitWriter();
 
             bw.WriteBits((int)Condition, 28, 4); // Condition
-            bw.WriteBits((int)Operation, 26, 2); // Operation
+            bw.WriteBits(1, 26, 2); // Operation
 
             bw.WriteBits(Rm != null ? 1 : 0, 25, 1); // Bool immediate?
             bw.WriteBits(PostIndex ? 0 : 1, 24, 1);
             bw.WriteBits(0, 23, 1); // Up / Down
-            bw.WriteBits((int)_size, 22, 1); // byte or word
+            bw.WriteBits((int)Size, 22, 1); // byte or word
             bw.WriteBits(WriteBack ? 1 : 0, 21, 1);
             if (RequestType != null) bw.WriteBits((int)RequestType, 20, 1);
 
@@ -147,12 +157,12 @@ namespace ARM_Simulator.Model.Commands
             return bw.GetValue();
         }
 
-        public override void Execute(Core armCore)
+        public void Execute(Core armCore)
         {
             if (!Decoded)
                 throw new Exception("Cannot execute an undecoded command");
 
-            if (!CheckConditions(armCore.GetCpsr()))
+            if (!Helper.CheckConditions(Condition, armCore.GetCpsr()))
                 return;
 
             int value;
@@ -161,7 +171,7 @@ namespace ARM_Simulator.Model.Commands
             {
                 // Get Register which may be shifted
                 value = armCore.GetRegValue(Rm);
-                Shift.ShiftValue(ref value, ShiftInst, ShiftCount);
+                Helper.ShiftValue(ref value, ShiftInst, ShiftCount);
             }
             else
             {

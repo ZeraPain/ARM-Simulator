@@ -1,35 +1,42 @@
 ﻿using System;
+using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Utilitiy;
 
 namespace ARM_Simulator.Model.Commands
 {
-    internal class Blocktransfer : Base
+    internal class Blocktransfer : ICommand
     {
+        protected ECondition Condition;
+        protected ERegister? Rn;
+        protected int Registerlist;
+        protected bool Decoded;
+        protected ERequestType? RequestType;
+        protected bool WriteBack;
+        protected bool PostIndex;
+
         public Blocktransfer(ECondition condition, ERequestType requestType, string[] parameters)
         {
-            Operation = EOperation.Blocktransfer;
             Condition = condition;
             RequestType = requestType;
-            Immediate = 0;
+            Registerlist = 0;
             Decoded = false;
             PostIndex = false;
             Parse(parameters);
         }
 
-        public Blocktransfer(ECondition condition, ERequestType requestType, bool writeBack, bool postIndex, ERegister? rn, int immediate)
+        public Blocktransfer(ECondition condition, ERequestType requestType, bool writeBack, bool postIndex, ERegister? rn, int registerlist)
         {
-            Operation = EOperation.Blocktransfer;
             Condition = condition;
             RequestType = requestType;
             Rn = rn;
             WriteBack = writeBack;
             PostIndex = postIndex;
-            Immediate = immediate;
+            Registerlist = registerlist;
             Decoded = true;
         }
 
-        public sealed override void Parse(string[] parameters)
+        public void Parse(string[] parameters)
         {
             if (Decoded)
                 throw new Exception("Cannot parse a decoded command");
@@ -60,7 +67,7 @@ namespace ARM_Simulator.Model.Commands
                 if (regRange.Length == 1)
                 {
                     var register = Parser.ParseRegister(regRange[0]);
-                    if (register != null) Immediate |= 1 << (int)register;
+                    if (register != null) Registerlist |= 1 << (int)register;
                 }
                 else if (regRange.Length == 2)
                 {
@@ -73,7 +80,7 @@ namespace ARM_Simulator.Model.Commands
 
                         for (var i = startReg; i <= endReg; i++)
                         {
-                            Immediate |= 1 << (int)i;
+                            Registerlist |= 1 << (int)i;
                         }
                     }
                 }
@@ -86,7 +93,7 @@ namespace ARM_Simulator.Model.Commands
             Decoded = true;
         }
 
-        public override int Encode()
+        public int Encode()
         {
             if (!Decoded)
                 throw new Exception("Cannot convert an undecoded command");
@@ -94,7 +101,7 @@ namespace ARM_Simulator.Model.Commands
             var bw = new BitWriter();
 
             bw.WriteBits((int)Condition, 28, 4); // Condition
-            bw.WriteBits((int)Operation, 26, 2); // Operation
+            bw.WriteBits(2, 26, 2); // Operation
 
             bw.WriteBits(0, 25, 1); // Bool immediate?
             bw.WriteBits(PostIndex ? 0 : 1, 24, 1);
@@ -105,23 +112,23 @@ namespace ARM_Simulator.Model.Commands
 
             if (Rn != null) bw.WriteBits((int)Rn, 16, 4); // Basis register
 
-            bw.WriteBits(Immediate, 0, 16); // Register list
+            bw.WriteBits(Registerlist, 0, 16); // Register list
 
             return bw.GetValue();
         }
 
-        public override void Execute(Core armCore)
+        public void Execute(Core armCore)
         {
             if (!Decoded)
                 throw new Exception("Cannot execute an undecoded command");
 
-            if (!CheckConditions(armCore.GetCpsr()))
+            if (!Helper.CheckConditions(Condition, armCore.GetCpsr()))
                 return;
 
             var basisAdr = armCore.GetRegValue(Rn);
             for (var i = 0; i < 16; i++)
             {
-                if ((Immediate & (1 << i)) != 0)
+                if ((Registerlist & (1 << i)) != 0)
                 {
                     switch (RequestType)
                     {

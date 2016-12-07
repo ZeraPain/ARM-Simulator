@@ -63,7 +63,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Model\Commands\Base.cs" />
+    <Compile Include="Model\Commands\Arithmetic.cs" />
     <Compile Include="Model\Commands\Blocktransfer.cs" />
     <Compile Include="Model\Commands\DataAccess.cs" />
     <Compile Include="Model\Simulator.cs" />
@@ -74,14 +74,8 @@
     <Compile Include="Model\Components\Core.cs" />
     <Compile Include="Model\Components\Decoder.cs" />
     <Compile Include="Model\Parser.cs" />
-    <Compile Include="Model\Commands\Add.cs" />
-    <Compile Include="Model\Commands\Compare.cs" />
-    <Compile Include="Model\Commands\Logical.cs" />
-    <Compile Include="Model\Commands\Move.cs" />
     <Compile Include="Model\Components\Memory.cs" />
-    <Compile Include="Model\Commands\Shift.cs" />
-    <Compile Include="Model\Commands\Substract.cs" />
-    <Compile Include="Model\Commands\Test.cs" />
+    <Compile Include="Model\Commands\Helper.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

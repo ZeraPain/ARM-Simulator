@@ -82,43 +82,38 @@ namespace ARM_Simulator.Model
                 return null;
 
             var args = cmdString.Substring(3, cmdString.Length - 3).ToLower();
-            cmdString = cmdString.Substring(0, 3).ToLower();
-
             var condition = ParseCondition(ref args);
-            var setConditionFlags = ParseSetConditionFlags(args);
-            var parameters = ParseParameters(parameterString, new[] {','});
+            bool setConditionFlags;
+            var parameters = ParseParameters(parameterString, new[] { ',' });
 
-            switch (cmdString)
+            EOpcode opCode;
+            if (!Enum.TryParse(cmdString.Substring(0, 3).ToLower(), true, out opCode))
+                return null;
+
+            switch (opCode)
             {
-                case "mov":
-                    return new Move(condition, EOpcode.Mov, setConditionFlags, parameters);
-                case "mvn":
-                    return new Move(condition, EOpcode.Mvn, setConditionFlags, parameters);
-                case "add":
-                    return new Add(condition, EOpcode.Add, setConditionFlags, parameters);
-                case "sub":
-                    return new Substract(condition, EOpcode.Sub, setConditionFlags, parameters);
-                case "rsb":
-                    return new Substract(condition, EOpcode.Rsb, setConditionFlags, parameters);
-                case "and":
-                    return new Logical(condition, EOpcode.And, setConditionFlags, parameters);
-                case "eor":
-                    return new Logical(condition, EOpcode.Eor, setConditionFlags, parameters);
-                case "orr":
-                    return new Logical(condition, EOpcode.Orr, setConditionFlags, parameters);
-                case "bic":
-                    return new Logical(condition, EOpcode.Bic, setConditionFlags, parameters);
-                case "tst":
-                    return new Test(condition, EOpcode.Tst, parameters);
-                case "teq":
-                    return new Test(condition, EOpcode.Teq, parameters);
-                case "cmp":
-                    return new Compare(condition, EOpcode.Cmp, parameters);
-                case "cmn":
-                    return new Compare(condition, EOpcode.Cmn, parameters);
+                case EOpcode.And:
+                case EOpcode.Eor:
+                case EOpcode.Sub:
+                case EOpcode.Rsb:
+                case EOpcode.Add:
+                case EOpcode.Orr:
+                case EOpcode.Mov:
+                case EOpcode.Bic:
+                case EOpcode.Mvn:
+                    setConditionFlags = ParseSetConditionFlags(args);
+                    break;
+                case EOpcode.Tst:
+                case EOpcode.Teq:
+                case EOpcode.Cmp:
+                case EOpcode.Cmn:
+                    setConditionFlags = true;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
-            return null;
+            return new Arithmetic(condition, opCode, setConditionFlags, parameters);
         }
 
         private static string[] ParseParameters(string parameterString, char[] seperator)

@@ -29,7 +29,7 @@ namespace ARM_Simulator.Model.Components
             {
                 shiftCount = (byte) br.ReadBits(8, 4);
                 immediate = (byte)br.ReadBits(0, 8);
-                Shift.ShiftValue(ref immediate, EShiftInstruction.Ror, shiftCount);
+                Helper.ShiftValue(ref immediate, EShiftInstruction.Ror, shiftCount);
             }
             else
             {
@@ -41,28 +41,20 @@ namespace ARM_Simulator.Model.Components
             switch (opCode)
             {
                 case EOpcode.Add:
-                    return new Add(_condition, EOpcode.Add, setConditionFlags, rd, rn, rm, immediate, shiftInst,
-                        shiftCount);
                 case EOpcode.Sub:
                 case EOpcode.Rsb:
-                    return new Substract(_condition, opCode, setConditionFlags, rd, rn, rm, immediate, shiftInst,
-                        shiftCount);
                 case EOpcode.Mov:
                 case EOpcode.Mvn:
-                    return new Move(_condition, opCode, setConditionFlags, rd, rm, immediate, shiftInst,
-                        shiftCount);
                 case EOpcode.And:
                 case EOpcode.Eor:
                 case EOpcode.Orr:
                 case EOpcode.Bic:
-                    return new Logical(_condition, opCode, setConditionFlags, rd, rn, rm, immediate, shiftInst,
-                        shiftCount);
                 case EOpcode.Cmp:
                 case EOpcode.Cmn:
-                    return new Compare(_condition, opCode, rn, rm, immediate, shiftInst, shiftCount);
                 case EOpcode.Tst:
                 case EOpcode.Teq:
-                    return new Test(_condition, opCode, rn, rm, immediate, shiftInst, shiftCount);
+                    return new Arithmetic(_condition, opCode, setConditionFlags, rd, rn, rm, immediate, shiftInst,
+                        shiftCount);
                 default:
                     throw new ArgumentException("Invalid Opcode");
             }
