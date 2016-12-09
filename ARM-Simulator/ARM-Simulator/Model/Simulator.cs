@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Threading;
 using ARM_Simulator.Model.Components;
 
 namespace ARM_Simulator.Model
@@ -8,7 +7,9 @@ namespace ARM_Simulator.Model
     public class Simulator
     {
         public Core ArmCore { get; }
+        private bool _running;
         private readonly Memory _memory;
+        private Thread _runThread;
 
         public Simulator()
         {
@@ -18,10 +19,8 @@ namespace ARM_Simulator.Model
 
         public List<int> Compile(string path)
         {
-            var lines = File.ReadAllLines(path);
             var parser = new Parser();
-
-            return lines.Select(line => parser.ParseLine(line)).Select(command => command.Encode()).ToList();
+            return parser.ParseFile(path);
         }
 
         public void Load(List<int> source)
@@ -29,12 +28,25 @@ namespace ARM_Simulator.Model
             _memory.LoadSource(source);
         }
 
-        public void Run()
+        private void Run()
         {
-            while (true)
+            while (_running)
             {
                 ArmCore.Tick();
             }
+        }
+
+        public void Start()
+        {
+            _running = true;
+            _runThread = new Thread(Run);
+            _runThread.Start();
+        }
+
+        public void Stop()
+        {
+            _running = false;
+            _runThread?.Join();
         }
 
         public void TestCommand(string commandLine)

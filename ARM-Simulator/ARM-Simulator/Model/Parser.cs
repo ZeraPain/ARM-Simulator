@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
 using ARM_Simulator.Utilitiy;
@@ -7,6 +10,47 @@ namespace ARM_Simulator.Model
 {
     public class Parser
     {
+        private readonly Dictionary<string, int> _labels; // Offset, Labelname
+        private int _offset;
+
+        public Parser()
+        {
+            _labels = new Dictionary<string, int>();
+            
+        }
+
+        public List<int> ParseFile(string file)
+        {
+            var commandList = new List<string>();
+            var hFile = File.ReadAllLines(file);
+            
+            foreach (var hLine in hFile)
+            {
+                var line = hLine.Trim(' ', '\t');
+
+                if (string.IsNullOrEmpty(line))
+                    continue;
+
+                if (line.StartsWith("@") || line.StartsWith("//"))
+                    continue;
+
+                if (line.EndsWith(":"))  // label
+                {
+                    var label = line.Substring(0, line.Length - 1);
+                    _labels.Add(label, commandList.Count);
+                    continue;
+                }
+
+                commandList.Add(line);
+            }
+
+            var source = new List<int>();
+            for (_offset = 0; _offset < commandList.Count; _offset++)
+                source.Add(ParseLine(commandList[_offset]).Encode());
+            
+            return source;
+        }
+
         public ICommand ParseLine(string commandLine)
         {
             var index = commandLine.IndexOf(' ');
@@ -16,64 +60,26 @@ namespace ARM_Simulator.Model
             if (index == -1 || commandLine.Length < index + 1)
                 throw new ArgumentException("Invalid Syntax");
 
-            var arithmetic = ParseArithmetic(commandLine.Substring(0, index), commandLine.Substring(index));
+            var commandString = commandLine.Substring(0, index);
+            var parameterString = commandLine.Substring(index).Trim(' ', '\t');
+
+            var arithmetic = ParseArithmetic(commandString, parameterString);
             if (arithmetic != null)
                 return arithmetic;
 
-            var dataaccess = ParseDataAccess(commandLine.Substring(0, index), commandLine.Substring(index));
+            var dataaccess = ParseDataAccess(commandString, parameterString);
             if (dataaccess != null)
                 return dataaccess;
 
-            var blocktransfer = ParseBlockTransfer(commandLine.Substring(0, index), commandLine.Substring(index));
+            var blocktransfer = ParseBlockTransfer(commandString, parameterString);
             if (blocktransfer != null)
                 return blocktransfer;
 
+            var jump = ParseJump(commandString, parameterString);
+            if (jump != null)
+                return jump;
+
             throw new ArgumentException("Unable to parse an invalid Command");
-        }
-
-        private static ICommand ParseBlockTransfer(string cmdString, string parameterString)
-        {
-            if (cmdString.Length <= 2)
-                return null;
-
-            var args = cmdString.Substring(3, cmdString.Length - 3).ToLower();
-            cmdString = cmdString.Substring(0, 3).ToLower();
-
-            var condition = ParseCondition(ref args);
-            var parameters = ParseParameters(parameterString, new[] { '{', '}' });
-
-            switch (cmdString)
-            {
-                case "stm":
-                    return new Blocktransfer(condition, false, parameters);
-                case "ldm":
-                    return new Blocktransfer(condition, true, parameters);
-            }
-
-            return null;
-        }
-
-        private static ICommand ParseDataAccess(string cmdString, string parameterString)
-        {
-            if (cmdString.Length <= 2)
-                return null;
-
-            var args = cmdString.Substring(3, cmdString.Length - 3).ToLower();
-            cmdString = cmdString.Substring(0, 3).ToLower();
-
-            var conditionFlags = ParseCondition(ref args);
-            var size = ParseSize(args);
-            var parameters = ParseParameters(parameterString, new[] {'[', ']'});
-
-            switch (cmdString)
-            {
-                case "str":
-                    return new DataAccess(conditionFlags, false, size, parameters);
-                case "ldr":
-                    return new DataAccess(conditionFlags, true, size, parameters);
-            }
-
-            return null;
         }
 
         private static ICommand ParseArithmetic(string cmdString, string parameterString)
@@ -114,6 +120,90 @@ namespace ARM_Simulator.Model
             }
 
             return new Arithmetic(condition, opCode, setConditionFlags, parameters);
+        }
+
+        private static ICommand ParseDataAccess(string cmdString, string parameterString)
+        {
+            if (cmdString.Length <= 2)
+                return null;
+
+            var args = cmdString.Substring(3, cmdString.Length - 3).ToLower();
+            cmdString = cmdString.Substring(0, 3).ToLower();
+
+            var conditionFlags = ParseCondition(ref args);
+            var size = ParseSize(args);
+            var parameters = ParseParameters(parameterString, new[] { '[', ']' });
+
+            switch (cmdString)
+            {
+                case "str":
+                    return new DataAccess(conditionFlags, false, size, parameters);
+                case "ldr":
+                    return new DataAccess(conditionFlags, true, size, parameters);
+            }
+
+            return null;
+        }
+
+        private static ICommand ParseBlockTransfer(string cmdString, string parameterString)
+        {
+            if (cmdString.Length <= 2)
+                return null;
+
+            var args = cmdString.Substring(3, cmdString.Length - 3).ToLower();
+            cmdString = cmdString.Substring(0, 3).ToLower();
+
+            var condition = ParseCondition(ref args);
+            var parameters = ParseParameters(parameterString, new[] { '{', '}' });
+
+            switch (cmdString)
+            {
+                case "stm":
+                    return new Blocktransfer(condition, false, parameters);
+                case "ldm":
+                    return new Blocktransfer(condition, true, parameters);
+            }
+
+            return null;
+        }
+
+        private ICommand ParseJump(string cmdString, string parameterString)
+        {
+            cmdString = cmdString.ToLower();
+
+            if (cmdString.StartsWith("b"))
+            {
+                if (!_labels.ContainsKey(parameterString))
+                    throw new ArgumentException("Unknown Label");
+
+                var offset = _labels[parameterString] - _offset - 2; // -2 -> Pipeline
+
+                if (cmdString.Length < 2)
+                    return new Jump(ECondition.Always, EJump.Branch, offset);
+
+                cmdString = cmdString.Substring(1, cmdString.Length - 1);
+                EJump jump;
+
+                switch (cmdString)
+                {
+                    case "l":
+                        cmdString = cmdString.Substring(1, cmdString.Length - 1);
+                        jump = EJump.BranchLink;
+                        break;
+                    case "x":
+                        cmdString = cmdString.Substring(1, cmdString.Length - 1);
+                        jump = EJump.BranchExchange;
+                        break;
+                    default:
+                        jump = EJump.Branch;
+                        break;
+                }
+
+                var conditions = ParseCondition(ref cmdString);
+                return new Jump(conditions, jump, offset);
+            }
+
+            return null;
         }
 
         private static string[] ParseParameters(string parameterString, char[] seperator)

@@ -35,6 +35,13 @@
         Byte = 1
     }
 
+    public enum EJump
+    {
+        Branch = 0,
+        BranchLink = 1,
+        BranchExchange = 2
+    }
+
     public enum EOpcode
     {
         And = 0,

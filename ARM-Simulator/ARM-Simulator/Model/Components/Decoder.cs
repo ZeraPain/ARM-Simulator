@@ -164,6 +164,22 @@ namespace ARM_Simulator.Model.Components
             return null;
         }
 
+        private static ICommand DecodeBranch(int command)
+        {
+            var br = new BitReader(command);
+
+            var conditions = (ECondition)br.ReadBits(28, 4);
+
+            switch (command & 0x0f000000)
+            {
+                case 0x0a000000: // Branch
+                    var offset = br.ReadBits(0, 24, true);
+                    return new Jump(conditions, EJump.Branch, offset);
+            }
+
+            return null;
+        }
+
         private static ICommand DecodeMrs(int command)
         {
             switch (command & 0x0ff00000)
@@ -185,8 +201,13 @@ namespace ARM_Simulator.Model.Components
             return null;
         }
 
-        public ICommand Decode(int command)
+        public ICommand Decode(int? fetch)
         {
+            if (fetch == null)
+                return null;
+
+            var command = (int) fetch;
+
             // 12 bit
             if (((command & 0xff000f0) ^ 0x01200010) == 0) // BX
                 throw new NotImplementedException();
@@ -216,8 +237,9 @@ namespace ARM_Simulator.Model.Components
                 return cmd;
 
             // 4 bit
-            if ((command & 0x0f000000) == 0x0a000000) // B
-                throw new NotImplementedException();
+            cmd = DecodeBranch(command);
+            if (cmd != null)
+                return cmd;
 
             // 3 bit
             cmd = DecodeArithmetic(command);

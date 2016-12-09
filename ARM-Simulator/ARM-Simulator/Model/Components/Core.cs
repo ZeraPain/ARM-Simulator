@@ -11,7 +11,8 @@ namespace ARM_Simulator.Model.Components
         private readonly Decoder _decoder;
         internal Memory Ram { get; }
 
-        private int _fetch;
+        private int? _fetch;
+        private bool _jump;
         private ICommand _decode;
 
         private int _cpsr;
@@ -39,6 +40,7 @@ namespace ARM_Simulator.Model.Components
             };
 
             _cpsr = 0x13;
+            _jump = false;
             _decoder = new Decoder();
             Ram = ram;
         }
@@ -48,8 +50,8 @@ namespace ARM_Simulator.Model.Components
             if (!_registers.ContainsKey(reg))
                 throw new Exception("Invalid Register was requested");
 
-            if (reg == ERegister.Pc)
-                _decode = null;
+            if (reg == ERegister.Pc && value != GetRegValue(ERegister.Pc) + 0x4) 
+                _jump = true;
 
             _registers[reg] = value;
         }
@@ -76,13 +78,23 @@ namespace ARM_Simulator.Model.Components
         public void Tick()
         {
             // Pipeline
+            var fetch = Ram.ReadInt((uint)GetRegValue(ERegister.Pc)); // Fetch
+            var decode = _decoder.Decode(_fetch); // Decode
             _decode?.Execute(this); // Execute
-            _decode = _decoder.Decode(_fetch); // Decode
-            _fetch = Ram.ReadInt((uint)GetRegValue(ERegister.Pc)); // Fetch
 
-            SetRegValue(ERegister.Pc, GetRegValue(ERegister.Pc) + 0x4);
+            if (!_jump)
+            {
+                _fetch = fetch;
+                _decode = decode;
+                SetRegValue(ERegister.Pc, GetRegValue(ERegister.Pc) + 0x4);
+            }
+            else
+            {
+                _fetch = null;
+                _decode = null;
+                _jump = false;
+            }
         }
-
 
         // Used for Unit tests, skipped pipeline
         public void TestCommand(ICommand command)
