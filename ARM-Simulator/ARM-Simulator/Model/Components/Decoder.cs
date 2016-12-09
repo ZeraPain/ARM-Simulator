@@ -65,9 +65,7 @@ namespace ARM_Simulator.Model.Components
 
         private static ICommand DecodeMul(int command)
         {
-            var mulMask = (command & 0x0fe000f0);
-
-            switch (mulMask)
+            switch (command & 0x0fe000f0)
             {
                 case 0x00000090: // MUL
                     throw new NotImplementedException();
@@ -88,9 +86,7 @@ namespace ARM_Simulator.Model.Components
 
         private static ICommand DecodeSwap(int command)
         {
-            var swpMask = (command & 0x0fc000f0);
-
-            switch (swpMask)
+            switch (command & 0x0fc000f0)
             {
                 case 0x01000090: // SWP
                     throw new NotImplementedException();
@@ -116,6 +112,7 @@ namespace ARM_Simulator.Model.Components
             byte shiftValue;
             EShiftInstruction shiftInst;
             ERegister rm;
+
             switch (command & 0x0e100000) // DataAccess
             {
                 case 0x04100000: // LDR + offset
@@ -169,21 +166,19 @@ namespace ARM_Simulator.Model.Components
 
         private static ICommand DecodeMrs(int command)
         {
-            var swpMask = (command & 0x0ff00000);
-
-            switch (swpMask)
+            switch (command & 0x0ff00000)
             {
                 case 0x01000000: // MRS CPSR
                     throw new NotImplementedException();
                 case 0x01400000: // MRS SPSR
                     throw new NotImplementedException();
-                case 0x01200000: // MRS CPSR_<field>
+                case 0x01200000: // MSR CPSR_<field>
                     throw new NotImplementedException();
-                case 0x03200000: // MRS CPSR_f
+                case 0x03200000: // MSR CPSR_f
                     throw new NotImplementedException();
-                case 0x01600000: // MRS SPSR_<field>
+                case 0x01600000: // MSR SPSR_<field>
                     throw new NotImplementedException();
-                case 0x03600000: // MRS SPSR_f
+                case 0x03600000: // MSR SPSR_f
                     throw new NotImplementedException();
             }
 
@@ -192,36 +187,42 @@ namespace ARM_Simulator.Model.Components
 
         public ICommand Decode(int command)
         {
-            if (command == 0)
-                return null;
-
-            var br = new BitReader(command);
-
             // 12 bit
-            //if (((command & 0xff000f0) ^ 0x01200010) == 0) // BX
+            if (((command & 0xff000f0) ^ 0x01200010) == 0) // BX
+                throw new NotImplementedException();
 
             // 11 bit
-            DecodeMul(command);
+            var cmd = DecodeMul(command);
+            if (cmd != null)
+                return cmd;
 
             // 10 bit
-            DecodeSwap(command);
+            cmd = DecodeSwap(command);
+            if (cmd != null)
+                return cmd;
 
             // 8 bit
-            var dataaccess = DecodeDataAccess(command);
-            if (dataaccess != null)
-                return dataaccess;
+            cmd = DecodeDataAccess(command);
+            if (cmd != null)
+                return cmd;
 
-            DecodeMrs(command);
+            cmd = DecodeMrs(command);
+            if (cmd != null)
+                return cmd;
 
             // 5 bit
-            var blocktransfer = DecodeBlockTransfer(command);
-            if (blocktransfer != null)
-                return blocktransfer;
+            cmd = DecodeBlockTransfer(command);
+            if (cmd != null)
+                return cmd;
+
+            // 4 bit
+            if ((command & 0x0f000000) == 0x0a000000) // B
+                throw new NotImplementedException();
 
             // 3 bit
-            var arithmetic = DecodeArithmetic(command);
-            if (arithmetic != null)
-                return arithmetic;
+            cmd = DecodeArithmetic(command);
+            if (cmd != null)
+                return cmd;
 
             throw new ArgumentOutOfRangeException();
         }

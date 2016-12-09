@@ -43,12 +43,15 @@ namespace ARM_Simulator.Model.Components
             Ram = ram;
         }
 
-        public void SetRegValue(ERegister? reg, int value)
+        public void SetRegValue(ERegister reg, int value)
         {
-            if (reg == null || !_registers.ContainsKey((ERegister)reg))
+            if (!_registers.ContainsKey(reg))
                 throw new Exception("Invalid Register was requested");
 
-            _registers[(ERegister)reg] = value;
+            if (reg == ERegister.Pc)
+                _decode = null;
+
+            _registers[reg] = value;
         }
 
         public int GetRegValue(ERegister? reg)
