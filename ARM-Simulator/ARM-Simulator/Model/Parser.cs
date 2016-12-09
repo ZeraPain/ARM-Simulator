@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
 using ARM_Simulator.Utilitiy;
@@ -16,7 +15,6 @@ namespace ARM_Simulator.Model
         public Parser()
         {
             _labels = new Dictionary<string, int>();
-            
         }
 
         public List<int> ParseFile(string file)

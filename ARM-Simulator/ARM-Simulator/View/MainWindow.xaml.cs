@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
+using ARM_Simulator.Model;
 using Microsoft.Win32;
 
 
@@ -12,11 +13,13 @@ namespace ARM_Simulator.View
     /// <summary>
     /// Interaktionslogik für MainWindow.xaml
     /// </summary>
-    public partial class MainWindow:Window
+    public partial class MainWindow
     {
         public MainWindow()
         {
             InitializeComponent();
+            var sim = new Simulator();
+            ListBox.ItemsSource = sim.ArmCore._registers;
         }
 
         #region Helper
@@ -55,19 +58,18 @@ namespace ARM_Simulator.View
 
         private void MenuNew_Click(object sender, RoutedEventArgs e)
         {
-          if (IsEmpty())
+            if (!IsEmpty())
+                return;
+
+            var result = MessageBox.Show("Would you like to save your File?", "Arm Simulator", MessageBoxButton.YesNo);
+            switch (result)
             {
-                var result = MessageBox.Show("Would you like to save your File?", "Arm Simulator",
-                    MessageBoxButton.YesNo);
-                switch (result)
-                {
-                    case MessageBoxResult.Yes:
-                        MenuSave_OnClick();
-                        break;
-                    case MessageBoxResult.No:
-                        TxtEditor.Document.Blocks.Clear();
-                        break;
-                }
+                case MessageBoxResult.Yes:
+                    MenuSave_OnClick();
+                    break;
+                case MessageBoxResult.No:
+                    //TxtEditor.Document.Blocks.Clear();
+                    break;
             }
         }
 

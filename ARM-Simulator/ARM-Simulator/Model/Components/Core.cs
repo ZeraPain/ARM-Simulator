@@ -7,7 +7,7 @@ namespace ARM_Simulator.Model.Components
 {
     public class Core
     {
-        private readonly Dictionary<ERegister, int> _registers;
+        public Dictionary<ERegister, int> _registers { get; }
         private readonly Decoder _decoder;
         internal Memory Ram { get; }
 
@@ -50,7 +50,7 @@ namespace ARM_Simulator.Model.Components
             if (!_registers.ContainsKey(reg))
                 throw new Exception("Invalid Register was requested");
 
-            if (reg == ERegister.Pc && value != GetRegValue(ERegister.Pc) + 0x4) 
+            if (reg == ERegister.Pc) 
                 _jump = true;
 
             _registers[reg] = value;
@@ -86,7 +86,7 @@ namespace ARM_Simulator.Model.Components
             {
                 _fetch = fetch;
                 _decode = decode;
-                SetRegValue(ERegister.Pc, GetRegValue(ERegister.Pc) + 0x4);
+                _registers[ERegister.Pc] += 0x4;
             }
             else
             {

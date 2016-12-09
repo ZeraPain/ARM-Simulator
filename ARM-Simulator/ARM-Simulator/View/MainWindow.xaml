@@ -1,49 +1,48 @@
-﻿<Window x:Class="ARM_Simulator.View.MainWindow"
+﻿<ribbon:RibbonWindow x:Class="ARM_Simulator.View.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-         xmlns:local="clr-namespace:ARM_Simulator.View"
-        mc:Ignorable="d"
-        Title="Arm Simulator" Height="350" Width="525">
-       
-       
-    <Window.CommandBindings>
-        <CommandBinding Command="Save" CanExecute="SaveCommand_CanExecute" Executed="SaveCommand_Executed" />
-    </Window.CommandBindings>
-   
+        xmlns:ribbon="clr-namespace:System.Windows.Controls.Ribbon;assembly=System.Windows.Controls.Ribbon"
+        Title="ARM Simulator" Height="600" Width="800">
+
     <DockPanel LastChildFill="True">
-        <Ribbon DockPanel.Dock ="Top">
+        <ribbon:Ribbon DockPanel.Dock="Top" Height="105">
 
             <Ribbon.ApplicationMenu>
-                <RibbonApplicationMenu>
-                    <RibbonApplicationMenuItem Header="Open New File"/>
-                    <RibbonApplicationMenuItem Header="Open Existing File"/>
-                    <RibbonApplicationMenuItem Header="Save Your File"/>
-                    <RibbonApplicationMenuItem Header="Save As"/>
-                    <RibbonApplicationMenu.FooterPaneContent>
-                        <RibbonButton Label="Exit"/>
-                    </RibbonApplicationMenu.FooterPaneContent>
+                <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
+                    <RibbonApplicationMenuItem Header="Open File" />
+                    <RibbonApplicationMenuItem Header="Save File" />
+                    <RibbonApplicationMenuItem Header="Compile" />
+                    <RibbonApplicationMenuItem Header="Exit" />
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
-            <RibbonTab Header="Main">
-            <RibbonGroup Header ="Editor Menu">
-                <RibbonButton Command="Cut" Label="Cut" />
-                <RibbonButton Command="Copy" Label="Copy"/>
-                <RibbonButton Command="Save" Label="Save"/>
-                <RibbonButton Command="Save" Label="Paste"/>
-            </RibbonGroup>
-            <RibbonGroup Header="Simulator">
-                <RibbonButton x:Name="BtnRun" Label="Run" Width="60" Click="BtnRun_Click"/>
-                <RibbonButton x:Name="BtnStep" Label="Step" Width="60" Click="BtnStep_Click"/>
-                <RibbonButton x:Name="BtnContinue" Label="Continue" Width="60" Click="BtnContinue_Click" />
-            </RibbonGroup>
+
+            <RibbonTab Header="Main" Margin="0,0,0,8">
+
+                <RibbonGroup Header="Veröffentlichen">
+                    <RibbonButton Label="Run" LargeImageSource="/Resources/Images/go-button1.png" />
+
+                </RibbonGroup>
             </RibbonTab>
-        </Ribbon>
-     
+        </ribbon:Ribbon>
+
+        <StackPanel>
             
-       
-        
-        <RichTextBox AcceptsReturn="True" Name="TxtEditor"/>
-        </DockPanel>
-</Window>
+            <Grid Width="Auto">
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="350" />
+                    <RowDefinition Height="120" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="600" />
+                    <ColumnDefinition Width="200" />
+                </Grid.ColumnDefinitions>
+
+                <RichTextBox AcceptsReturn="True" x:Name="TxtEditor" Height="Auto" Width="Auto" Margin="0,0,0,0" Grid.Column="0" Grid.Row="0" />
+                <ListBox Grid.Row="0" Grid.Column="1" x:Name="ListBox" Height="Auto" Width="Auto"/>
+
+            </Grid>
+            
+        </StackPanel>
+    </DockPanel>
+</ribbon:RibbonWindow>
