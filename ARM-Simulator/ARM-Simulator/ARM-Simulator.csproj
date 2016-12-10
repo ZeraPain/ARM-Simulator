@@ -79,6 +79,7 @@
     <Compile Include="Model\Parser.cs" />
     <Compile Include="Model\Components\Memory.cs" />
     <Compile Include="Utilitiy\Helper.cs" />
+    <Compile Include="ViewModel\RegisterConverter.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -112,9 +113,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ViewModel\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>

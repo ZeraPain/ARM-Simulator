@@ -3,9 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using ARM_Simulator.Model;
-using ARM_Simulator.Resources;
 using Microsoft.Win32;
 
 
@@ -25,7 +23,7 @@ namespace ARM_Simulator.View
             _armSimulator = new Simulator();
             _armSimulator.LoadFile("../../Resources/source.txt");
 
-            ListBox.ItemsSource = _armSimulator.ArmCore.Registers;
+            ListView.ItemsSource = _armSimulator.ArmCore.Registers;
 
             var hFile = File.ReadAllLines("../../Resources/source.txt");
             TxtEditor.Document.LineHeight = 0.1f;
@@ -149,13 +147,14 @@ namespace ARM_Simulator.View
         private void BtnRun_Click(object sender, RoutedEventArgs e)
         {
             // ready to execute Assembly
+            _armSimulator.Start();
         }
 
         private void BtnStep_Click(object sender, RoutedEventArgs e)
         {
             // start to get the first command and hand it over to execution
             _armSimulator.ArmCore.Tick();
-            ListBox.Items.Refresh();
+            ListView.Items.Refresh();
         }
 
         private void BtnContinue_Click(object sender, RoutedEventArgs e)
