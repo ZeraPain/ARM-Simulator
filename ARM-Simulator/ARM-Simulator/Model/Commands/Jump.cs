@@ -1,6 +1,7 @@
 ﻿using System;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
+using ARM_Simulator.Resources;
 using ARM_Simulator.Utilitiy;
 
 namespace ARM_Simulator.Model.Commands
@@ -29,7 +30,7 @@ namespace ARM_Simulator.Model.Commands
 
         public void Parse(string[] parameters)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void Execute(Core armCore)

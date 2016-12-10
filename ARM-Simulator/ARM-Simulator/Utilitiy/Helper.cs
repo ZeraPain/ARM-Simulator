@@ -1,7 +1,7 @@
 ﻿using System;
-using ARM_Simulator.Utilitiy;
+using ARM_Simulator.Resources;
 
-namespace ARM_Simulator.Model.Commands
+namespace ARM_Simulator.Utilitiy
 {
     internal class Helper
     {

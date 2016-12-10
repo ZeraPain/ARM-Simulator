@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using ARM_Simulator.Model.Components;
+using ARM_Simulator.Resources;
 
 namespace ARM_Simulator.Model
 {
@@ -17,15 +17,14 @@ namespace ARM_Simulator.Model
             ArmCore = new Core(_memory);
         }
 
-        public List<int> Compile(string path)
+        public void LoadFile(string path)
         {
             var parser = new Parser();
-            return parser.ParseFile(path);
-        }
-
-        public void Load(List<int> source)
-        {
+            var source = parser.ParseFile(path);
+            var entry = parser.GetEntryPoint();
+            ArmCore.SetRegValue(ERegister.Pc, entry);
             _memory.LoadSource(source);
+            ArmCore.Tick();
         }
 
         private void Run()

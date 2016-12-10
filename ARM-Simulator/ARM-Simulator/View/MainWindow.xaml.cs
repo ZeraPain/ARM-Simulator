@@ -3,7 +3,9 @@ using System.IO;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using ARM_Simulator.Model;
+using ARM_Simulator.Resources;
 using Microsoft.Win32;
 
 
@@ -15,11 +17,23 @@ namespace ARM_Simulator.View
     /// </summary>
     public partial class MainWindow
     {
+        private readonly Simulator _armSimulator;
+
         public MainWindow()
         {
             InitializeComponent();
-            var sim = new Simulator();
-            ListBox.ItemsSource = sim.ArmCore._registers;
+            _armSimulator = new Simulator();
+            _armSimulator.LoadFile("../../Resources/source.txt");
+
+            ListBox.ItemsSource = _armSimulator.ArmCore.Registers;
+
+            var hFile = File.ReadAllLines("../../Resources/source.txt");
+            TxtEditor.Document.LineHeight = 0.1f;
+            foreach (var line in hFile)
+            {
+                TxtEditor.AppendText(line + "\n");
+            }
+
         }
 
         #region Helper
@@ -132,10 +146,6 @@ namespace ARM_Simulator.View
             }
         }
 
-
-
-      
-
         private void BtnRun_Click(object sender, RoutedEventArgs e)
         {
             // ready to execute Assembly
@@ -144,6 +154,8 @@ namespace ARM_Simulator.View
         private void BtnStep_Click(object sender, RoutedEventArgs e)
         {
             // start to get the first command and hand it over to execution
+            _armSimulator.ArmCore.Tick();
+            ListBox.Items.Refresh();
         }
 
         private void BtnContinue_Click(object sender, RoutedEventArgs e)

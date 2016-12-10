@@ -72,13 +72,13 @@
     <Compile Include="Model\Simulator.cs" />
     <Compile Include="Utilitiy\BitReader.cs" />
     <Compile Include="Utilitiy\BitWriter.cs" />
-    <Compile Include="Utilitiy\Resources.cs" />
+    <Compile Include="Resources\ARMStruct.cs" />
     <Compile Include="Interfaces\ICommand.cs" />
     <Compile Include="Model\Components\Core.cs" />
     <Compile Include="Model\Components\Decoder.cs" />
     <Compile Include="Model\Parser.cs" />
     <Compile Include="Model\Components\Memory.cs" />
-    <Compile Include="Model\Commands\Helper.cs" />
+    <Compile Include="Utilitiy\Helper.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -123,6 +123,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\go-button1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\source.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

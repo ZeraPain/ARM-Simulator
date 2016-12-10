@@ -18,9 +18,9 @@
 
             <RibbonTab Header="Main" Margin="0,0,0,8">
 
-                <RibbonGroup Header="Veröffentlichen">
+                <RibbonGroup>
                     <RibbonButton Label="Run" LargeImageSource="/Resources/Images/go-button1.png" />
-
+                    <RibbonButton Label="Tick" LargeImageSource="/Resources/Images/go-button1.png" Click="BtnStep_Click" />
                 </RibbonGroup>
             </RibbonTab>
         </ribbon:Ribbon>
@@ -39,7 +39,7 @@
                 </Grid.ColumnDefinitions>
 
                 <RichTextBox AcceptsReturn="True" x:Name="TxtEditor" Height="Auto" Width="Auto" Margin="0,0,0,0" Grid.Column="0" Grid.Row="0" />
-                <ListBox Grid.Row="0" Grid.Column="1" x:Name="ListBox" Height="Auto" Width="Auto"/>
+                <ListBox Grid.Row="0" Grid.Column="1" x:Name="ListBox" Height="Auto" Width="Auto" IsSynchronizedWithCurrentItem="False"/>
 
             </Grid>
             

@@ -1,6 +1,7 @@
 ﻿using System;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
+using ARM_Simulator.Resources;
 using ARM_Simulator.Utilitiy;
 
 namespace ARM_Simulator.Model.Components

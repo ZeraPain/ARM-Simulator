@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
-using ARM_Simulator.Utilitiy;
+using ARM_Simulator.Resources;
 
 namespace ARM_Simulator.Model
 {
@@ -78,6 +78,14 @@ namespace ARM_Simulator.Model
                 return jump;
 
             throw new ArgumentException("Unable to parse an invalid Command");
+        }
+
+        public int GetEntryPoint()
+        {
+            if (!_labels.ContainsKey("main"))
+                throw new Exception("Cannot find entry point");
+
+            return _labels["main"] * 0x4;
         }
 
         private static ICommand ParseArithmetic(string cmdString, string parameterString)

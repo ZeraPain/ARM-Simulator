@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using ARM_Simulator.Interfaces;
-using ARM_Simulator.Utilitiy;
+using ARM_Simulator.Resources;
 
 namespace ARM_Simulator.Model.Components
 {
     public class Core
     {
-        public Dictionary<ERegister, int> _registers { get; }
+        public Dictionary<ERegister, int> Registers { get; }
         private readonly Decoder _decoder;
         internal Memory Ram { get; }
 
@@ -19,7 +19,7 @@ namespace ARM_Simulator.Model.Components
 
         public Core(Memory ram)
         {
-            _registers = new Dictionary<ERegister, int>
+            Registers = new Dictionary<ERegister, int>
             {
                 {ERegister.R0, 0},
                 {ERegister.R1, 0},
@@ -47,21 +47,21 @@ namespace ARM_Simulator.Model.Components
 
         public void SetRegValue(ERegister reg, int value)
         {
-            if (!_registers.ContainsKey(reg))
+            if (!Registers.ContainsKey(reg))
                 throw new Exception("Invalid Register was requested");
 
             if (reg == ERegister.Pc) 
                 _jump = true;
 
-            _registers[reg] = value;
+            Registers[reg] = value;
         }
 
         public int GetRegValue(ERegister? reg)
         {
-            if (reg == null || !_registers.ContainsKey((ERegister)reg))
+            if (reg == null || !Registers.ContainsKey((ERegister)reg))
                 throw new Exception("Invalid Register was requested");
 
-            return _registers[(ERegister)reg];
+            return Registers[(ERegister)reg];
         }
 
         public void SetNzcvFlags(Flags mask, Flags flags)
@@ -86,7 +86,7 @@ namespace ARM_Simulator.Model.Components
             {
                 _fetch = fetch;
                 _decode = decode;
-                _registers[ERegister.Pc] += 0x4;
+                Registers[ERegister.Pc] += 0x4;
             }
             else
             {

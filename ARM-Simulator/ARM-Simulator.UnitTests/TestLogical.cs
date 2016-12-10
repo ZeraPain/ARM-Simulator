@@ -1,5 +1,5 @@
 ﻿using System;
-using ARM_Simulator.Utilitiy;
+using ARM_Simulator.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ARM_Simulator.UnitTests

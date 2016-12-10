@@ -1,4 +1,4 @@
-﻿namespace ARM_Simulator.Utilitiy
+﻿namespace ARM_Simulator.Resources
 {
     public struct Flags
     {
