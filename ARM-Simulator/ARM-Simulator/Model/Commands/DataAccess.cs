@@ -110,34 +110,46 @@ namespace ARM_Simulator.Model.Commands
             // Parse Source Register
             if (!parameters[0].EndsWith(","))
                 throw new ArgumentException("Invalid syntax");
-            Rd = Parser.ParseRegister(parameters[0].Substring(0, parameters[0].Length - 1));
+
+            // Resize
+            parameters[0] = parameters[0].Substring(0, parameters[0].Length - 1);
+
+            Rd = Parser.ParseRegister(parameters[0]);
 
             // Parse Source Address
             ParseSource(parameters[1]);
 
-            if (parameters.Length == 3)
+            if (parameters.Length == 2)
             {
-                if (parameters[2].Equals("!"))
-                {
-                    WriteBack = true;
-                }
-                else if (parameters[2].StartsWith(","))
-                {
-                    parameters[2] = parameters[2].Substring(1);
+                Decoded = true;
+                return;
+            }
 
-                    if (parameters[2].StartsWith("#"))
-                    {
-                        Immediate = Parser.ParseImmediate<short>(parameters[2]);
-                        if (Immediate > 4096) throw new ArgumentOutOfRangeException();
-                    }
-                    else
-                        Rm = Parser.ParseRegister(parameters[2]);
+            // Parse third parameter
+            if (parameters[2].Equals("!"))
+            {
+                WriteBack = true;
+            }
+            else if (parameters[2].StartsWith(","))
+            {
+                parameters[2] = parameters[2].Substring(1);
 
-                    WriteBack = true;
-                    PreIndex = false;
+                if (parameters[2].StartsWith("#"))
+                {
+                    Immediate = Parser.ParseImmediate<short>(parameters[2]);
+                    if (Immediate >= 4096) throw new ArgumentOutOfRangeException();
                 }
                 else
-                    throw new ArgumentException("Invalid syntax");
+                {
+                    Rm = Parser.ParseRegister(parameters[2]);
+                }
+
+                WriteBack = true;
+                PreIndex = false;
+            }
+            else
+            {
+                throw new ArgumentException("Invalid syntax");
             }
 
             Decoded = true;

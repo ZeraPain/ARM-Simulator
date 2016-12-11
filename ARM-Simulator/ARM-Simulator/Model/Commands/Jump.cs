@@ -60,15 +60,12 @@ namespace ARM_Simulator.Model.Commands
 
             switch (JumpType)
             {
+                case EJump.BranchLink:
+                    bw.WriteBits(1, 24, 1);
+                    goto case EJump.Branch;
                 case EJump.Branch:
                     bw.WriteBits(1, 27, 1);
                     bw.WriteBits(1, 25, 1);
-                    bw.WriteBits(Offset, 0, 24);
-                    break;
-                case EJump.BranchLink:
-                    bw.WriteBits(1, 27, 1);
-                    bw.WriteBits(1, 25, 1);
-                    bw.WriteBits(1, 24, 1);
                     bw.WriteBits(Offset, 0, 24);
                     break;
                 case EJump.BranchExchange:

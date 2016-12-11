@@ -127,12 +127,8 @@ namespace ARM_Simulator.Model.Commands
                     bw.WriteBits((int)Rn, 12, 4);
                     break;
                 case EMultiplication.Smlal:
-                    bw.WriteBits(1, 23, 1);
-                    bw.WriteBits(1, 22, 1);
                     bw.WriteBits(1, 21, 1);
-                    bw.WriteBits((int)RdHi, 16, 4);
-                    bw.WriteBits((int)RdLo, 12, 4);
-                    break;
+                    goto case EMultiplication.Smull;
                 case EMultiplication.Smull:
                     bw.WriteBits(1, 23, 1);
                     bw.WriteBits(1, 22, 1);
@@ -140,11 +136,8 @@ namespace ARM_Simulator.Model.Commands
                     bw.WriteBits((int)RdLo, 12, 4);
                     break;
                 case EMultiplication.Umlal:
-                    bw.WriteBits(1, 23, 1);
                     bw.WriteBits(1, 21, 1);
-                    bw.WriteBits((int)RdHi, 16, 4);
-                    bw.WriteBits((int)RdLo, 12, 4);
-                    break;
+                    goto case EMultiplication.UMull;
                 case EMultiplication.UMull:
                     bw.WriteBits(1, 23, 1);
                     bw.WriteBits((int)RdHi, 16, 4);

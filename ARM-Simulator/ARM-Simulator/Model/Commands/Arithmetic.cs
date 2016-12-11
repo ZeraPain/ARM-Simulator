@@ -87,9 +87,8 @@ namespace ARM_Simulator.Model.Commands
                 if (!string.IsNullOrEmpty(shiftValue)) // rotate right
                 {
                     Rotate = Parser.ParseImmediate<byte>(shiftValue);
-                    if (Rotate > 16)
+                    if (Rotate >= 16)
                         throw new ArgumentOutOfRangeException();
-
                 }
                 return EOperand2.RotateImmediate;
             }
