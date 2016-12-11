@@ -66,12 +66,21 @@ namespace ARM_Simulator.Model.Components
 
         private static ICommand DecodeMul(int command)
         {
+            var br = new BitReader(command);
+
+            var conditions = (ECondition)br.ReadBits(28, 4);
+            var setConditionFlags = br.ReadBits(20, 1) == 1;
+            var rd = (ERegister) br.ReadBits(16, 4);
+            var rs = (ERegister)br.ReadBits(8, 4);
+            var rm = (ERegister)br.ReadBits(0, 4);
+
             switch (command & 0x0fe000f0)
             {
                 case 0x00000090: // MUL
-                    throw new NotImplementedException();
+                    return new Multiply(conditions, EMultiplication.Mul, setConditionFlags, rd, rs, rm);
                 case 0x00200090: // MLA
-                    throw new NotImplementedException();
+                    var rn = (ERegister)br.ReadBits(12, 4);
+                    return new Multiply(conditions, EMultiplication.Mla, setConditionFlags, rd, rn, rs, rm);
                 case 0x00800090: // UMULL
                     throw new NotImplementedException();
                 case 0x00a00090: // UMLAL

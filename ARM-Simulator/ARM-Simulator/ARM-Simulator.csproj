@@ -69,6 +69,7 @@
     <Compile Include="Model\Commands\Blocktransfer.cs" />
     <Compile Include="Model\Commands\DataAccess.cs" />
     <Compile Include="Model\Commands\Jump.cs" />
+    <Compile Include="Model\Commands\Multiply.cs" />
     <Compile Include="Model\Simulator.cs" />
     <Compile Include="Utilitiy\BitReader.cs" />
     <Compile Include="Utilitiy\BitWriter.cs" />

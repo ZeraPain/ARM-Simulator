@@ -77,6 +77,10 @@ namespace ARM_Simulator.Model
             if (jump != null)
                 return jump;
 
+            var multiply = ParseMultiply(commandString, parameterString);
+            if (multiply != null)
+                return multiply;
+
             throw new ArgumentException("Unable to parse an invalid Command");
         }
 
@@ -210,6 +214,44 @@ namespace ARM_Simulator.Model
             }
 
             return null;
+        }
+
+        private static ICommand ParseMultiply(string cmdString, string parameterString)
+        {
+            if (cmdString.Length <= 2)
+                return null;
+
+            var multiplication = EMultiplication.None;
+            if (cmdString.Length >= 3)
+            {
+                if (!Enum.TryParse(cmdString.Substring(0, 3).ToLower(), true, out multiplication) && cmdString.Length >= 5)
+                {
+                    if (!Enum.TryParse(cmdString.Substring(0, 5).ToLower(), true, out multiplication))
+                        return null;
+                }
+            }
+
+            string args;
+            switch (multiplication)
+            {
+                case EMultiplication.Mul:
+                case EMultiplication.Mla:
+                    args = cmdString.Substring(3, cmdString.Length - 3).ToLower();
+                    break;
+                case EMultiplication.Smlal:
+                case EMultiplication.Smull:
+                case EMultiplication.Umlal:
+                case EMultiplication.UMull:
+                    args = cmdString.Substring(5, cmdString.Length - 5).ToLower();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            var conditionFlags = ParseCondition(ref args);
+            var setConditionFlags = ParseSetConditionFlags(args);
+            var parameters = ParseParameters(parameterString, new[] { ',' });
+            return new Multiply(conditionFlags, multiplication, setConditionFlags, parameters);
         }
 
         private static string[] ParseParameters(string parameterString, char[] seperator)

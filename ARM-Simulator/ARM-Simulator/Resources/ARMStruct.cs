@@ -59,6 +59,17 @@
         Mvn = 15
     }
 
+    public enum EMultiplication
+    {
+        None,
+        Mul,
+        Mla,
+        Smlal,
+        Smull,
+        Umlal,
+        UMull,
+    }
+
     public enum EShiftInstruction
     {
         Lsl = 0,
