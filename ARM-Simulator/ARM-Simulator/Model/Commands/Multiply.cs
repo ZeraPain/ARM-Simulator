@@ -15,6 +15,8 @@ namespace ARM_Simulator.Model.Commands
         protected ERegister Rn;
         protected ERegister Rm;
         protected ERegister Rs;
+        protected ERegister RdHi;
+        protected ERegister RdLo;
 
         protected bool Decoded;
 
@@ -27,10 +29,10 @@ namespace ARM_Simulator.Model.Commands
             Parse(parameters);
         }
 
-        public Multiply(ECondition condition, EMultiplication multiplication, bool setConditionFlags, ERegister rd, ERegister rs, ERegister rm)
+        public Multiply(ECondition condition, bool setConditionFlags, ERegister rd, ERegister rs, ERegister rm)
         {
             Condition = condition;
-            Multiplication = multiplication;
+            Multiplication = EMultiplication.Mul;
             SetConditionFlags = setConditionFlags;
             Rd = rd;
             Rs = rs;
@@ -38,13 +40,25 @@ namespace ARM_Simulator.Model.Commands
             Decoded = true;
         }
 
-        public Multiply(ECondition condition, EMultiplication multiplication, bool setConditionFlags, ERegister rd, ERegister rn, ERegister rs, ERegister rm)
+        public Multiply(ECondition condition, bool setConditionFlags, ERegister rd, ERegister rn, ERegister rs, ERegister rm)
+        {
+            Condition = condition;
+            Multiplication = EMultiplication.Mla;
+            SetConditionFlags = setConditionFlags;
+            Rd = rd;
+            Rn = rn;
+            Rs = rs;
+            Rm = rm;
+            Decoded = true;
+        }
+
+        public Multiply(ECondition condition, EMultiplication multiplication, bool setConditionFlags, ERegister rdhi, ERegister rdlo, ERegister rs, ERegister rm)
         {
             Condition = condition;
             Multiplication = multiplication;
             SetConditionFlags = setConditionFlags;
-            Rd = rd;
-            Rn = rn;
+            RdHi = rdhi;
+            RdLo = rdlo;
             Rs = rs;
             Rm = rm;
             Decoded = true;
@@ -75,12 +89,16 @@ namespace ARM_Simulator.Model.Commands
                     Rn = Parser.ParseRegister(parameters[3]);
                     break;
                 case EMultiplication.Smlal:
-                    break;
                 case EMultiplication.Smull:
-                    break;
                 case EMultiplication.Umlal:
-                    break;
                 case EMultiplication.UMull:
+                    if (parameters.Length != 4)
+                        throw new ArgumentException("Invalid parameter count");
+
+                    RdLo = Parser.ParseRegister(parameters[0]);
+                    RdHi = Parser.ParseRegister(parameters[1]);
+                    Rm = Parser.ParseRegister(parameters[2]);
+                    Rs = Parser.ParseRegister(parameters[3]);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -101,24 +119,41 @@ namespace ARM_Simulator.Model.Commands
             switch (Multiplication)
             {
                 case EMultiplication.Mul:
+                    bw.WriteBits((int)Rd, 16, 4);
                     break;
                 case EMultiplication.Mla:
                     bw.WriteBits(1, 21, 1);
+                    bw.WriteBits((int)Rd, 16, 4);
                     bw.WriteBits((int)Rn, 12, 4);
                     break;
                 case EMultiplication.Smlal:
+                    bw.WriteBits(1, 23, 1);
+                    bw.WriteBits(1, 22, 1);
+                    bw.WriteBits(1, 21, 1);
+                    bw.WriteBits((int)RdHi, 16, 4);
+                    bw.WriteBits((int)RdLo, 12, 4);
                     break;
                 case EMultiplication.Smull:
+                    bw.WriteBits(1, 23, 1);
+                    bw.WriteBits(1, 22, 1);
+                    bw.WriteBits((int)RdHi, 16, 4);
+                    bw.WriteBits((int)RdLo, 12, 4);
                     break;
                 case EMultiplication.Umlal:
+                    bw.WriteBits(1, 23, 1);
+                    bw.WriteBits(1, 21, 1);
+                    bw.WriteBits((int)RdHi, 16, 4);
+                    bw.WriteBits((int)RdLo, 12, 4);
                     break;
                 case EMultiplication.UMull:
+                    bw.WriteBits(1, 23, 1);
+                    bw.WriteBits((int)RdHi, 16, 4);
+                    bw.WriteBits((int)RdLo, 12, 4);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
-            bw.WriteBits((int)Rd, 16, 4);
             bw.WriteBits((int)Rs, 8, 4);
             bw.WriteBits(1, 7, 1);
             bw.WriteBits(1, 4, 1);
@@ -135,40 +170,49 @@ namespace ARM_Simulator.Model.Commands
             if (!Helper.CheckConditions(Condition, armCore.GetCpsr()))
                 return;
 
-            var lo = 0xFFFFFFFF;
-            var hi = 0xFFFFFFFF00000000;
+            const uint lo = 0xFFFFFFFF;
+            const ulong hi = 0xFFFFFFFF00000000;
             ulong result;
-            var value = 0;
 
             switch (Multiplication)
             {
                 case EMultiplication.Mul:
-                    result = (ulong)(armCore.GetRegValue(Rs) * armCore.GetRegValue(Rm));
-                    value = (int) (result & lo);
+                    result = (ulong)((long)armCore.GetRegValue(Rs) * armCore.GetRegValue(Rm));
+                    armCore.SetRegValue(Rd, (int)(result & lo));
                     break;
                 case EMultiplication.Mla:
-                    result = (ulong)(armCore.GetRegValue(Rs) * armCore.GetRegValue(Rm) + armCore.GetRegValue(Rn));
-                    value = (int)(result & lo);
+                    result = (ulong)((long)armCore.GetRegValue(Rs) * armCore.GetRegValue(Rm) + armCore.GetRegValue(Rn));
+                    armCore.SetRegValue(Rd, (int)(result & lo));
                     break;
                 case EMultiplication.Smlal:
+                    result = (ulong)((long)armCore.GetRegValue(Rs) * armCore.GetRegValue(Rm));
+                    armCore.SetRegValue(RdLo, armCore.GetRegValue(RdLo) + (int)(result & lo));
+                    armCore.SetRegValue(RdHi, armCore.GetRegValue(RdHi) + (int)((result & hi) >> 32));
                     break;
                 case EMultiplication.Smull:
+                    result = (ulong)((long)armCore.GetRegValue(Rs) * armCore.GetRegValue(Rm));
+                    armCore.SetRegValue(RdLo, (int)(result & lo));
+                    armCore.SetRegValue(RdHi, (int)((result & hi) >> 32));
                     break;
                 case EMultiplication.Umlal:
+                    result = (ulong)armCore.GetRegValue(Rs) * (ulong)armCore.GetRegValue(Rm);
+                    armCore.SetRegValue(RdLo, armCore.GetRegValue(RdLo) + (int)(result & lo));
+                    armCore.SetRegValue(RdHi, armCore.GetRegValue(RdHi) + (int)((result & hi) >> 32));
                     break;
                 case EMultiplication.UMull:
+                    result = (ulong)armCore.GetRegValue(Rs) * (ulong)armCore.GetRegValue(Rm);
+                    armCore.SetRegValue(RdLo, (int)(result & lo));
+                    armCore.SetRegValue(RdHi, (int)((result & hi) >> 32));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
-            armCore.SetRegValue(Rd, value);
-
-            if (!SetConditionFlags)
-                return;
-
-            armCore.SetNzcvFlags(new Flags(true, true, false, false),
-                       new Flags(value < 0, value == 0, false, false));
+            if (SetConditionFlags)
+            {
+                armCore.SetNzcvFlags(new Flags(true, true, false, false), //C, V are not set for ARMv5 and higher
+                    new Flags((long)result < 0, result == 0, false, false));
+            }
         }       
     }
 }

@@ -70,25 +70,38 @@ namespace ARM_Simulator.Model.Components
 
             var conditions = (ECondition)br.ReadBits(28, 4);
             var setConditionFlags = br.ReadBits(20, 1) == 1;
-            var rd = (ERegister) br.ReadBits(16, 4);
+            
             var rs = (ERegister)br.ReadBits(8, 4);
             var rm = (ERegister)br.ReadBits(0, 4);
 
+            ERegister rd;
+            ERegister rdhi;
+            ERegister rdlo;
             switch (command & 0x0fe000f0)
             {
                 case 0x00000090: // MUL
-                    return new Multiply(conditions, EMultiplication.Mul, setConditionFlags, rd, rs, rm);
+                    rd = (ERegister)br.ReadBits(16, 4);
+                    return new Multiply(conditions, setConditionFlags, rd, rs, rm);
                 case 0x00200090: // MLA
+                    rd = (ERegister)br.ReadBits(16, 4);
                     var rn = (ERegister)br.ReadBits(12, 4);
-                    return new Multiply(conditions, EMultiplication.Mla, setConditionFlags, rd, rn, rs, rm);
+                    return new Multiply(conditions, setConditionFlags, rd, rn, rs, rm);
                 case 0x00800090: // UMULL
-                    throw new NotImplementedException();
+                    rdhi = (ERegister)br.ReadBits(16, 4);
+                    rdlo = (ERegister)br.ReadBits(12, 4);
+                    return new Multiply(conditions, EMultiplication.UMull, setConditionFlags, rdhi, rdlo, rs, rm);
                 case 0x00a00090: // UMLAL
-                    throw new NotImplementedException();
+                    rdhi = (ERegister)br.ReadBits(16, 4);
+                    rdlo = (ERegister)br.ReadBits(12, 4);
+                    return new Multiply(conditions, EMultiplication.Umlal, setConditionFlags, rdhi, rdlo, rs, rm);
                 case 0x00c00090: // SMULL
-                    throw new NotImplementedException();
+                    rdhi = (ERegister)br.ReadBits(16, 4);
+                    rdlo = (ERegister)br.ReadBits(12, 4);
+                    return new Multiply(conditions, EMultiplication.Smull, setConditionFlags, rdhi, rdlo, rs, rm);
                 case 0x00e00090: // SMLAL
-                    throw new NotImplementedException();
+                    rdhi = (ERegister)br.ReadBits(16, 4);
+                    rdlo = (ERegister)br.ReadBits(12, 4);
+                    return new Multiply(conditions, EMultiplication.Smlal, setConditionFlags, rdhi, rdlo, rs, rm);
             }
 
             return null;

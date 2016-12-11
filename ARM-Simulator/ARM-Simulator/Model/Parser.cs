@@ -283,7 +283,7 @@ namespace ARM_Simulator.Model
                 case "b":
                     return ESize.Byte;
                 default:
-                    throw new ArgumentException("Unknown Size");
+                    return ESize.Word;
             }
         }
 
