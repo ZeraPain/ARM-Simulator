@@ -97,12 +97,7 @@ namespace ARM_Simulator.Model.Commands
 
             bw.WriteBits((int)Condition, 28, 4); // Condition
             bw.WriteBits(1, 27, 1);
-            bw.WriteBits(0, 26, 1);
-            bw.WriteBits(0, 25, 1);
 
-            bw.WriteBits(0, 24, 1); // preindex
-            bw.WriteBits(0, 23, 1); // unsigned
-            bw.WriteBits(0, 22, 1);
             bw.WriteBits(WriteBack ? 1 : 0, 21, 1);
             bw.WriteBits(Load ? 1 : 0, 20, 1);
 

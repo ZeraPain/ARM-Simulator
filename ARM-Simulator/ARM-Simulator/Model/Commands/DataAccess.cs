@@ -151,24 +151,13 @@ namespace ARM_Simulator.Model.Commands
             var bw = new BitWriter();
 
             bw.WriteBits((int)Condition, 28, 4); // Condition
-            bw.WriteBits(0, 27, 1);
             bw.WriteBits(1, 26, 1);
 
             bw.WriteBits(PreIndex ? 1 : 0, 24, 1);
             bw.WriteBits(Unsigned ? 1 : 0, 23, 1);
 
-            switch (Offset)
-            {
-                case EOffset.None:
-                case EOffset.Immediate:
-                    bw.WriteBits(0, 22, 1);
-                    break;
-                case EOffset.ImmediateShiftRm:
-                    bw.WriteBits(1, 22, 1);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            if (Offset == EOffset.ImmediateShiftRm)
+                bw.WriteBits(1, 22, 1);
 
             bw.WriteBits(WriteBack ? 1 : 0, 21, 1);
             bw.WriteBits(Load ? 1 : 0, 20, 1);
@@ -184,7 +173,6 @@ namespace ARM_Simulator.Model.Commands
                 case EOffset.ImmediateShiftRm:
                     bw.WriteBits(ShiftCount, 7, 5);
                     bw.WriteBits((int)ShiftInst, 5, 2);
-                    bw.WriteBits(0, 4, 1);
                     bw.WriteBits((int)Rm, 0, 4);
                     break;
                 default:

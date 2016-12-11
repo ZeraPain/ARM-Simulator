@@ -39,6 +39,7 @@
                 </Grid.ColumnDefinitions>
 
                 <RichTextBox AcceptsReturn="True" x:Name="TxtEditor" Height="Auto" Width="Auto" Margin="0,0,0,0" Grid.Column="0" Grid.Row="0" />
+
                 <ListView Grid.Row="0" Grid.Column="1" x:Name="ListView" Height="Auto" Width="Auto">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
@@ -52,9 +53,7 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
-
-
-
+                
             </Grid>
             
         </StackPanel>

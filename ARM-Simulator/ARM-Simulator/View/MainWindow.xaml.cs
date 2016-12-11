@@ -26,6 +26,8 @@ namespace ARM_Simulator.View
             ListView.ItemsSource = _armSimulator.ArmCore.Registers;
 
             var hFile = File.ReadAllLines("../../Resources/source.txt");
+
+            
             TxtEditor.Document.LineHeight = 0.1f;
             foreach (var line in hFile)
             {
@@ -33,6 +35,7 @@ namespace ARM_Simulator.View
             }
 
         }
+
 
         #region Helper
 

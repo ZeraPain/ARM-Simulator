@@ -50,10 +50,13 @@ namespace ARM_Simulator.Model.Components
             if (!Registers.ContainsKey(reg))
                 throw new Exception("Invalid Register was requested");
 
-            if (reg == ERegister.Pc) 
-                _jump = true;
-
             Registers[reg] = value;
+        }
+
+        public void Jump(int address)
+        {
+            Registers[ERegister.Pc] = address;
+            _jump = true;
         }
 
         public int GetRegValue(ERegister? reg)

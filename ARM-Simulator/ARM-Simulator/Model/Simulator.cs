@@ -24,7 +24,6 @@ namespace ARM_Simulator.Model
             var entry = parser.GetEntryPoint();
             ArmCore.SetRegValue(ERegister.Pc, entry);
             _memory.LoadSource(source);
-            ArmCore.Tick();
         }
 
         private void Run()

@@ -165,19 +165,9 @@ namespace ARM_Simulator.Model.Commands
             var bw = new BitWriter();
 
             bw.WriteBits((int)Condition, 28, 4); // Condition
-            bw.WriteBits(0, 27, 1);
-            bw.WriteBits(0, 26, 1);
 
-            switch (Operand2)
-            {
-                case EOperand2.RotateImmediate:
-                    bw.WriteBits(1, 25, 1);
-                    break;
-                case EOperand2.ImmediateShiftRm:
-                case EOperand2.RsShiftRm:
-                    bw.WriteBits(0, 25, 1);
-                    break;
-            }
+            if (Operand2 == EOperand2.RotateImmediate)
+                bw.WriteBits(1, 25, 1);
 
             bw.WriteBits((int)Opcode, 21, 4); // Opcode
             bw.WriteBits(SetConditionFlags ? 1 : 0, 20, 1); // Set condition flags

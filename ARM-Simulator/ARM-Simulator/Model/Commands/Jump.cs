@@ -35,7 +35,21 @@ namespace ARM_Simulator.Model.Commands
 
         public void Execute(Core armCore)
         {
-            armCore.SetRegValue(ERegister.Pc, armCore.GetRegValue(ERegister.Pc) + Offset * 4);
+            switch (JumpType)
+            {
+                case EJump.Branch:
+                    armCore.Jump(armCore.GetRegValue(ERegister.Pc) + Offset * 4);
+                    break;
+                case EJump.BranchLink:
+                    armCore.SetRegValue(ERegister.Lr, armCore.GetRegValue(ERegister.Pc) - 0x4);
+                    armCore.Jump(armCore.GetRegValue(ERegister.Pc) + Offset * 4);
+                    break;
+                case EJump.BranchExchange:
+                    armCore.Jump(armCore.GetRegValue(Rm));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public int Encode()
@@ -48,27 +62,18 @@ namespace ARM_Simulator.Model.Commands
             {
                 case EJump.Branch:
                     bw.WriteBits(1, 27, 1);
-                    bw.WriteBits(0, 26, 1);
                     bw.WriteBits(1, 25, 1);
-                    bw.WriteBits(0, 24, 1);
                     bw.WriteBits(Offset, 0, 24);
                     break;
                 case EJump.BranchLink:
                     bw.WriteBits(1, 27, 1);
-                    bw.WriteBits(0, 26, 1);
                     bw.WriteBits(1, 25, 1);
                     bw.WriteBits(1, 24, 1);
                     bw.WriteBits(Offset, 0, 24);
                     break;
                 case EJump.BranchExchange:
-                    bw.WriteBits(0, 27, 1);
-                    bw.WriteBits(0, 26, 1);
-                    bw.WriteBits(0, 25, 1);
                     bw.WriteBits(1, 24, 1);
-                    bw.WriteBits(0, 23, 1);
-                    bw.WriteBits(0, 22, 1);
                     bw.WriteBits(1, 21, 1);
-                    bw.WriteBits(0, 20, 1);
                     bw.WriteBits((int)Rm, 0, 4);
                     break;
                 default:
