@@ -44,8 +44,18 @@ namespace ARM_Simulator.UnitTests
             TestSimulator.TestCommand("mov r3, #0");
             TestSimulator.TestCommand("mov r4, #0");
             TestSimulator.TestCommand("smlal r3, r4, r6, r7");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R3), -1048576); //0xFFFF0000
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R4), -1); //0xFFFFFFFF
+            Assert.AreEqual((uint)TestSimulator.ArmCore.GetRegValue(ERegister.R3), 0xfff00000);
+            Assert.AreEqual((uint)TestSimulator.ArmCore.GetRegValue(ERegister.R4), 0xffffffff);
+
+            TestSimulator.TestCommand("mov r0, #0xFF, 8");
+            TestSimulator.TestCommand("mvn r1, #0");
+            TestSimulator.TestCommand("smull r2, r3, r0, r1");
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R2), 0x1000000);
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R3), 0x0);
+
+            TestSimulator.TestCommand("umull r2, r3, r0, r1");
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R2), 0x1000000);
+            Assert.AreEqual((uint)TestSimulator.ArmCore.GetRegValue(ERegister.R3), 0xfeffffff);
         }
     }
 }

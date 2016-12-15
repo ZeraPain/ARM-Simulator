@@ -188,12 +188,12 @@ namespace ARM_Simulator.Model.Commands
                     armCore.SetRegValue(RdHi, (int)((result & hi) >> 32));
                     break;
                 case EMultiplication.Umlal:
-                    result = (ulong)armCore.GetRegValue(Rs) * (ulong)armCore.GetRegValue(Rm);
+                    result = (ulong)(uint)armCore.GetRegValue(Rs) * (uint)armCore.GetRegValue(Rm);
                     armCore.SetRegValue(RdLo, armCore.GetRegValue(RdLo) + (int)(result & lo));
                     armCore.SetRegValue(RdHi, armCore.GetRegValue(RdHi) + (int)((result & hi) >> 32));
                     break;
                 case EMultiplication.UMull:
-                    result = (ulong)armCore.GetRegValue(Rs) * (ulong)armCore.GetRegValue(Rm);
+                    result = (ulong)(uint)armCore.GetRegValue(Rs) * (uint)armCore.GetRegValue(Rm);
                     armCore.SetRegValue(RdLo, (int)(result & lo));
                     armCore.SetRegValue(RdHi, (int)((result & hi) >> 32));
                     break;
