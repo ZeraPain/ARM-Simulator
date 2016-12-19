@@ -17,13 +17,13 @@ namespace ARM_Simulator.ViewModel
             switch (command.Status)
             {
                 case EPipeline.None:
-                    return command.Breakpoint ? new SolidColorBrush(Colors.Red) : null;
+                    return null;
                 case EPipeline.Fetch:
                     return new SolidColorBrush(Colors.LawnGreen);
                 case EPipeline.Decode:
                     return new SolidColorBrush(Colors.Yellow);
                 case EPipeline.Execute:
-                    return new SolidColorBrush(Colors.Orange);
+                    return new SolidColorBrush(Colors.OrangeRed);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

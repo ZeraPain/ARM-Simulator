@@ -6,7 +6,7 @@ namespace ARM_Simulator.Model
 {
     public class Simulator
     {
-        public Core ArmCore { get; }
+        public Core ArmCore { get; protected set; }
         private readonly Memory _memory;
 
         public Simulator()
@@ -17,6 +17,8 @@ namespace ARM_Simulator.Model
 
         public List<Command> LoadFile(string path)
         {
+            ArmCore.Reset();
+
             var parser = new Parser(path);
             var source = parser.Encode();
             ArmCore.SetEntryPoint(parser.GetEntryPoint());

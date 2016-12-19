@@ -7,13 +7,13 @@
         mc:Ignorable="d"
         x:Class="ARM_Simulator.View.MainWindow"
         Title="ARM Simulator" Height="600" Width="800" d:DataContext="{d:DesignInstance view:MainWindow}">
-    
+
     <DockPanel LastChildFill="True">
         <Ribbon DockPanel.Dock="Top" Height="105">
 
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
-                    <RibbonApplicationMenuItem Header="Open File" />
+                    <RibbonApplicationMenuItem Header="Open File" Click="BtnLoadFile_Click" />
                     <RibbonApplicationMenuItem Header="Save File" Click="BtnSaveFile_Click" />
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
@@ -49,13 +49,20 @@
                     </ListView.Resources>
                     <ListView.View>
                         <GridView>
+                            <GridViewColumn Header="BP" Width="20" DisplayMemberBinding="{Binding Converter={StaticResource BreakpointConverter}}"/>
                             <GridViewColumn Header="Label" Width="50" DisplayMemberBinding="{Binding Label}"/>
-                            <GridViewColumn Header="Code" Width="590" DisplayMemberBinding="{Binding Commandline}" />
+                            <GridViewColumn Header="Code" Width="570" DisplayMemberBinding="{Binding Commandline}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
 
-                <RichTextBox AcceptsReturn="True" x:Name="TxtEditor" Height="Auto" Width="Auto" Margin="0,0,0,0" Grid.Column="0" Grid.Row="0" />
+                <RichTextBox AcceptsReturn="True" x:Name="TxtEditor" Height="Auto" Width="Auto" Margin="0,0,0,0" Grid.Column="0" Grid.Row="0" AcceptsTab="True" KeyDown="TxtEditor_OnKeyDown">
+                    <RichTextBox.Resources>
+                        <Style TargetType="{x:Type Paragraph}">
+                            <Setter Property="Margin" Value="0"/>
+                        </Style>
+                    </RichTextBox.Resources>
+                </RichTextBox>
 
                 <ListView Grid.Row="0" Grid.Column="1" x:Name="ListViewRegister" Height="Auto" Width="Auto" ItemsSource="{Binding ArmSimulator.ArmCore.Registers}">
                     <ListView.Resources>
@@ -70,12 +77,14 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
-
-
             </Grid>
         </StackPanel>
     </DockPanel>
 </RibbonWindow>
+
+
+
+
 
 
 

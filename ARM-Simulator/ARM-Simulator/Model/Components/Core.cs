@@ -7,8 +7,8 @@ namespace ARM_Simulator.Model.Components
 {
     public class Core
     {
-        public Dictionary<EPipeline, int> PipelineStatus { get; set; }
-        public Dictionary<ERegister, int> Registers { get; }
+        public Dictionary<EPipeline, int> PipelineStatus { get; protected set; }
+        public Dictionary<ERegister, int> Registers { get; protected set; }
         internal Memory Ram { get; }
 
         private int? _fetch;
@@ -19,6 +19,13 @@ namespace ARM_Simulator.Model.Components
         private readonly Decoder _decoder;
 
         public Core(Memory ram)
+        {
+            _decoder = new Decoder();
+            Ram = ram;
+            Reset();
+        }
+
+        public void Reset()
         {
             Registers = new Dictionary<ERegister, int>
             {
@@ -35,7 +42,7 @@ namespace ARM_Simulator.Model.Components
                 {ERegister.R10, 0},
                 {ERegister.R11, 0},
                 {ERegister.R12, 0},
-                {ERegister.Sp, ram.GetRamSize()},
+                {ERegister.Sp, Ram.GetRamSize()},
                 {ERegister.Lr, 0},
                 {ERegister.Pc, 0}
             };
@@ -49,8 +56,6 @@ namespace ARM_Simulator.Model.Components
 
             _cpsr = 0x13;
             _jump = false;
-            _decoder = new Decoder();
-            Ram = ram;
         }
 
         public void SetRegValue(ERegister reg, int value)
@@ -112,8 +117,8 @@ namespace ARM_Simulator.Model.Components
                 _jump = false;
             }
 
-            if (decode != null) PipelineStatus[EPipeline.Execute] = PipelineStatus[EPipeline.Decode];
-            if (_fetch != null) PipelineStatus[EPipeline.Decode] = PipelineStatus[EPipeline.Fetch];
+            PipelineStatus[EPipeline.Execute] = PipelineStatus[EPipeline.Decode];
+            PipelineStatus[EPipeline.Decode] = PipelineStatus[EPipeline.Fetch];
             PipelineStatus[EPipeline.Fetch] = Registers[ERegister.Pc];
         }
 

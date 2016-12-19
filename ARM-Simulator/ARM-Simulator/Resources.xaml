@@ -4,4 +4,5 @@
                     xmlns:viewModel="clr-namespace:ARM_Simulator.ViewModel">
 
     <viewModel:ColorConverter x:Key="ColorConverter" />
+    <viewModel:BreakpointConverter x:Key="BreakpointConverter" />
 </ResourceDictionary>

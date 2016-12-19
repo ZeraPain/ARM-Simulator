@@ -28,108 +28,6 @@ namespace ARM_Simulator.View
         {
             InitializeComponent();
             ArmSimulator = new Simulator();
-            _file = "../../Resources/source.S";
-
-
-            ListViewRegister.ItemsSource = ArmSimulator.ArmCore.Registers;
-
-            var hFile = File.ReadAllLines(_file);
-
-            TxtEditor.Document.LineHeight = 0.1f;
-            foreach (var line in hFile)
-            {
-                TxtEditor.AppendText(line + "\n");
-            }
-
-        }
-
-
-        #region Helper
-
-        public bool IsEmpty()
-        {
-            var start = TxtEditor.Document.ContentStart;
-            var end = TxtEditor.Document.ContentEnd;
-            var length = start.GetOffsetToPosition(end);
-            return length > 2;
-        }
-
-        public void MenuSave_OnClick()
-        {
-            var saveFile = new SaveFileDialog
-            {
-                Filter = "Assembly files (*.S)|*.S|All files (*.*)|*.*"
-            };
-
-            if (saveFile.ShowDialog() != true) return;
-            try
-            {
-                var fileStream = new FileStream(saveFile.FileName, FileMode.Create);
-                var range = new TextRange(TxtEditor.Document.ContentStart, TxtEditor.Document.ContentEnd);
-                range.Save(fileStream, DataFormats.Text);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Error: Saving your File!");
-            }
-        }
-        #endregion
-
-        #region Click-Functions
-
-        private void MenuNew_Click(object sender, RoutedEventArgs e)
-        {
-            if (!IsEmpty())
-                return;
-
-            var result = MessageBox.Show("Would you like to save your File?", "Arm Simulator", MessageBoxButton.YesNo);
-            switch (result)
-            {
-                case MessageBoxResult.Yes:
-                    MenuSave_OnClick();
-                    break;
-                case MessageBoxResult.No:
-                    //TxtEditor.Document.Blocks.Clear();
-                    break;
-            }
-        }
-
-        private void MenuOpen_Click(object sender, RoutedEventArgs e)
-        {
-            var openFile = new OpenFileDialog
-            {
-                Filter = "Assembly files (*.S)|*.S|All files (*.*)|*.*"
-            };
-
-            if (openFile.ShowDialog() != true) return;
-            try
-            {
-                var fileStream = new FileStream(openFile.FileName, FileMode.Open);
-                var range = new TextRange(TxtEditor.Document.ContentStart,
-                    TxtEditor.Document.ContentEnd);
-                range.Load(fileStream, DataFormats.Text);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Error: Loading your File");
-            }
-        }
-
-        private void BtnRun_Click(object sender, RoutedEventArgs e)
-        {
-            TxtEditor.Visibility = Visibility.Hidden;
-            ListViewCode.Visibility = Visibility.Visible;
-            CommandList = ArmSimulator.LoadFile(_file);
-            ListViewCode.ItemsSource = CommandList;
-        }
-
-        private void BtnStep_Click(object sender, RoutedEventArgs e)
-        {
-            if (_running)
-                return;
-
-            ArmSimulator.ArmCore.Tick();
-            UpdateView();
         }
 
         private void UpdateViewElements()
@@ -139,14 +37,14 @@ namespace ARM_Simulator.View
             var status = ArmSimulator.ArmCore.PipelineStatus;
             foreach (var x in status)
             {
-                if (x.Value == -1)
+                if (x.Value < 0)
                     continue;
 
-                var line = x.Value / 4;
-                if (line >= CommandList.Count)
+                var index = x.Value / 4;
+                if (index >= CommandList.Count)
                     continue;
 
-                CommandList[line].Status = x.Key;
+                CommandList[index].Status = x.Key;
             }
             ListViewCode.Items.Refresh();
             ListViewRegister.Items.Refresh();
@@ -166,13 +64,6 @@ namespace ARM_Simulator.View
             }
         }
 
-        private void BtnContinue_Click(object sender, RoutedEventArgs e)
-        {
-            _running = true;
-            _runThread = new Thread(Run);
-            _runThread.Start();
-        }
-
         private void Run()
         {
             while (_running)
@@ -182,7 +73,7 @@ namespace ARM_Simulator.View
                 var pcExe = ArmSimulator.ArmCore.PipelineStatus[EPipeline.Execute];
                 for (var i = 0; i < CommandList.Count; i++) // TODO: fix this dirty part
                 {
-                    if (CommandList[i].Breakpoint && i*4 == pcExe)
+                    if (CommandList[i].Breakpoint && i * 4 == pcExe)
                     {
                         _running = false;
                     }
@@ -190,7 +81,39 @@ namespace ARM_Simulator.View
             }
             UpdateView();
         }
-        #endregion
+
+        #region Click-Functions
+        private void BtnRun_Click(object sender, RoutedEventArgs e)
+        {
+            if (_file == null)
+            {
+                MessageBox.Show("Please load a file before running", "File missing");
+                return;
+            }
+
+            TxtEditor.Visibility = Visibility.Hidden;
+            ListViewCode.Visibility = Visibility.Visible;
+            CommandList = ArmSimulator.LoadFile(_file);
+            ListViewRegister.ItemsSource = ArmSimulator.ArmCore.Registers;
+            ListViewCode.ItemsSource = CommandList;
+        }
+
+        private void BtnStep_Click(object sender, RoutedEventArgs e)
+        {
+            if (_running) return;
+
+            ArmSimulator.ArmCore.Tick();
+            UpdateView();
+        }
+
+        private void BtnContinue_Click(object sender, RoutedEventArgs e)
+        {
+            if (_running) return;
+
+            _running = true;
+            _runThread = new Thread(Run);
+            _runThread.Start();
+        }
 
         private void ListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
@@ -222,16 +145,38 @@ namespace ARM_Simulator.View
                 Filter = "Assembly files (*.S)|*.S|All files (*.*)|*.*"
             };
 
-            if (saveFile.ShowDialog() != true) return;
-            try
+            if (saveFile.ShowDialog() != true)
+                return;
+
+            var richText = new TextRange(TxtEditor.Document.ContentStart, TxtEditor.Document.ContentEnd).Text.Replace("\r", "");
+            File.WriteAllLines(saveFile.FileName, richText.Split('\n'));
+        }
+
+        private void BtnLoadFile_Click(object sender, RoutedEventArgs e)
+        {
+            var openFile = new OpenFileDialog
             {
-                var fileStream = new FileStream(saveFile.FileName, FileMode.Create);
-                var range = new TextRange(TxtEditor.Document.ContentStart, TxtEditor.Document.ContentEnd);
-                range.Save(fileStream, DataFormats.Text);
-            }
-            catch (Exception)
+                Filter = "Assembly files (*.S)|*.S|All files (*.*)|*.*"
+            };
+
+            if (openFile.ShowDialog() != true)
+                return;
+
+            _file = openFile.FileName;
+            foreach (var line in File.ReadAllLines(_file))
+                TxtEditor.AppendText(line + "\n");
+        }
+        #endregion
+
+        private void TxtEditor_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (_file == null)
+                return;
+
+            if (e.Key == Key.S && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
-                MessageBox.Show("Error: Saving your File!");
+                var richText = new TextRange(TxtEditor.Document.ContentStart, TxtEditor.Document.ContentEnd).Text.Replace("\r", "");
+                File.WriteAllLines(_file, richText.Split('\n'));
             }
         }
     }

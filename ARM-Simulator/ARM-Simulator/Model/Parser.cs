@@ -13,9 +13,9 @@ namespace ARM_Simulator.Model
         private readonly List<Command> _commandList;
         private int _offset;
 
-        public Parser(string file)
+        public Parser(string path)
         {
-            var hFile = File.ReadAllLines(file);
+            var hFile = File.ReadAllLines(path);
             _labels = new Dictionary<string, int>();
             _commandList = new List<Command>();
 
@@ -29,11 +29,14 @@ namespace ARM_Simulator.Model
                 if (line.StartsWith("@") || line.StartsWith("//"))
                     continue;
 
-                if (line.EndsWith(":"))  // label
+                if (line.IndexOf(":", StringComparison.Ordinal) != -1) // label
                 {
-                    var label = line.Substring(0, line.Length - 1);
-                    _labels.Add(label, _commandList.Count);
-                    continue;
+                    var split = line.Split(':');
+                    _labels.Add(split[0], _commandList.Count);
+                    if (split.Length > 1 && !string.IsNullOrEmpty(split[1]))
+                        line = split[1].Trim(' ', '\t');
+                    else
+                        continue;
                 }
 
                 _commandList.Add(new Command() { Commandline = line});
