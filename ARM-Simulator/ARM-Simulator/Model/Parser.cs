@@ -10,18 +10,15 @@ namespace ARM_Simulator.Model
     public class Parser
     {
         private readonly Dictionary<string, int> _labels; // Offset, Labelname
+        private readonly List<Command> _commandList;
         private int _offset;
 
-        public Parser()
+        public Parser(string file)
         {
-            _labels = new Dictionary<string, int>();
-        }
-
-        public List<int> ParseFile(string file)
-        {
-            var commandList = new List<string>();
             var hFile = File.ReadAllLines(file);
-            
+            _labels = new Dictionary<string, int>();
+            _commandList = new List<Command>();
+
             foreach (var hLine in hFile)
             {
                 var line = hLine.Trim(' ', '\t');
@@ -35,18 +32,48 @@ namespace ARM_Simulator.Model
                 if (line.EndsWith(":"))  // label
                 {
                     var label = line.Substring(0, line.Length - 1);
-                    _labels.Add(label, commandList.Count);
+                    _labels.Add(label, _commandList.Count);
                     continue;
                 }
 
-                commandList.Add(line);
+                _commandList.Add(new Command() { Commandline = line});
+            }
+        }
+
+        public Parser()
+        {
+            
+        }
+
+        public List<int> Encode()
+        {
+            var source = new List<int>();
+            for (_offset = 0; _offset < _commandList.Count; _offset++)
+                source.Add(ParseLine(_commandList[_offset].Commandline).Encode());
+
+            return source;
+        }
+
+        public List<Command> GetCommandList()
+        {
+            if (!_labels.ContainsKey("main"))
+                throw new Exception("Cannot find entry point");
+
+            for (var i = 0; i < _commandList.Count; i++)
+            {
+                _commandList[i].Status = i == _labels["main"] ? EPipeline.Fetch : EPipeline.None;
+                _commandList[i].Breakpoint = false;
+
+                foreach (var label in _labels)
+                {
+                    if (label.Value == i)
+                    {
+                        _commandList[i].Label = label.Key;
+                    }
+                }
             }
 
-            var source = new List<int>();
-            for (_offset = 0; _offset < commandList.Count; _offset++)
-                source.Add(ParseLine(commandList[_offset]).Encode());
-            
-            return source;
+            return _commandList;
         }
 
         public ICommand ParseLine(string commandLine)
@@ -172,9 +199,9 @@ namespace ARM_Simulator.Model
                     return new Blocktransfer(condition, false, parameters);
                 case "ldm":
                     return new Blocktransfer(condition, true, parameters);
+                default:
+                    return null;
             }
-
-            return null;
         }
 
         private ICommand ParseJump(string cmdString, string parameterString)
@@ -228,6 +255,10 @@ namespace ARM_Simulator.Model
                 {
                     if (!Enum.TryParse(cmdString.Substring(0, 5).ToLower(), true, out multiplication))
                         return null;
+                }
+                else
+                {
+                    return null;
                 }
             }
 

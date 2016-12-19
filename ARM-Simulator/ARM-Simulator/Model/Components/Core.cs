@@ -7,8 +7,8 @@ namespace ARM_Simulator.Model.Components
 {
     public class Core
     {
+        public Dictionary<EPipeline, int> PipelineStatus { get; set; }
         public Dictionary<ERegister, int> Registers { get; }
-        private readonly Decoder _decoder;
         internal Memory Ram { get; }
 
         private int? _fetch;
@@ -16,6 +16,7 @@ namespace ARM_Simulator.Model.Components
         private ICommand _decode;
 
         private int _cpsr;
+        private readonly Decoder _decoder;
 
         public Core(Memory ram)
         {
@@ -39,6 +40,13 @@ namespace ARM_Simulator.Model.Components
                 {ERegister.Pc, 0}
             };
 
+            PipelineStatus = new Dictionary<EPipeline, int>
+            {
+                {EPipeline.Fetch, -1},
+                {EPipeline.Decode, -1},
+                {EPipeline.Execute, -1}
+            };
+
             _cpsr = 0x13;
             _jump = false;
             _decoder = new Decoder();
@@ -51,6 +59,12 @@ namespace ARM_Simulator.Model.Components
                 throw new Exception("Invalid Register was requested");
 
             Registers[reg] = value;
+        }
+
+        public void SetEntryPoint(int address)
+        {
+            Registers[ERegister.Pc] = address;
+            PipelineStatus[EPipeline.Fetch] = Registers[ERegister.Pc];
         }
 
         public void Jump(int address)
@@ -97,6 +111,10 @@ namespace ARM_Simulator.Model.Components
                 _decode = null;
                 _jump = false;
             }
+
+            if (decode != null) PipelineStatus[EPipeline.Execute] = PipelineStatus[EPipeline.Decode];
+            if (_fetch != null) PipelineStatus[EPipeline.Decode] = PipelineStatus[EPipeline.Fetch];
+            PipelineStatus[EPipeline.Fetch] = Registers[ERegister.Pc];
         }
 
         // Used for Unit tests, skipped pipeline

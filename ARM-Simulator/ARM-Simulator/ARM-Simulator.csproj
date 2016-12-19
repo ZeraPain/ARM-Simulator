@@ -57,6 +57,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Resources.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -81,7 +85,7 @@
     <Compile Include="Model\Parser.cs" />
     <Compile Include="Model\Components\Memory.cs" />
     <Compile Include="Utilitiy\Helper.cs" />
-    <Compile Include="ViewModel\RegisterConverter.cs" />
+    <Compile Include="ViewModel\ColorConverter.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -115,7 +119,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\Images\tick.png" />
+  </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
@@ -123,10 +129,19 @@
     <Resource Include="Resources\Images\ApplicationMenu.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Images\go-button1.png" />
+    <Content Include="Resources\source.S" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\source.txt" />
+    <Resource Include="Resources\Images\continue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\pause.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\run.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\stop.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

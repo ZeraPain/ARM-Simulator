@@ -35,6 +35,9 @@ namespace ARM_Simulator.Model.Commands
 
         public void Execute(Core armCore)
         {
+            if (!Helper.CheckConditions(Condition, armCore.GetCpsr()))
+                return;
+
             switch (JumpType)
             {
                 case EJump.Branch:

@@ -1,5 +1,13 @@
 ﻿namespace ARM_Simulator.Resources
 {
+    public class Command
+    {
+        public EPipeline Status { get; set; }
+        public bool Breakpoint { get; set; }
+        public string Label { get; set; }
+        public string Commandline { get; set; }
+    }
+
     public struct Flags
     {
         public byte Value { get; }
@@ -12,6 +20,14 @@
             if (c) Value |= 1 << 1;
             if (v) Value |= 1 << 0;
         }
+    }
+
+    public enum EPipeline
+    {
+        None,
+        Fetch,
+        Decode,
+        Execute    
     }
 
     public enum EOperand2

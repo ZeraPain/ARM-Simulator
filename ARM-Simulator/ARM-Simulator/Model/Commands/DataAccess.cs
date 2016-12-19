@@ -248,8 +248,7 @@ namespace ARM_Simulator.Model.Commands
                 }
             }
 
-            if (WriteBack)
-                armCore.SetRegValue(Rn, armCore.GetRegValue(Rn) + value);
+            if (WriteBack) armCore.SetRegValue(Rn, armCore.GetRegValue(Rn) + value);
         }
     }
 }
