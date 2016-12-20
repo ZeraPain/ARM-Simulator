@@ -27,6 +27,11 @@ namespace ARM_Simulator.Model.Components
 
         public void Reset()
         {
+            _fetch = null;
+            _decode = null;
+            _jump = false;
+            _cpsr = 0x13;
+
             Registers = new Dictionary<ERegister, int>
             {
                 {ERegister.R0, 0},
@@ -53,9 +58,6 @@ namespace ARM_Simulator.Model.Components
                 {EPipeline.Decode, -1},
                 {EPipeline.Execute, -1}
             };
-
-            _cpsr = 0x13;
-            _jump = false;
         }
 
         public void SetRegValue(ERegister reg, int value)

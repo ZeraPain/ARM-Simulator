@@ -23,11 +23,30 @@ namespace ARM_Simulator.View
         private bool _running;
         private Thread _runThread;
         private string _file;
+        private bool _debugmode;
 
         public MainWindow()
         {
             InitializeComponent();
             ArmSimulator = new Simulator();
+        }
+
+        public void ToggleDebugMode(bool active)
+        {
+            _debugmode = active;
+
+            if (active)
+            {
+                DebugMode.Visibility = Visibility.Visible;
+                EditMode.Visibility = Visibility.Collapsed;
+                ListViewRegister.ItemsSource = ArmSimulator.ArmCore.Registers;
+            }
+            else
+            {
+                DebugMode.Visibility = Visibility.Collapsed;
+                EditMode.Visibility = Visibility.Visible;
+                ListViewRegister.ItemsSource = null;
+            }
         }
 
         private void UpdateViewElements()
@@ -91,16 +110,15 @@ namespace ARM_Simulator.View
                 return;
             }
 
-            TxtEditor.Visibility = Visibility.Hidden;
-            ListViewCode.Visibility = Visibility.Visible;
             CommandList = ArmSimulator.LoadFile(_file);
-            ListViewRegister.ItemsSource = ArmSimulator.ArmCore.Registers;
             ListViewCode.ItemsSource = CommandList;
+
+            ToggleDebugMode(true);
         }
 
         private void BtnStep_Click(object sender, RoutedEventArgs e)
         {
-            if (_running) return;
+            if (_running || !_debugmode) return;
 
             ArmSimulator.ArmCore.Tick();
             UpdateView();
@@ -108,7 +126,7 @@ namespace ARM_Simulator.View
 
         private void BtnContinue_Click(object sender, RoutedEventArgs e)
         {
-            if (_running) return;
+            if (_running || !_debugmode) return;
 
             _running = true;
             _runThread = new Thread(Run);
@@ -128,14 +146,15 @@ namespace ARM_Simulator.View
 
         private void BtnPause_Click(object sender, RoutedEventArgs e)
         {
+            if (!_running || !_debugmode) return;
+
             _running = false;
             _runThread?.Join();
         }
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
-            ListViewCode.Visibility = Visibility.Hidden;
-            TxtEditor.Visibility = Visibility.Visible;       
+            ToggleDebugMode(false);     
         }
 
         private void BtnSaveFile_Click(object sender, RoutedEventArgs e)

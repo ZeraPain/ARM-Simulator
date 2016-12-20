@@ -30,7 +30,24 @@
         </Ribbon>
 
         <StackPanel>
-            <Grid Width="Auto">
+            <!-- This is only visible while editing a file -->
+            <Grid Name="EditMode" Width="Auto">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="350" />
+                    <RowDefinition Height="120" />
+                </Grid.RowDefinitions>
+
+                <RichTextBox AcceptsReturn="True" x:Name="TxtEditor" Height="Auto" Width="Auto" Margin="0,0,0,0" Grid.Column="0" Grid.Row="0" AcceptsTab="True" KeyDown="TxtEditor_OnKeyDown">
+                    <RichTextBox.Resources>
+                        <Style TargetType="{x:Type Paragraph}">
+                            <Setter Property="Margin" Value="0"/>
+                        </Style>
+                    </RichTextBox.Resources>
+                </RichTextBox>
+            </Grid>
+
+            <!-- This is only visible while debugging a file -->
+            <Grid Name="DebugMode" Width="Auto" Visibility="Hidden">
 
                 <Grid.RowDefinitions>
                     <RowDefinition Height="350" />
@@ -41,7 +58,8 @@
                     <ColumnDefinition Width="150" />
                 </Grid.ColumnDefinitions>
 
-                <ListView Grid.Row="0" Grid.Column="0" x:Name="ListViewCode" Height="Auto" Width="Auto" MouseDoubleClick="ListView_MouseDoubleClick" ItemsSource="{Binding CommandList}" VerticalContentAlignment="Center" Visibility="Hidden">
+                <!-- Code section -->
+                <ListView Grid.Row="0" Grid.Column="0" x:Name="ListViewCode" Height="Auto" Width="Auto" MouseDoubleClick="ListView_MouseDoubleClick" ItemsSource="{Binding CommandList}" VerticalContentAlignment="Center">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
                             <Setter Property="Background" Value="{Binding Converter={StaticResource ColorConverter}}" />
@@ -56,14 +74,7 @@
                     </ListView.View>
                 </ListView>
 
-                <RichTextBox AcceptsReturn="True" x:Name="TxtEditor" Height="Auto" Width="Auto" Margin="0,0,0,0" Grid.Column="0" Grid.Row="0" AcceptsTab="True" KeyDown="TxtEditor_OnKeyDown">
-                    <RichTextBox.Resources>
-                        <Style TargetType="{x:Type Paragraph}">
-                            <Setter Property="Margin" Value="0"/>
-                        </Style>
-                    </RichTextBox.Resources>
-                </RichTextBox>
-
+                <!-- Register view -->
                 <ListView Grid.Row="0" Grid.Column="1" x:Name="ListViewRegister" Height="Auto" Width="Auto" ItemsSource="{Binding ArmSimulator.ArmCore.Registers}">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
@@ -78,6 +89,7 @@
                     </ListView.View>
                 </ListView>
             </Grid>
+            
         </StackPanel>
     </DockPanel>
 </RibbonWindow>

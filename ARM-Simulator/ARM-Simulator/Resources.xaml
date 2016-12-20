@@ -5,4 +5,5 @@
 
     <viewModel:ColorConverter x:Key="ColorConverter" />
     <viewModel:BreakpointConverter x:Key="BreakpointConverter" />
+    <viewModel:ModeConverter x:Key="ModeConverter" />
 </ResourceDictionary>
