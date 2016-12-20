@@ -7,12 +7,12 @@ namespace ARM_Simulator.Model
     public class Simulator
     {
         public Core ArmCore { get; protected set; }
-        private readonly Memory _memory;
+        public Memory Memory { get; protected set; }
 
         public Simulator()
         {
-            _memory = new Memory(0x40000, 0x10000);
-            ArmCore = new Core(_memory);
+            Memory = new Memory(0x40000, 0x10000);
+            ArmCore = new Core(Memory);
         }
 
         public List<Command> LoadFile(string path)
@@ -22,7 +22,7 @@ namespace ARM_Simulator.Model
             var parser = new Parser(path);
             var source = parser.Encode();
             ArmCore.SetEntryPoint(parser.GetEntryPoint());
-            _memory.LoadSource(source);
+            Memory.LoadSource(source);
 
             return parser.GetCommandList();
         }

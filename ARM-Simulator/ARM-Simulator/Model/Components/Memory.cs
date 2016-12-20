@@ -43,7 +43,7 @@ namespace ARM_Simulator.Model.Components
             Write(address, BitConverter.GetBytes(data));
         }
 
-        private void Write(uint address, byte[] data)
+        public void Write(uint address, byte[] data)
         {
             if (address < _codeSectionEnd)
                 throw new AccessViolationException("Cannot write to the code section");
@@ -64,7 +64,7 @@ namespace ARM_Simulator.Model.Components
             return Read(address, 1)[0];
         }
 
-        private byte[] Read(uint address, int length)
+        public byte[] Read(uint address, int length)
         {
             if (address + length > _ram.Length)
                 throw new IndexOutOfRangeException("Undefined memory location");

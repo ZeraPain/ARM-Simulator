@@ -8,6 +8,7 @@ main:
 
 L1:	add r2, r2, r1
 	sub r3, r3, r1
+	stm sp!, {r1-r4}
 	cmp r2, #5
 	beq main
 	b L1

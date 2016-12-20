@@ -31,7 +31,7 @@
 
         <StackPanel>
             <!-- This is only visible while editing a file -->
-            <Grid Name="EditMode" Width="Auto">
+            <Grid x:Name="EditMode" Visibility="Visible">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="350" />
                     <RowDefinition Height="120" />
@@ -47,19 +47,19 @@
             </Grid>
 
             <!-- This is only visible while debugging a file -->
-            <Grid Name="DebugMode" Width="Auto" Visibility="Hidden">
+            <Grid x:Name="DebugMode" Visibility="Collapsed">
 
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="350" />
-                    <RowDefinition Height="120" />
+                    <RowDefinition Height="320" />
+                    <RowDefinition Height="150" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="650" />
+                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="150" />
                 </Grid.ColumnDefinitions>
 
                 <!-- Code section -->
-                <ListView Grid.Row="0" Grid.Column="0" x:Name="ListViewCode" Height="Auto" Width="Auto" MouseDoubleClick="ListView_MouseDoubleClick" ItemsSource="{Binding CommandList}" VerticalContentAlignment="Center">
+                <ListView Grid.Row="0" Grid.Column="0" x:Name="ListViewCode" MouseDoubleClick="ListView_MouseDoubleClick" ItemsSource="{Binding CommandList}">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
                             <Setter Property="Background" Value="{Binding Converter={StaticResource ColorConverter}}" />
@@ -69,16 +69,16 @@
                         <GridView>
                             <GridViewColumn Header="BP" Width="20" DisplayMemberBinding="{Binding Converter={StaticResource BreakpointConverter}}"/>
                             <GridViewColumn Header="Label" Width="50" DisplayMemberBinding="{Binding Label}"/>
-                            <GridViewColumn Header="Code" Width="570" DisplayMemberBinding="{Binding Commandline}" />
+                            <GridViewColumn Header="Code" Width="Auto" DisplayMemberBinding="{Binding Commandline}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
 
                 <!-- Register view -->
-                <ListView Grid.Row="0" Grid.Column="1" x:Name="ListViewRegister" Height="Auto" Width="Auto" ItemsSource="{Binding ArmSimulator.ArmCore.Registers}">
+                <ListView Grid.Row="0" Grid.Column="1" x:Name="ListViewRegister" ItemsSource="{Binding ArmSimulator.ArmCore.Registers}">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
-                            <Setter Property="Height" Value="19"/>
+                            <Setter Property="Height" Value="17"/>
                         </Style>
                     </ListView.Resources>
                     <ListView.View>
@@ -88,6 +88,16 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
+
+                <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding MemoryVm.MemoryView}">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Address" Width="70" DisplayMemberBinding="{Binding Key}" />
+                            <GridViewColumn Header="Data" Width="Auto" DisplayMemberBinding="{Binding Value}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
             </Grid>
             
         </StackPanel>

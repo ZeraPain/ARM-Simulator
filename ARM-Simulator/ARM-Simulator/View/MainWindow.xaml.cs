@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using ARM_Simulator.Model;
 using ARM_Simulator.Resources;
+using ARM_Simulator.ViewModel;
 using Microsoft.Win32;
 
 namespace ARM_Simulator.View
@@ -19,6 +20,7 @@ namespace ARM_Simulator.View
     {
         public Simulator ArmSimulator { get; protected set; }
         public List<Command> CommandList { get; protected set; }
+        public MemoryViewModel MemoryVm { get; protected set; }
 
         private bool _running;
         private Thread _runThread;
@@ -29,6 +31,7 @@ namespace ARM_Simulator.View
         {
             InitializeComponent();
             ArmSimulator = new Simulator();
+            MemoryVm = new MemoryViewModel(ArmSimulator.Memory);
         }
 
         public void ToggleDebugMode(bool active)
@@ -40,12 +43,14 @@ namespace ARM_Simulator.View
                 DebugMode.Visibility = Visibility.Visible;
                 EditMode.Visibility = Visibility.Collapsed;
                 ListViewRegister.ItemsSource = ArmSimulator.ArmCore.Registers;
+                ListViewMemory.ItemsSource = MemoryVm.MemoryView;
             }
             else
             {
                 DebugMode.Visibility = Visibility.Collapsed;
                 EditMode.Visibility = Visibility.Visible;
                 ListViewRegister.ItemsSource = null;
+                ListViewMemory.ItemsSource = null;
             }
         }
 
@@ -67,6 +72,8 @@ namespace ARM_Simulator.View
             }
             ListViewCode.Items.Refresh();
             ListViewRegister.Items.Refresh();
+            MemoryVm.Update();
+            ListViewMemory.Items.Refresh();
         }
 
         private void UpdateView()
@@ -114,6 +121,7 @@ namespace ARM_Simulator.View
             ListViewCode.ItemsSource = CommandList;
 
             ToggleDebugMode(true);
+            UpdateView();
         }
 
         private void BtnStep_Click(object sender, RoutedEventArgs e)
