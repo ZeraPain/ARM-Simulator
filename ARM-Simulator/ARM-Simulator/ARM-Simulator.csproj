@@ -88,7 +88,6 @@
     <Compile Include="ViewModel\BreakpointConverter.cs" />
     <Compile Include="ViewModel\ColorConverter.cs" />
     <Compile Include="ViewModel\MemoryViewModel.cs" />
-    <Compile Include="ViewModel\ModeConverter.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
