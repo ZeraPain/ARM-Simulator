@@ -38,12 +38,24 @@
                     <RowDefinition Height="120" />
                 </Grid.RowDefinitions>
 
-                <RichTextBox AcceptsReturn="True" x:Name="TxtEditor" Height="Auto" Width="Auto" Margin="0,0,0,0" Grid.Column="0" Grid.Row="0" AcceptsTab="True" KeyDown="TxtEditor_OnKeyDown">
+                <RichTextBox AcceptsReturn="True" x:Name="RichTextBoxEditor" Grid.Row="0" AcceptsTab="True" KeyDown="TxtEditor_OnKeyDown">
                     <RichTextBox.Resources>
                         <Style TargetType="{x:Type Paragraph}">
                             <Setter Property="Margin" Value="0"/>
                         </Style>
                     </RichTextBox.Resources>
+                </RichTextBox>
+                <RichTextBox x:Name="RichTextBoxLog" Grid.Row="1" IsEnabled="False">
+                    <RichTextBox.Resources>
+                        <Style TargetType="{x:Type Paragraph}">
+                            <Setter Property="Margin" Value="0"/>
+                        </Style>
+                    </RichTextBox.Resources>
+                    <FlowDocument>
+                        <Paragraph>
+                            <Run Text="+++ Output Window +++"/>
+                        </Paragraph>
+                    </FlowDocument>
                 </RichTextBox>
             </Grid>
 
@@ -90,11 +102,12 @@
                     </ListView.View>
                 </ListView>
 
+                <!-- Memory view -->
                 <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding MemoryVm.MemoryView}">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Address" Width="70" DisplayMemberBinding="{Binding Key}" />
-                            <GridViewColumn Header="Data" Width="Auto" DisplayMemberBinding="{Binding Value}" />
+                            <GridViewColumn Header="Memory Data" Width="Auto" DisplayMemberBinding="{Binding Value}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

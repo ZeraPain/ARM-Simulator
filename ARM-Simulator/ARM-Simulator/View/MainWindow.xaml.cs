@@ -109,9 +109,13 @@ namespace ARM_Simulator.View
                 _file = saveFile.FileName;
             }
 
-            var docStream = new FileStream(_file, FileMode.OpenOrCreate);
-            System.Windows.Markup.XamlWriter.Save(TxtEditor.Document, docStream);
-            docStream.Close();
+            var content = new TextRange(RichTextBoxEditor.Document.ContentStart, RichTextBoxEditor.Document.ContentEnd).Text.TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
+            File.WriteAllLines(_file, content);
+        }
+
+        public void NotifyUser(string message)
+        {
+            RichTextBoxLog.AppendText("\n" + message);
         }
 
         #region Click-Functions
@@ -123,10 +127,16 @@ namespace ARM_Simulator.View
                 return;
             }
 
-            CoreVm.CommandList = ArmSimulator.LoadFile(_file);
-
-            ToggleDebugMode(true);
-            UpdateView();
+            try
+            {
+                CoreVm.CommandList = ArmSimulator.LoadFile(_file);
+                ToggleDebugMode(true);
+                UpdateView();
+            }
+            catch (Exception ex)
+            {
+                NotifyUser(ex.Message);
+            }
         }
 
         private void BtnStep_Click(object sender, RoutedEventArgs e)
@@ -166,6 +176,8 @@ namespace ARM_Simulator.View
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
+            if (!_debugmode) return;
+
             if (_running)
             {
                 _running = false;
@@ -178,7 +190,7 @@ namespace ARM_Simulator.View
         private void BtnNewFile_Click(object sender, RoutedEventArgs e)
         {
             _file = null;
-            TxtEditor.Document.Blocks.Clear();
+            RichTextBoxEditor.Document.Blocks.Clear();
         }
 
         private void BtnLoadFile_Click(object sender, RoutedEventArgs e)
@@ -192,7 +204,7 @@ namespace ARM_Simulator.View
                 return;
 
             _file = openFile.FileName;
-            var range = new TextRange(TxtEditor.Document.ContentStart, TxtEditor.Document.ContentEnd);
+            var range = new TextRange(RichTextBoxEditor.Document.ContentStart, RichTextBoxEditor.Document.ContentEnd);
             var fStream = new FileStream(_file, FileMode.OpenOrCreate);
             range.Load(fStream, DataFormats.Text);
             fStream.Close();
