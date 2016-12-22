@@ -59,7 +59,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Code section -->
-                <ListView Grid.Row="0" Grid.Column="0" x:Name="ListViewCode" MouseDoubleClick="ListView_MouseDoubleClick" ItemsSource="{Binding CommandList}">
+                <ListView Grid.Row="0" Grid.Column="0" x:Name="ListViewCode" MouseDoubleClick="ListView_MouseDoubleClick" ItemsSource="{Binding CoreVm.CommandList}">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
                             <Setter Property="Background" Value="{Binding Converter={StaticResource ColorConverter}}" />

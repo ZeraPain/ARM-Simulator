@@ -87,6 +87,7 @@
     <Compile Include="Utilitiy\Helper.cs" />
     <Compile Include="ViewModel\BreakpointConverter.cs" />
     <Compile Include="ViewModel\ColorConverter.cs" />
+    <Compile Include="ViewModel\CoreViewModel.cs" />
     <Compile Include="ViewModel\MemoryViewModel.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

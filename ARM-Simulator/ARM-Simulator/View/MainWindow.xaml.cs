@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Windows;
@@ -7,7 +6,6 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Threading;
 using ARM_Simulator.Model;
-using ARM_Simulator.Resources;
 using ARM_Simulator.ViewModel;
 using Microsoft.Win32;
 
@@ -19,8 +17,8 @@ namespace ARM_Simulator.View
     public partial class MainWindow
     {
         public Simulator ArmSimulator { get; protected set; }
-        public List<Command> CommandList { get; protected set; }
         public MemoryViewModel MemoryVm { get; protected set; }
+        public CoreViewModel CoreVm { get; protected set; }
 
         private bool _running;
         private Thread _runThread;
@@ -32,6 +30,7 @@ namespace ARM_Simulator.View
             InitializeComponent();
             ArmSimulator = new Simulator();
             MemoryVm = new MemoryViewModel(ArmSimulator.Memory);
+            CoreVm = new CoreViewModel(ArmSimulator.ArmCore);
         }
 
         public void ToggleDebugMode(bool active)
@@ -42,6 +41,7 @@ namespace ARM_Simulator.View
             {
                 DebugMode.Visibility = Visibility.Visible;
                 EditMode.Visibility = Visibility.Collapsed;
+                ListViewCode.ItemsSource = CoreVm.CommandList;
                 ListViewRegister.ItemsSource = ArmSimulator.ArmCore.Registers;
                 ListViewMemory.ItemsSource = MemoryVm.MemoryView;
             }
@@ -49,6 +49,7 @@ namespace ARM_Simulator.View
             {
                 DebugMode.Visibility = Visibility.Collapsed;
                 EditMode.Visibility = Visibility.Visible;
+                ListViewCode.ItemsSource = null;
                 ListViewRegister.ItemsSource = null;
                 ListViewMemory.ItemsSource = null;
             }
@@ -56,22 +57,14 @@ namespace ARM_Simulator.View
 
         private void UpdateViewElements()
         {
-            foreach (var x in CommandList) x.Status = EPipeline.None;
-
-            var status = ArmSimulator.ArmCore.PipelineStatus;
-            foreach (var x in status)
-            {
-                if (x.Value < 0)
-                    continue;
-
-                var index = x.Value / 4;
-                if (index >= CommandList.Count)
-                    continue;
-
-                CommandList[index].Status = x.Key;
-            }
+            // Code View Update
+            CoreVm.Update();
             ListViewCode.Items.Refresh();
+
+            // Register View Update
             ListViewRegister.Items.Refresh();
+
+            // Memory View Update
             MemoryVm.Update();
             ListViewMemory.Items.Refresh();
         }
@@ -95,16 +88,9 @@ namespace ARM_Simulator.View
             while (_running)
             {
                 ArmSimulator.ArmCore.Tick();
-
-                var pcExe = ArmSimulator.ArmCore.PipelineStatus[EPipeline.Execute];
-                for (var i = 0; i < CommandList.Count; i++) // TODO: fix this dirty part
-                {
-                    if (CommandList[i].Breakpoint && i * 4 == pcExe)
-                    {
-                        _running = false;
-                    }
-                }
+                if (CoreVm.IsBreakPoint()) _running = false;
             }
+
             UpdateView();
         }
 
@@ -117,8 +103,7 @@ namespace ARM_Simulator.View
                 return;
             }
 
-            CommandList = ArmSimulator.LoadFile(_file);
-            ListViewCode.ItemsSource = CommandList;
+            CoreVm.CommandList = ArmSimulator.LoadFile(_file);
 
             ToggleDebugMode(true);
             UpdateView();
@@ -147,9 +132,8 @@ namespace ARM_Simulator.View
             if (index < 0 || index >= ListViewCode.Items.Count)
                 return;
 
-            CommandList[index].Breakpoint = !CommandList[index].Breakpoint;
-            ListViewCode.ItemsSource = null;
-            ListViewCode.ItemsSource = CommandList;
+            CoreVm.ToggleBreakPoint(index);
+            ListViewCode.Items.Refresh();
         }
 
         private void BtnPause_Click(object sender, RoutedEventArgs e)
