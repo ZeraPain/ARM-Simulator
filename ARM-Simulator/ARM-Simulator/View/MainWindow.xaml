@@ -13,6 +13,7 @@
 
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
+                    <RibbonApplicationMenuItem Header="New File" Click="BtnNewFile_Click" />
                     <RibbonApplicationMenuItem Header="Open File" Click="BtnLoadFile_Click" />
                     <RibbonApplicationMenuItem Header="Save File" Click="BtnSaveFile_Click" />
                 </RibbonApplicationMenu>

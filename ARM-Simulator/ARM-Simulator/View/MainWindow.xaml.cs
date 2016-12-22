@@ -94,12 +94,32 @@ namespace ARM_Simulator.View
             UpdateView();
         }
 
+        public void SaveFile()
+        {
+            if (string.IsNullOrEmpty(_file))
+            {
+                var saveFile = new SaveFileDialog
+                {
+                    Filter = "Assembly files (*.S)|*.S|All files (*.*)|*.*"
+                };
+
+                if (saveFile.ShowDialog() != true)
+                    return;
+
+                _file = saveFile.FileName;
+            }
+
+            var docStream = new FileStream(_file, FileMode.OpenOrCreate);
+            System.Windows.Markup.XamlWriter.Save(TxtEditor.Document, docStream);
+            docStream.Close();
+        }
+
         #region Click-Functions
         private void BtnRun_Click(object sender, RoutedEventArgs e)
         {
-            if (_file == null)
+            if (string.IsNullOrEmpty(_file))
             {
-                MessageBox.Show("Please load a file before running", "File missing");
+                MessageBox.Show("Please load/save file before running", "File missing");
                 return;
             }
 
@@ -146,21 +166,19 @@ namespace ARM_Simulator.View
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
+            if (_running)
+            {
+                _running = false;
+                _runThread?.Join();
+            }
+
             ToggleDebugMode(false);     
         }
 
-        private void BtnSaveFile_Click(object sender, RoutedEventArgs e)
+        private void BtnNewFile_Click(object sender, RoutedEventArgs e)
         {
-            var saveFile = new SaveFileDialog
-            {
-                Filter = "Assembly files (*.S)|*.S|All files (*.*)|*.*"
-            };
-
-            if (saveFile.ShowDialog() != true)
-                return;
-
-            var richText = new TextRange(TxtEditor.Document.ContentStart, TxtEditor.Document.ContentEnd).Text.Replace("\r", "");
-            File.WriteAllLines(saveFile.FileName, richText.Split('\n'));
+            _file = null;
+            TxtEditor.Document.Blocks.Clear();
         }
 
         private void BtnLoadFile_Click(object sender, RoutedEventArgs e)
@@ -170,24 +188,27 @@ namespace ARM_Simulator.View
                 Filter = "Assembly files (*.S)|*.S|All files (*.*)|*.*"
             };
 
-            if (openFile.ShowDialog() != true)
+            if (openFile.ShowDialog() != true || !File.Exists(openFile.FileName))
                 return;
 
             _file = openFile.FileName;
-            foreach (var line in File.ReadAllLines(_file))
-                TxtEditor.AppendText(line + "\n");
+            var range = new TextRange(TxtEditor.Document.ContentStart, TxtEditor.Document.ContentEnd);
+            var fStream = new FileStream(_file, FileMode.OpenOrCreate);
+            range.Load(fStream, DataFormats.Text);
+            fStream.Close();
+        }
+
+        private void BtnSaveFile_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFile();
         }
         #endregion
 
         private void TxtEditor_OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (_file == null)
-                return;
-
             if (e.Key == Key.S && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
-                var richText = new TextRange(TxtEditor.Document.ContentStart, TxtEditor.Document.ContentEnd).Text.Replace("\r", "");
-                File.WriteAllLines(_file, richText.Split('\n'));
+                SaveFile();
             }
         }
     }
