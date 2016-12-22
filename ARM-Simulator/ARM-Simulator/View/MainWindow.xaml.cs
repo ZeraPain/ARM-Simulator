@@ -47,8 +47,8 @@ namespace ARM_Simulator.View
             }
             else
             {
-                DebugMode.Visibility = Visibility.Collapsed;
                 EditMode.Visibility = Visibility.Visible;
+                DebugMode.Visibility = Visibility.Collapsed;
                 ListViewCode.ItemsSource = null;
                 ListViewRegister.ItemsSource = null;
                 ListViewMemory.ItemsSource = null;
@@ -85,10 +85,17 @@ namespace ARM_Simulator.View
 
         private void Run()
         {
-            while (_running)
+            try
             {
-                ArmSimulator.ArmCore.Tick();
-                if (CoreVm.IsBreakPoint()) _running = false;
+                while (_running)
+                {
+                    ArmSimulator.ArmCore.Tick();
+                    if (CoreVm.IsBreakPoint()) _running = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                NotifyUser(ex);
             }
 
             UpdateView();
@@ -113,9 +120,12 @@ namespace ARM_Simulator.View
             File.WriteAllLines(_file, content);
         }
 
-        public void NotifyUser(string message)
+        public void NotifyUser(Exception ex)
         {
-            RichTextBoxLog.AppendText("\n" + message);
+            if (_debugmode)
+                MessageBox.Show(ex.Message, ex.Source);
+            else
+                RichTextBoxLog.AppendText("\n" + ex.Message);
         }
 
         #region Click-Functions
@@ -135,7 +145,7 @@ namespace ARM_Simulator.View
             }
             catch (Exception ex)
             {
-                NotifyUser(ex.Message);
+                NotifyUser(ex);
             }
         }
 
