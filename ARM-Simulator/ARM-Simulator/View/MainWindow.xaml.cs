@@ -96,21 +96,6 @@ namespace ARM_Simulator.View
             }
         }
 
-        private void CheckBoxFetch_OnChecked(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("check");
-        }
-
-        private void CheckBoxDecode_OnChecked(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("check");
-        }
-
-        private void CheckBoxExcecute_OnChecked(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("check");
-        }
-
         private void CheckBoxShowBreakpoints_OnClick(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("click");
@@ -120,5 +105,6 @@ namespace ARM_Simulator.View
         {
             MessageBox.Show("click");
         }
+
     }
 }
