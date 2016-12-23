@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Data;
 using ARM_Simulator.Annotations;
 
-namespace ARM_Simulator.ViewModel
+namespace ARM_Simulator.ViewModel.Converters
 {
     internal class VisibilityConverter : IValueConverter
     {

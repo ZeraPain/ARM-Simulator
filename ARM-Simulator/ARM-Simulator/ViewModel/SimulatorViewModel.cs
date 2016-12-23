@@ -1,15 +1,19 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
+using ARM_Simulator.Annotations;
 using ARM_Simulator.Commands;
 using ARM_Simulator.Model;
 using ARM_Simulator.Resources;
 
 namespace ARM_Simulator.ViewModel
 {
-    internal class SimulatorViewModel : ViewModelBase
+    internal class SimulatorViewModel : INotifyPropertyChanged
     {
         private bool _running;
         private Thread _runThread;
@@ -22,7 +26,7 @@ namespace ARM_Simulator.ViewModel
             {
                 if (_file == value) return;
                 _file = value;
-                RaisePropertyChanged("File");
+                OnPropertyChanged(nameof(File));
             }
         }
 
@@ -34,7 +38,7 @@ namespace ARM_Simulator.ViewModel
             {
                 if (_debugmode == value) return;
                 _debugmode = value;
-                RaisePropertyChanged("DebugMode");
+                OnPropertyChanged(nameof(DebugMode));
             }
         }
 
@@ -69,7 +73,6 @@ namespace ARM_Simulator.ViewModel
             {
                 var cmdlist = ArmSimulator.LoadFile(_file);
                 CoreVm.UpdateList(cmdlist);
-
                 DebugMode = true;
             }
             catch (Exception ex)
@@ -82,7 +85,6 @@ namespace ARM_Simulator.ViewModel
         {
             if (!DebugMode) return;
             _running = false;
-            _runThread?.Join();
 
             DebugMode = false;
         }
@@ -107,21 +109,22 @@ namespace ARM_Simulator.ViewModel
         {
             if (!DebugMode) return;
             _running = false;
-            _runThread?.Join();
         }
 
         private void RunThread()
         {
             try
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                while (_running)
                 {
-                    while (_running)
-                    {
-                        CoreVm.ArmCore.Tick();
-                        if (IsBreakPoint()) _running = false;
-                    }
-                }));
+                    Application.Current.Dispatcher.Invoke(
+                        DispatcherPriority.Background,
+                        (Action)(() =>
+                        {
+                                CoreVm.ArmCore.Tick();
+                                if (IsBreakPoint()) _running = false;
+                        }));
+                }
             }
             catch (Exception ex)
             {
@@ -134,5 +137,10 @@ namespace ARM_Simulator.ViewModel
             var pogramCounter = CoreVm.ArmCore.PipelineStatus[EPipeline.Execute];
             return CoreVm.CommandList.Where((cmd, index) => cmd.Breakpoint && index*4 == pogramCounter).Any();
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected void OnPropertyChanged([CanBeNull] [CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

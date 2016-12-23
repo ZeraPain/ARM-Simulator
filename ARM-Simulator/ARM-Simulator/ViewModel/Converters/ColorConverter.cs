@@ -4,15 +4,16 @@ using System.Windows.Data;
 using System.Windows.Media;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Resources;
+using ARM_Simulator.ViewModel.Observables;
 
-namespace ARM_Simulator.ViewModel
+namespace ARM_Simulator.ViewModel.Converters
 {
     class ColorConverter : IValueConverter
     {
         [CanBeNull]
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var command = value as Command;
+            var command = value as ObservableCommand;
             if (command == null)
                 return null;
 

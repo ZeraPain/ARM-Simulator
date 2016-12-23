@@ -12,7 +12,7 @@ namespace ARM_Simulator.Model.Components
     {
         public Dictionary<EPipeline, int> PipelineStatus { get; protected set; }
         public Dictionary<ERegister, int> Registers { get; protected set; }
-        
+
         internal Memory Ram { get; }
 
         private int? _fetch;
@@ -55,6 +55,7 @@ namespace ARM_Simulator.Model.Components
                 {ERegister.Lr, 0},
                 {ERegister.Pc, 0}
             };
+            OnPropertyChanged(nameof(Registers));
 
             PipelineStatus = new Dictionary<EPipeline, int>
             {
@@ -62,6 +63,7 @@ namespace ARM_Simulator.Model.Components
                 {EPipeline.Decode, -1},
                 {EPipeline.Execute, -1}
             };
+            OnPropertyChanged(nameof(PipelineStatus));
         }
 
         public void SetRegValue(ERegister reg, int value)
@@ -77,11 +79,12 @@ namespace ARM_Simulator.Model.Components
         {
             Registers[ERegister.Pc] = address;
             PipelineStatus[EPipeline.Fetch] = Registers[ERegister.Pc];
+            OnPropertyChanged(nameof(PipelineStatus));
         }
 
         public void Jump(int address)
         {
-            Registers[ERegister.Pc] = address;
+            SetRegValue(ERegister.Pc, address);
             _jump = true;
         }
 
@@ -112,7 +115,7 @@ namespace ARM_Simulator.Model.Components
             {
                 _fetch = fetch;
                 _decode = decode;
-                Registers[ERegister.Pc] += 0x4;
+                SetRegValue(ERegister.Pc, Registers[ERegister.Pc] + 0x4);
             }
             else
             {
@@ -133,7 +136,6 @@ namespace ARM_Simulator.Model.Components
             var cmd = _decoder.Decode(command.Encode());
             cmd?.Execute(this);
         }
-
 
         public event PropertyChangedEventHandler PropertyChanged;
 

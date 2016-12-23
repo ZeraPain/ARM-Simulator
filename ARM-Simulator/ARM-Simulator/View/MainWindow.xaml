@@ -77,7 +77,17 @@
                 <ListView Grid.Row="0" Grid.Column="0" x:Name="ListViewCode" MouseDoubleClick="ListViewCode_MouseDoubleClick" ItemsSource="{Binding Path=CoreVm.CommandList, Mode=TwoWay}">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
-                            <Setter Property="Background" Value="{Binding Converter={StaticResource ColorConverter}}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Status}" Value="1">
+                                    <Setter Property="Background" Value="LawnGreen" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="2">
+                                    <Setter Property="Background" Value="Yellow" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="3">
+                                    <Setter Property="Background" Value="OrangeRed" />
+                                </DataTrigger>
+                            </Style.Triggers>
                         </Style>
                     </ListView.Resources>
                     <ListView.View>
@@ -105,11 +115,11 @@
                 </ListView>
 
                 <!-- Memory view -->
-                <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding MemoryVm.MemoryView}">
+                <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Path=MemoryVm.MemoryView}">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Address" Width="70" DisplayMemberBinding="{Binding BaseAddress}" />
-                            <GridViewColumn Header="Memory Data" Width="Auto" DisplayMemberBinding="{Binding MemoryString}" />
+                            <GridViewColumn Header="Address" Width="70" DisplayMemberBinding="{Binding BaseAddress}"/>
+                            <GridViewColumn Header="Memory Data" Width="Auto" DisplayMemberBinding="{Binding MemoryString}"/>
                         </GridView>
                     </ListView.View>
                 </ListView>

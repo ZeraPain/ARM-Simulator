@@ -11,7 +11,6 @@ namespace ARM_Simulator.Commands
             _action = action;
         }
 
-        #region ICommand Members
         public event EventHandler CanExecuteChanged;
         public bool CanExecute(object parameter)
         {
@@ -22,7 +21,5 @@ namespace ARM_Simulator.Commands
         {
             _action(parameter);
         }
-
-        #endregion
     }
 }

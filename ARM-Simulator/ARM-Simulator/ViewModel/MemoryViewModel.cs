@@ -3,26 +3,20 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Model.Components;
+using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.ViewModel
 {
     public class MemoryViewModel
     {
-        public class MemoryStream
-        {
-            public string BaseAddress { get; set; }
-            public string MemoryString { get; set; }
-        }
-
-        public ObservableCollection<MemoryStream> MemoryView { get; protected set; }
-
+        public ObservableCollection<ObservableMemoryStream> MemoryView { get; protected set; }
         private readonly Memory _memory;
 
         public MemoryViewModel(Memory memory)
         {
             _memory = memory;
             _memory.PropertyChanged += Update;
-            MemoryView = new ObservableCollection<MemoryStream>();
+            MemoryView = new ObservableCollection<ObservableMemoryStream>();
         }
 
         private void Update(object sender, [NotNull] PropertyChangedEventArgs e)
@@ -37,7 +31,6 @@ namespace ARM_Simulator.ViewModel
 
         private void UpdateMemoryView()
         {
-            MemoryView.Clear();
             var data = _memory.Ram;
 
             for (var i = 0; i < data.Length / 32; i++)
@@ -45,11 +38,19 @@ namespace ARM_Simulator.ViewModel
                 var baseAddr = i*32;
                 var datarow = new byte[32];
                 Array.Copy(data, baseAddr, datarow, 0, 32);
-                MemoryView.Add(new MemoryStream
+
+                var baseAddress = baseAddr.ToString("X8");
+                var memoryString = BitConverter.ToString(datarow).Replace("-", " ");
+
+                if (MemoryView.Count <= i)
                 {
-                    BaseAddress = baseAddr.ToString("X8"),
-                    MemoryString = BitConverter.ToString(datarow).Replace("-", " ")
-                });
+                    MemoryView.Add(new ObservableMemoryStream() {BaseAddress = baseAddress, MemoryString = memoryString});
+                }
+                else
+                {
+                    MemoryView[i].BaseAddress = baseAddress;
+                    MemoryView[i].MemoryString = memoryString;
+                }
             }
         }
     }

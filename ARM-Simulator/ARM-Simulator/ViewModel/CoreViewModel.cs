@@ -1,30 +1,26 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Resources;
+using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.ViewModel
 {
-    public class CoreViewModel : ViewModelBase
+    public class CoreViewModel
     {
-        public class Register
-        {
-            public ERegister Name { get; set; }
-            public string Value { get; set; }
-        }
-
-        public ObservableCollection<Command> CommandList { get; set; }
-        public ObservableCollection<Register> RegisterList { get; set; }
+        public ObservableCollection<ObservableCommand> CommandList { get; set; }
+        public ObservableCollection<ObservableRegister> RegisterList { get; set; }
         public Core ArmCore { get; set; }
 
         public CoreViewModel(Core core)
         {
             ArmCore = core;
             ArmCore.PropertyChanged += Update;
-            RegisterList = new ObservableCollection<Register>();
-            CommandList = new ObservableCollection<Command>();
+            RegisterList = new ObservableCollection<ObservableRegister>();
+            CommandList = new ObservableCollection<ObservableCommand>();
 
             UpdateRegisterList();
         }
@@ -43,15 +39,20 @@ namespace ARM_Simulator.ViewModel
 
         private void UpdateRegisterList()
         {
-            RegisterList.Clear();
-            foreach (var register in ArmCore.Registers)
-                RegisterList.Add(new Register() { Name = register.Key, Value = register.Value.ToString() });
+            for (var i = 0; i < ArmCore.Registers.Count; i++)
+            {
+                var register = ArmCore.Registers.ElementAt(i);
+                if (RegisterList.Any(reg => reg.Name == register.Key))
+                    RegisterList[i].Value = register.Value.ToString();
+                else
+                    RegisterList.Add(new ObservableRegister { Name = register.Key, Value = register.Value.ToString() });
+            }
         }
 
         private void UpdatePipelineStatus()
         {
-            var commanListCopy = new List<Command>(CommandList);
-            foreach (var x in commanListCopy) x.Status = EPipeline.None;
+            foreach (var t in CommandList)
+                t.Status = EPipeline.None;
 
             var status = ArmCore.PipelineStatus;
             foreach (var x in status)
@@ -60,20 +61,24 @@ namespace ARM_Simulator.ViewModel
                     continue;
 
                 var index = x.Value / 4;
-                if (index >= commanListCopy.Count)
+                if (index >= CommandList.Count)
                     continue;
 
-                commanListCopy[index].Status = x.Key;
+                CommandList[index].Status = x.Key;
             }
-
-            UpdateList(commanListCopy);
         }
 
         public void UpdateList([NotNull] IEnumerable<Command> cmdList)
         {
             CommandList.Clear();
             foreach (var x in cmdList)
-                CommandList.Add(x);
+                CommandList.Add(new ObservableCommand()
+                {
+                    Breakpoint = x.Breakpoint,
+                    Commandline = x.Commandline,
+                    Label = x.Label,
+                    Status = x.Status
+                });
         }
 
         public void ToggleBreakPoint(object parameter)
