@@ -28,6 +28,25 @@
                     <RibbonButton Label="Pause" LargeImageSource="/Resources/Images/pause.png" Click="BtnPause_Click" />
                 </RibbonGroup>
             </RibbonTab>
+            <RibbonTab x:Name="OptionsTab" Header="Options" VerticalAlignment="Top" Margin="0,0,0,8">
+                <RibbonGroup x:Name="OptionGroupPipelining">
+                    <TextBlock x:Name="TextBlockLabel" Text="Pipelinig View"  FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    <StackPanel Orientation="Horizontal">
+                    <RibbonCheckBox x:Name="CheckBoxFetch" Label="Fetch"  Background="LawnGreen" Margin="0,-2,0,0"  VerticalAlignment="Center" Checked="CheckBoxFetch_OnChecked"/>
+                    <RibbonCheckBox x:Name="CheckBoxDecode" Label="Decode"  Background="Yellow" Margin="0,-2,0,0" VerticalAlignment="Center" Checked="CheckBoxDecode_OnChecked"/>
+                  <RibbonCheckBox x:Name="CheckBoxExcecute" Label="Excecute"  Background="OrangeRed" Margin="0,-2,0,0" VerticalAlignment="Center" Checked="CheckBoxExcecute_OnChecked"/>
+               </StackPanel>  
+                </RibbonGroup>
+                <Separator></Separator>
+                <RibbonGroup x:Name="OptionGroupBreakpoints" HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <TextBlock x:Name="TextBlockBreakpoints" Text="Breakpoints" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    <StackPanel Orientation="Horizontal">
+                    <RibbonButton x:Name="CheckBoxShowBreakpoints" Label="Show All" Margin="1,2,1,2" Background="LightGray" Click="CheckBoxShowBreakpoints_OnClick"/>
+                    <RibbonButton x:Name="CheckBoxRemoveBreakpoints" Label="Remove All" Margin="1,2,1,2" Background="LightGray" Click="CheckBoxRemoveBreakpoints_OnClick"/>
+                  </StackPanel>   
+                    </RibbonGroup>
+               <Separator></Separator>
+            </RibbonTab>
         </Ribbon>
 
         <StackPanel>
