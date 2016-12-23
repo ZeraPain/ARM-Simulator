@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows.Data;
+using ARM_Simulator.Annotations;
 using ARM_Simulator.Resources;
 
 namespace ARM_Simulator.ViewModel
 {
     internal class BreakpointConverter : IValueConverter
     {
+        [CanBeNull]
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var command = value as Command;

@@ -2,12 +2,14 @@
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
+using ARM_Simulator.Annotations;
 using ARM_Simulator.Resources;
 
 namespace ARM_Simulator.ViewModel
 {
     class ColorConverter : IValueConverter
     {
+        [CanBeNull]
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var command = value as Command;

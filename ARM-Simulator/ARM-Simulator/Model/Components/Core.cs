@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Resources;
 
 namespace ARM_Simulator.Model.Components
 {
-    public class Core
+    public class Core : INotifyPropertyChanged
     {
         public Dictionary<EPipeline, int> PipelineStatus { get; protected set; }
         public Dictionary<ERegister, int> Registers { get; protected set; }
+        
         internal Memory Ram { get; }
 
         private int? _fetch;
@@ -66,6 +70,7 @@ namespace ARM_Simulator.Model.Components
                 throw new Exception("Invalid Register was requested");
 
             Registers[reg] = value;
+            OnPropertyChanged(nameof(Registers));
         }
 
         public void SetEntryPoint(int address)
@@ -82,7 +87,7 @@ namespace ARM_Simulator.Model.Components
 
         public int GetRegValue(ERegister? reg)
         {
-            if (reg == null || !Registers.ContainsKey((ERegister)reg))
+            if ((reg == null) || !Registers.ContainsKey((ERegister)reg))
                 throw new Exception("Invalid Register was requested");
 
             return Registers[(ERegister)reg];
@@ -94,10 +99,7 @@ namespace ARM_Simulator.Model.Components
             _cpsr |= flags.Value << 28; // Set affected status bits
         }
 
-        public int GetCpsr()
-        {
-            return _cpsr;
-        }
+        public int GetCpsr() => _cpsr;
 
         public void Tick()
         {
@@ -122,13 +124,20 @@ namespace ARM_Simulator.Model.Components
             PipelineStatus[EPipeline.Execute] = PipelineStatus[EPipeline.Decode];
             PipelineStatus[EPipeline.Decode] = PipelineStatus[EPipeline.Fetch];
             PipelineStatus[EPipeline.Fetch] = Registers[ERegister.Pc];
+            OnPropertyChanged(nameof(PipelineStatus));
         }
 
         // Used for Unit tests, skipped pipeline
-        public void TestCommand(ICommand command)
+        public void TestCommand([NotNull] ICommand command)
         {
             var cmd = _decoder.Decode(command.Encode());
             cmd?.Execute(this);
         }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

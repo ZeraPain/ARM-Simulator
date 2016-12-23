@@ -80,7 +80,7 @@ namespace ARM_Simulator.Model.Commands
 
         private EOperand2 ParseOperand2(string operand2, string shiftValue)
         {
-            if (operand2.StartsWith("#")) // use immediate
+            if (operand2.StartsWith("#", StringComparison.Ordinal)) // use immediate
             {
                 Immediate = Parser.ParseImmediate<byte>(operand2);
                 ShiftCount = 0;
@@ -90,6 +90,7 @@ namespace ARM_Simulator.Model.Commands
                     if (Rotate >= 16)
                         throw new ArgumentOutOfRangeException();
                 }
+
                 return EOperand2.RotateImmediate;
             }
 
@@ -247,6 +248,7 @@ namespace ARM_Simulator.Model.Commands
                     result = armCore.GetRegValue(Rn) ^ value;
                     break;
             }
+
             return result;
         }
 

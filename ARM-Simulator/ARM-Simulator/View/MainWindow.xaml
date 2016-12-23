@@ -3,42 +3,44 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:view="clr-namespace:ARM_Simulator.View"
+        xmlns:local="clr-namespace:ARM_Simulator.ViewModel"
         mc:Ignorable="d"
         x:Class="ARM_Simulator.View.MainWindow"
-        Title="ARM Simulator" Height="600" Width="800" d:DataContext="{d:DesignInstance view:MainWindow}">
-
+        Title="{Binding Path=File}" Height="600" Width="800">
+    <RibbonWindow.DataContext>
+        <local:SimulatorViewModel />
+    </RibbonWindow.DataContext>
     <DockPanel LastChildFill="True">
         <Ribbon DockPanel.Dock="Top" Height="105">
 
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
                     <RibbonApplicationMenuItem Header="New File" Click="BtnNewFile_Click" />
-                    <RibbonApplicationMenuItem Header="Open File" Click="BtnLoadFile_Click" />
+                    <RibbonApplicationMenuItem Header="Open File" Click="BtnLoadFile_Click"/>
                     <RibbonApplicationMenuItem Header="Save File" Click="BtnSaveFile_Click" />
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
 
             <RibbonTab Header="Main" Margin="0,0,0,8">
                 <RibbonGroup>
-                    <RibbonButton Label="Run" LargeImageSource="/Resources/Images/run.png" Click="BtnRun_Click" />
-                    <RibbonButton Label="Stop" LargeImageSource="/Resources/Images/stop.png" Click="BtnStop_Click" />
-                    <RibbonButton Label="Tick" LargeImageSource="/Resources/Images/tick.png" Click="BtnStep_Click" />
-                    <RibbonButton Label="Continue" LargeImageSource="/Resources/Images/continue.png" Click="BtnContinue_Click" />
-                    <RibbonButton Label="Pause" LargeImageSource="/Resources/Images/pause.png" Click="BtnPause_Click" />
+                    <RibbonButton Label="Run" LargeImageSource="/Resources/Images/run.png" Command="{Binding RunCommand}" />
+                    <RibbonButton Label="Stop" LargeImageSource="/Resources/Images/stop.png" Command="{Binding StopCommand}" />
+                    <RibbonButton Label="Tick" LargeImageSource="/Resources/Images/tick.png" Command="{Binding TickCommand}" />
+                    <RibbonButton Label="Continue" LargeImageSource="/Resources/Images/continue.png" Command="{Binding ContinueCommand}" />
+                    <RibbonButton Label="Pause" LargeImageSource="/Resources/Images/pause.png" Command="{Binding PauseCommand}" />
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>
 
         <StackPanel>
             <!-- This is only visible while editing a file -->
-            <Grid x:Name="EditMode" Visibility="Visible">
+            <Grid x:Name="EditMode" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="350" />
                     <RowDefinition Height="120" />
                 </Grid.RowDefinitions>
 
-                <RichTextBox AcceptsReturn="True" x:Name="RichTextBoxEditor" Grid.Row="0" AcceptsTab="True" KeyDown="TxtEditor_OnKeyDown">
+                <RichTextBox AcceptsReturn="True" x:Name="RichTextBoxEditor" Grid.Row="0" AcceptsTab="True" KeyDown="RichTextBoxEditor_OnKeyDown">
                     <RichTextBox.Resources>
                         <Style TargetType="{x:Type Paragraph}">
                             <Setter Property="Margin" Value="0"/>
@@ -60,7 +62,7 @@
             </Grid>
 
             <!-- This is only visible while debugging a file -->
-            <Grid x:Name="DebugMode" Visibility="Collapsed">
+            <Grid x:Name="DebugMode" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Debugger'}">
 
                 <Grid.RowDefinitions>
                     <RowDefinition Height="320" />
@@ -72,7 +74,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Code section -->
-                <ListView Grid.Row="0" Grid.Column="0" x:Name="ListViewCode" MouseDoubleClick="ListView_MouseDoubleClick" ItemsSource="{Binding CoreVm.CommandList}">
+                <ListView Grid.Row="0" Grid.Column="0" x:Name="ListViewCode" MouseDoubleClick="ListViewCode_MouseDoubleClick" ItemsSource="{Binding Path=CoreVm.CommandList, Mode=TwoWay}">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
                             <Setter Property="Background" Value="{Binding Converter={StaticResource ColorConverter}}" />
@@ -88,7 +90,7 @@
                 </ListView>
 
                 <!-- Register view -->
-                <ListView Grid.Row="0" Grid.Column="1" x:Name="ListViewRegister" ItemsSource="{Binding ArmSimulator.ArmCore.Registers}">
+                <ListView Grid.Row="0" Grid.Column="1" x:Name="ListViewRegister" ItemsSource="{Binding Path=CoreVm.RegisterList}">
                     <ListView.Resources>
                         <Style TargetType="{x:Type ListViewItem}">
                             <Setter Property="Height" Value="17"/>
@@ -96,7 +98,7 @@
                     </ListView.Resources>
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Register" Width="60" DisplayMemberBinding="{Binding Key}"/>
+                            <GridViewColumn Header="Register" Width="60" DisplayMemberBinding="{Binding Name}"/>
                             <GridViewColumn Header="Value" Width="80" DisplayMemberBinding="{Binding Value}"/>
                         </GridView>
                     </ListView.View>
@@ -106,8 +108,8 @@
                 <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding MemoryVm.MemoryView}">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Address" Width="70" DisplayMemberBinding="{Binding Key}" />
-                            <GridViewColumn Header="Memory Data" Width="Auto" DisplayMemberBinding="{Binding Value}" />
+                            <GridViewColumn Header="Address" Width="70" DisplayMemberBinding="{Binding BaseAddress}" />
+                            <GridViewColumn Header="Memory Data" Width="Auto" DisplayMemberBinding="{Binding MemoryString}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -117,6 +119,62 @@
         </StackPanel>
     </DockPanel>
 </RibbonWindow>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

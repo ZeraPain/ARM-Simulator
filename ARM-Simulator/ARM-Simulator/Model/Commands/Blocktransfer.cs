@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Resources;
@@ -46,6 +47,7 @@ namespace ARM_Simulator.Model.Commands
             // Parse Destination Register
             if (!parameters[0].EndsWith(","))
                 throw new ArgumentException("Invalid syntax");
+
             parameters[0] = parameters[0].Substring(0, parameters[0].Length - 1);
 
             if (parameters[0].EndsWith("!"))
@@ -59,29 +61,27 @@ namespace ARM_Simulator.Model.Commands
             // Parse Register List
             var regList = parameters[1].Split(',');
 
-            foreach (var reg in regList)
+            foreach (var regRange in regList.Select(reg => reg.Split('-')))
             {
-                var regRange = reg.Split('-');
-                if (regRange.Length == 1)
+                switch (regRange.Length)
                 {
-                    var register = Parser.ParseRegister(regRange[0]);
-                    RegisterList |= 1 << (int)register;
-                }
-                else if (regRange.Length == 2)
-                {
-                    var startReg = Parser.ParseRegister(regRange[0]);
-                    var endReg = Parser.ParseRegister(regRange[1]);
-                    if (endReg < startReg)
-                        throw new ArgumentException("Invalid syntax");
+                    case 1:
+                        var register = Parser.ParseRegister(regRange[0]);
+                        RegisterList |= 1 << (int)register;
+                        break;
+                    case 2:
+                        var startReg = Parser.ParseRegister(regRange[0]);
+                        var endReg = Parser.ParseRegister(regRange[1]);
+                        if (endReg < startReg)
+                            throw new ArgumentException("Invalid syntax");
 
-                    for (var i = startReg; i <= endReg; i++)
-                    {
-                        RegisterList |= 1 << (int)i;
-                    }
-                }
-                else
-                {
-                    throw new ArgumentException("Invalid syntax");
+                        for (var i = startReg; i <= endReg; i++)
+                        {
+                            RegisterList |= 1 << (int)i;
+                        }
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid syntax");
                 }
             }
 

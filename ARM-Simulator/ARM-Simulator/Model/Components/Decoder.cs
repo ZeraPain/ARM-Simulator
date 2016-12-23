@@ -1,4 +1,5 @@
 ﻿using System;
+using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
 using ARM_Simulator.Resources;
@@ -44,6 +45,7 @@ namespace ARM_Simulator.Model.Components
             return null;
         }
 
+        [CanBeNull]
         private static ICommand DecodeBlockTransfer(int command)
         {
             var br = new BitReader(command);
@@ -227,6 +229,7 @@ namespace ARM_Simulator.Model.Components
             return null;
         }
 
+        [CanBeNull]
         public ICommand Decode(int? fetch)
         {
             if (fetch == null)
@@ -241,7 +244,7 @@ namespace ARM_Simulator.Model.Components
                 var conditions = (ECondition)br.ReadBits(28, 4);
                 var rm = (ERegister) br.ReadBits(0, 4);
                 return new Jump(conditions, EJump.BranchExchange, rm);
-            }  
+            }
 
             // 11 bit
             var cmd = DecodeMul(command);

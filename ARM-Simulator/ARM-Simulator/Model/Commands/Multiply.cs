@@ -206,6 +206,6 @@ namespace ARM_Simulator.Model.Commands
                 armCore.SetNzcvFlags(new Flags(true, true, false, false), //C, V are not set for ARMv5 and higher
                     new Flags((long)result < 0, result == 0, false, false));
             }
-        }       
+        }
     }
 }
