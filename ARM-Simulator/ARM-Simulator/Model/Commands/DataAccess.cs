@@ -78,23 +78,23 @@ namespace ARM_Simulator.Model.Commands
 
             Rn = Parser.ParseRegister(source[0]);
 
-            if (source.Length > 1)
+            if (source.Length <= 1)
+                return;
+
+            if (source[1].StartsWith("#", StringComparison.Ordinal))
             {
-                if (source[1].StartsWith("#"))
+                Immediate = Parser.ParseImmediate<short>(source[1]);
+                if (Immediate > 4096) throw new ArgumentOutOfRangeException();
+                Offset = EOffset.Immediate;
+            }
+            else
+            {
+                Rm = Parser.ParseRegister(source[1]);
+                if (source.Length > 2)
                 {
-                    Immediate = Parser.ParseImmediate<short>(source[1]);
-                    if (Immediate > 4096) throw new ArgumentOutOfRangeException();
-                    Offset = EOffset.Immediate;
+                    Parser.ParseShiftInstruction(source[2], ref ShiftInst, ref ShiftCount);
                 }
-                else
-                {
-                    Rm = Parser.ParseRegister(source[1]);
-                    if (source.Length > 2)
-                    {
-                        Parser.ParseShiftInstruction(source[2], ref ShiftInst, ref ShiftCount);
-                    }
-                    Offset = EOffset.ImmediateShiftRm;
-                }    
+                Offset = EOffset.ImmediateShiftRm;
             }
         }
 

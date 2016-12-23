@@ -69,6 +69,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Commands\DelegateCommand.cs" />
     <Compile Include="Model\Commands\Arithmetic.cs" />
     <Compile Include="Model\Commands\Blocktransfer.cs" />
     <Compile Include="Model\Commands\DataAccess.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="Model\Commands\MoveStatus.cs" />
     <Compile Include="Model\Commands\Multiply.cs" />
     <Compile Include="Model\Simulator.cs" />
+    <Compile Include="Properties\Annotations5.cs" />
     <Compile Include="Utilitiy\BitReader.cs" />
     <Compile Include="Utilitiy\BitWriter.cs" />
     <Compile Include="Resources\ARMStruct.cs" />
@@ -85,10 +87,15 @@
     <Compile Include="Model\Parser.cs" />
     <Compile Include="Model\Components\Memory.cs" />
     <Compile Include="Utilitiy\Helper.cs" />
-    <Compile Include="ViewModel\BreakpointConverter.cs" />
-    <Compile Include="ViewModel\ColorConverter.cs" />
+    <Compile Include="ViewModel\Converters\BreakpointConverter.cs" />
+    <Compile Include="ViewModel\Converters\ColorConverter.cs" />
     <Compile Include="ViewModel\CoreViewModel.cs" />
     <Compile Include="ViewModel\MemoryViewModel.cs" />
+    <Compile Include="ViewModel\Observables\ObservableCommand.cs" />
+    <Compile Include="ViewModel\Observables\ObservableMemoryStream.cs" />
+    <Compile Include="ViewModel\Observables\ObservableRegister.cs" />
+    <Compile Include="ViewModel\SimulatorViewModel.cs" />
+    <Compile Include="ViewModel\Converters\VisibilityConverter.cs" />
     <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

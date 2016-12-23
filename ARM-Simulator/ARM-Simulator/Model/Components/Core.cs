@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Resources;
 
 namespace ARM_Simulator.Model.Components
 {
-    public class Core
+    public class Core : INotifyPropertyChanged
     {
         public Dictionary<EPipeline, int> PipelineStatus { get; protected set; }
         public Dictionary<ERegister, int> Registers { get; protected set; }
+
         internal Memory Ram { get; }
 
         private int? _fetch;
@@ -51,6 +55,7 @@ namespace ARM_Simulator.Model.Components
                 {ERegister.Lr, 0},
                 {ERegister.Pc, 0}
             };
+            OnPropertyChanged(nameof(Registers));
 
             PipelineStatus = new Dictionary<EPipeline, int>
             {
@@ -58,6 +63,7 @@ namespace ARM_Simulator.Model.Components
                 {EPipeline.Decode, -1},
                 {EPipeline.Execute, -1}
             };
+            OnPropertyChanged(nameof(PipelineStatus));
         }
 
         public void SetRegValue(ERegister reg, int value)
@@ -66,23 +72,25 @@ namespace ARM_Simulator.Model.Components
                 throw new Exception("Invalid Register was requested");
 
             Registers[reg] = value;
+            OnPropertyChanged(nameof(Registers));
         }
 
         public void SetEntryPoint(int address)
         {
             Registers[ERegister.Pc] = address;
             PipelineStatus[EPipeline.Fetch] = Registers[ERegister.Pc];
+            OnPropertyChanged(nameof(PipelineStatus));
         }
 
         public void Jump(int address)
         {
-            Registers[ERegister.Pc] = address;
+            SetRegValue(ERegister.Pc, address);
             _jump = true;
         }
 
         public int GetRegValue(ERegister? reg)
         {
-            if (reg == null || !Registers.ContainsKey((ERegister)reg))
+            if ((reg == null) || !Registers.ContainsKey((ERegister)reg))
                 throw new Exception("Invalid Register was requested");
 
             return Registers[(ERegister)reg];
@@ -94,10 +102,7 @@ namespace ARM_Simulator.Model.Components
             _cpsr |= flags.Value << 28; // Set affected status bits
         }
 
-        public int GetCpsr()
-        {
-            return _cpsr;
-        }
+        public int GetCpsr() => _cpsr;
 
         public void Tick()
         {
@@ -110,7 +115,7 @@ namespace ARM_Simulator.Model.Components
             {
                 _fetch = fetch;
                 _decode = decode;
-                Registers[ERegister.Pc] += 0x4;
+                SetRegValue(ERegister.Pc, Registers[ERegister.Pc] + 0x4);
             }
             else
             {
@@ -122,13 +127,19 @@ namespace ARM_Simulator.Model.Components
             PipelineStatus[EPipeline.Execute] = PipelineStatus[EPipeline.Decode];
             PipelineStatus[EPipeline.Decode] = PipelineStatus[EPipeline.Fetch];
             PipelineStatus[EPipeline.Fetch] = Registers[ERegister.Pc];
+            OnPropertyChanged(nameof(PipelineStatus));
         }
 
         // Used for Unit tests, skipped pipeline
-        public void TestCommand(ICommand command)
+        public void TestCommand([NotNull] ICommand command)
         {
             var cmd = _decoder.Decode(command.Encode());
             cmd?.Execute(this);
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

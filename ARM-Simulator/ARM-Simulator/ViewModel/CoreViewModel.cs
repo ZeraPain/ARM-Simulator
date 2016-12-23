@@ -1,25 +1,60 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using ARM_Simulator.Annotations;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Resources;
+using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.ViewModel
 {
     public class CoreViewModel
     {
-        public List<Command> CommandList { get; set; }
-        private readonly Core _core;
+        public ObservableCollection<ObservableCommand> CommandList { get; set; }
+        public ObservableCollection<ObservableRegister> RegisterList { get; set; }
+        public Core ArmCore { get; set; }
 
         public CoreViewModel(Core core)
         {
-            _core = core;
+            ArmCore = core;
+            ArmCore.PropertyChanged += Update;
+            RegisterList = new ObservableCollection<ObservableRegister>();
+            CommandList = new ObservableCollection<ObservableCommand>();
+
+            UpdateRegisterList();
         }
 
-        public void Update()
+        private void Update(object sender, [NotNull] PropertyChangedEventArgs e)
         {
-            foreach (var x in CommandList) x.Status = EPipeline.None;
+            if (e.PropertyName == "Registers")
+            {
+                UpdateRegisterList();
+            }
+            else if (e.PropertyName == "PipelineStatus")
+            {
+                UpdatePipelineStatus();
+            }
+        }
 
-            var status = _core.PipelineStatus;
+        private void UpdateRegisterList()
+        {
+            for (var i = 0; i < ArmCore.Registers.Count; i++)
+            {
+                var register = ArmCore.Registers.ElementAt(i);
+                if (RegisterList.Any(reg => reg.Name == register.Key))
+                    RegisterList[i].Value = register.Value.ToString();
+                else
+                    RegisterList.Add(new ObservableRegister { Name = register.Key, Value = register.Value.ToString() });
+            }
+        }
+
+        private void UpdatePipelineStatus()
+        {
+            foreach (var t in CommandList)
+                t.Status = EPipeline.None;
+
+            var status = ArmCore.PipelineStatus;
             foreach (var x in status)
             {
                 if (x.Value < 0)
@@ -33,18 +68,25 @@ namespace ARM_Simulator.ViewModel
             }
         }
 
-        public void ToggleBreakPoint(int index)
+        public void UpdateList([NotNull] IEnumerable<Command> cmdList)
         {
-            if (index >= 0 && index < CommandList.Count)
-            {
-                CommandList[index].Breakpoint = !CommandList[index].Breakpoint;
-            }
+            CommandList.Clear();
+            foreach (var x in cmdList)
+                CommandList.Add(new ObservableCommand()
+                {
+                    Breakpoint = x.Breakpoint,
+                    Commandline = x.Commandline,
+                    Label = x.Label,
+                    Status = x.Status
+                });
         }
 
-        public bool IsBreakPoint()
+        public void ToggleBreakPoint(object parameter)
         {
-            var pogramCounter = _core.PipelineStatus[EPipeline.Execute];
-            return CommandList.Where((t, i) => t.Breakpoint && i*4 == pogramCounter).Any();
+            var index = parameter as int?;
+
+            if ((index >= 0) && (index < CommandList.Count))
+                CommandList[(int)index].Breakpoint = !CommandList[(int)index].Breakpoint;
         }
     }
 }

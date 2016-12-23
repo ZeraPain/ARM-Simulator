@@ -259,10 +259,6 @@ namespace ARM_Simulator.Model
                     if (!Enum.TryParse(cmdString.Substring(0, 5).ToLower(), true, out multiplication))
                         return null;
                 }
-                else
-                {
-                    return null;
-                }
             }
 
             string args;

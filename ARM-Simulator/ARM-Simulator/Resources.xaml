@@ -1,8 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:ARM_Simulator"
-                    xmlns:viewModel="clr-namespace:ARM_Simulator.ViewModel">
+                    xmlns:converters="clr-namespace:ARM_Simulator.ViewModel.Converters">
 
-    <viewModel:ColorConverter x:Key="ColorConverter" />
-    <viewModel:BreakpointConverter x:Key="BreakpointConverter" />
+    <converters:ColorConverter x:Key="ColorConverter" />
+    <converters:BreakpointConverter x:Key="BreakpointConverter" />
+    <converters:VisibilityConverter x:Key="VisibilityConverter" />
 </ResourceDictionary>
