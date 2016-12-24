@@ -145,6 +145,7 @@
     <Resource Include="Resources\Images\exit.png" />
     <Resource Include="Resources\Images\removeBP.png" />
     <Resource Include="Resources\Images\showBP.png" />
+    <Resource Include="Resources\Images\Icon.png" />
     <Content Include="Resources\source.S" />
   </ItemGroup>
   <ItemGroup>

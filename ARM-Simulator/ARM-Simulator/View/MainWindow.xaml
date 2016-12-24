@@ -8,9 +8,11 @@
         x:Class="ARM_Simulator.View.MainWindow"
         Title="{Binding AppTitle}" 
         Width="auto"
-        Height="auto" 
-    SizeToContent="WidthAndHeight"
-    WindowStartupLocation="CenterScreen">
+        Height="auto"
+        SizeToContent="WidthAndHeight"
+        ResizeMode="CanResizeWithGrip"
+        WindowStartupLocation="CenterScreen"
+        Icon="/Resources/Images/Icon.png">
     <RibbonWindow.DataContext>
         <local:SimulatorViewModel/>
     </RibbonWindow.DataContext>
@@ -51,6 +53,11 @@
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>
+       
+        <!-- Fill this part with something! -->
+        <StatusBar DockPanel.Dock="Bottom" Height="30">
+            Status...
+        </StatusBar>
 
         <StackPanel>
             <!-- This is only visible while editing a file -->
@@ -144,11 +151,90 @@
                     </ListView.View>
                 </ListView>
 
+                <!-- Stack view  DataBinding Stack Data and Address-->
+                <ListView x:Name="ListViewStack" Grid.Row="1" Grid.Column="1" >
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Address" Width="60" />
+                            <GridViewColumn Header="Stack Data" Width="80" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+
             </Grid>
-            
         </StackPanel>
+
+      
+
     </DockPanel>
+
+       
 </RibbonWindow>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
