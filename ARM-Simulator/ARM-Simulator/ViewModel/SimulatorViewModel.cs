@@ -24,11 +24,9 @@ namespace ARM_Simulator.ViewModel
             get { return _appTitle; }
             set
             {
-                if (_appTitle != null && _appTitle != value)
-                {
-                    _appTitle = value;
-                    OnPropertyChanged(value);
-                }
+                if (_appTitle == null || _appTitle == value) return;
+                _appTitle = value;
+                OnPropertyChanged(value);
             }
         }
 
@@ -73,7 +71,9 @@ namespace ARM_Simulator.ViewModel
             ArmSimulator = new Simulator();
             MemoryVm = new MemoryViewModel(ArmSimulator.Memory);
             CoreVm = new CoreViewModel(ArmSimulator.ArmCore);
+
             AppTitle = "Arm-Simulator";
+
             StopCommand = new DelegateCommand(Stop);
             RunCommand = new DelegateCommand(Run);
             TickCommand = new DelegateCommand(Tick);

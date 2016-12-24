@@ -6,7 +6,11 @@
         xmlns:local="clr-namespace:ARM_Simulator.ViewModel"
         mc:Ignorable="d"
         x:Class="ARM_Simulator.View.MainWindow"
-        Title="{Binding Path=AppTitle}" Height="600" Width="800">
+        Title="{Binding AppTitle}" 
+        Width="auto"
+        Height="auto" 
+    SizeToContent="WidthAndHeight"
+    WindowStartupLocation="CenterScreen">
     <RibbonWindow.DataContext>
         <local:SimulatorViewModel/>
     </RibbonWindow.DataContext>
