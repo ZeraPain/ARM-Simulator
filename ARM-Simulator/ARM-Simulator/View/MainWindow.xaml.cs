@@ -14,6 +14,7 @@ namespace ARM_Simulator.View
     {
         private readonly SimulatorViewModel _viewModel;
 
+
         public MainWindow()
         {
             InitializeComponent();
