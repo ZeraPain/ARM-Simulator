@@ -40,8 +40,8 @@ namespace ARM_Simulator.Model.Components
 
         public void Write(uint address, [NotNull] byte[] data)
         {
-            if (address < _codeSectionEnd)
-                throw new AccessViolationException("Cannot write to the code section");
+            //if (address < _codeSectionEnd)
+            //    throw new AccessViolationException("Cannot write to the code section");
 
             if (address + data.Length > Ram.Length)
                 throw new AccessViolationException("Memory out of range requested");

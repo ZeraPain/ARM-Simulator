@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
 using ARM_Simulator.Resources;
@@ -21,25 +22,33 @@ namespace ARM_Simulator.Model
 
             foreach (var hLine in hFile)
             {
-                var line = hLine.Trim(' ', '\t');
+                var cmdLine = hLine;
 
-                if (string.IsNullOrEmpty(line))
-                    continue;
+                // Check for comments
+                var commentIndex = cmdLine.IndexOf("@", StringComparison.Ordinal);
+                if (commentIndex > -1) cmdLine = cmdLine.Substring(0, commentIndex);
 
-                if (line.StartsWith("@") || line.StartsWith("//"))
-                    continue;
-
-                if (line.IndexOf(":", StringComparison.Ordinal) != -1) // label
+                // Check for labels
+                var labelIndex = cmdLine.IndexOf(":", StringComparison.Ordinal);
+                if (labelIndex > -1)
                 {
-                    var split = line.Split(':');
-                    _labels.Add(split[0], _commandList.Count);
-                    if (split.Length > 1 && !string.IsNullOrEmpty(split[1]))
-                        line = split[1].Trim(' ', '\t');
+                    var label = cmdLine.Substring(0, labelIndex).Trim(' ', '\t');
+                    _labels.Add(label, _commandList.Count);
+
+                    if (cmdLine.Length > labelIndex+1)
+                        cmdLine = cmdLine.Substring(labelIndex+1);
                     else
                         continue;
                 }
 
-                _commandList.Add(new Command() { Commandline = line});
+                cmdLine = cmdLine.Trim(' ', '\t');
+                if (string.IsNullOrEmpty(cmdLine))
+                    continue;
+
+                if (cmdLine.StartsWith(".", StringComparison.Ordinal)) // TODO: implement parameters
+                    continue;
+
+                _commandList.Add(new Command() { Commandline = cmdLine });
             }
         }
 
@@ -48,6 +57,7 @@ namespace ARM_Simulator.Model
             
         }
 
+        [NotNull]
         public List<int> Encode()
         {
             var source = new List<int>();
@@ -79,7 +89,8 @@ namespace ARM_Simulator.Model
             return _commandList;
         }
 
-        public ICommand ParseLine(string commandLine)
+        [NotNull]
+        public ICommand ParseLine([NotNull] string commandLine)
         {
             var index = commandLine.IndexOf(' ');
             if (index == -1)
@@ -122,7 +133,8 @@ namespace ARM_Simulator.Model
             return _labels["main"] * 0x4;
         }
 
-        private static ICommand ParseArithmetic(string cmdString, string parameterString)
+        [CanBeNull]
+        private static ICommand ParseArithmetic([NotNull] string cmdString, string parameterString)
         {
             if (cmdString.Length <= 2)
                 return null;
@@ -162,6 +174,7 @@ namespace ARM_Simulator.Model
             return new Arithmetic(condition, opCode, setConditionFlags, parameters);
         }
 
+        [CanBeNull]
         private static ICommand ParseDataAccess(string cmdString, string parameterString)
         {
             if (cmdString.Length <= 2)
@@ -185,6 +198,7 @@ namespace ARM_Simulator.Model
             return null;
         }
 
+        [CanBeNull]
         private static ICommand ParseBlockTransfer(string cmdString, string parameterString)
         {
             if (cmdString.Length <= 2)
@@ -207,45 +221,45 @@ namespace ARM_Simulator.Model
             }
         }
 
+        [CanBeNull]
         private ICommand ParseJump(string cmdString, string parameterString)
         {
             cmdString = cmdString.ToLower();
 
-            if (cmdString.StartsWith("b"))
+            if (cmdString.StartsWith("bx", StringComparison.Ordinal))
             {
+                cmdString = cmdString.Substring(2);
+                var conditions = ParseCondition(ref cmdString);
+                var rm = ParseRegister(parameterString);
+                return new Jump(conditions, EJump.BranchExchange, rm);
+            }
+
+            if (cmdString.StartsWith("b", StringComparison.Ordinal))
+            {
+                var link = false;
+                if (cmdString.StartsWith("bl", StringComparison.Ordinal))
+                {
+                    link = true;
+                    cmdString = cmdString.Substring(2);
+                }
+                else
+                {
+                    cmdString = cmdString.Substring(1);
+                }
+
                 if (!_labels.ContainsKey(parameterString))
                     throw new ArgumentException("Unknown Label");
 
+                var conditions = ParseCondition(ref cmdString);
                 var offset = _labels[parameterString] - _offset - 2; // -2 -> Pipeline
 
-                if (cmdString.Length < 2)
-                    return new Jump(ECondition.Always, EJump.Branch, offset);
-
-                cmdString = cmdString.Substring(1, cmdString.Length - 1);
-                EJump jump;
-
-                switch (cmdString)
-                {
-                    case "l":
-                        cmdString = cmdString.Substring(1, cmdString.Length - 1);
-                        jump = EJump.BranchLink;
-                        break;
-                    case "x":
-                        cmdString = cmdString.Substring(1, cmdString.Length - 1);
-                        jump = EJump.BranchExchange;
-                        break;
-                    default:
-                        jump = EJump.Branch;
-                        break;
-                }
-
-                var conditions = ParseCondition(ref cmdString);
-                return new Jump(conditions, jump, offset);
+                return new Jump(conditions, link ? EJump.BranchLink : EJump.Branch, offset);
             }
 
             return null;
         }
 
+        [CanBeNull]
         private static ICommand ParseMultiply(string cmdString, string parameterString)
         {
             if (cmdString.Length <= 2)
@@ -288,9 +302,7 @@ namespace ARM_Simulator.Model
         {
             var parameters = parameterString.Split(seperator, StringSplitOptions.RemoveEmptyEntries);
             for (var i = 0; i < parameters.Length; i++)
-            {
                 parameters[i] = parameters[i].Replace(" ", string.Empty);
-            }
 
             return parameters;
         }
@@ -390,7 +402,7 @@ namespace ARM_Simulator.Model
 
         public static T ParseImmediate<T>(string parameter)
         {
-            if (parameter.StartsWith("#0x"))
+            if (parameter.StartsWith("#0x", StringComparison.Ordinal))
             {
                 var value = long.Parse(parameter.Substring(3), System.Globalization.NumberStyles.HexNumber);
                 return (T)Convert.ChangeType(value, typeof(T));
@@ -415,6 +427,7 @@ namespace ARM_Simulator.Model
             {
                 shiftCount = ParseImmediate<byte>(parameter);
                 if (shiftCount > 64) throw new ArgumentOutOfRangeException();
+
                 return false;
             }
 

@@ -74,6 +74,7 @@ namespace ARM_Simulator.Model.Commands
                 case EJump.BranchExchange:
                     bw.WriteBits(1, 24, 1);
                     bw.WriteBits(1, 21, 1);
+                    bw.WriteBits(1, 4, 1);
                     bw.WriteBits((int)Rm, 0, 4);
                     break;
                 default:

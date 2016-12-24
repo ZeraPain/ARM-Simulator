@@ -93,7 +93,14 @@ namespace ARM_Simulator.ViewModel
         {
             if (!DebugMode) return;
 
-            CoreVm.ArmCore.Tick();
+            try
+            {
+                CoreVm.ArmCore.Tick();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, ex.Source);
+            }
         }
 
         private void Continue(object paramter)

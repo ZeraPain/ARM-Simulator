@@ -15,12 +15,20 @@ namespace ARM_Simulator.ViewModel
         public ObservableCollection<ObservableRegister> RegisterList { get; set; }
         public Core ArmCore { get; set; }
 
+        public bool DisplayFetch { get; set; }
+        public bool DisplayDecode { get; set; }
+        public bool DisplayExecute { get; set; }
+
         public CoreViewModel(Core core)
         {
             ArmCore = core;
             ArmCore.PropertyChanged += Update;
             RegisterList = new ObservableCollection<ObservableRegister>();
             CommandList = new ObservableCollection<ObservableCommand>();
+
+            DisplayFetch = true;
+            DisplayDecode = true;
+            DisplayExecute = true;
 
             UpdateRegisterList();
         }
@@ -64,7 +72,9 @@ namespace ARM_Simulator.ViewModel
                 if (index >= CommandList.Count)
                     continue;
 
-                CommandList[index].Status = x.Key;
+                if ((x.Key == EPipeline.Fetch) && DisplayFetch) CommandList[index].Status = EPipeline.Fetch;
+                if ((x.Key == EPipeline.Decode) && DisplayDecode) CommandList[index].Status = EPipeline.Decode;
+                if ((x.Key == EPipeline.Execute) && DisplayExecute) CommandList[index].Status = EPipeline.Execute;
             }
         }
 

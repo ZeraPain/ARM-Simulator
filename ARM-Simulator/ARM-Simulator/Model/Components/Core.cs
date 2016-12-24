@@ -78,13 +78,23 @@ namespace ARM_Simulator.Model.Components
         public void SetEntryPoint(int address)
         {
             Registers[ERegister.Pc] = address;
-            PipelineStatus[EPipeline.Fetch] = Registers[ERegister.Pc];
+            SetPipelineStatus(EPipeline.Fetch, Registers[ERegister.Pc]);
+        }
+
+        private void SetPipelineStatus(EPipeline status, int value)
+        {
+            PipelineStatus[status] = value;
             OnPropertyChanged(nameof(PipelineStatus));
         }
 
         public void Jump(int address)
         {
             SetRegValue(ERegister.Pc, address);
+
+            SetPipelineStatus(EPipeline.Fetch, -1);
+            SetPipelineStatus(EPipeline.Decode, -1);
+            SetPipelineStatus(EPipeline.Execute, -1);
+
             _jump = true;
         }
 
@@ -124,10 +134,9 @@ namespace ARM_Simulator.Model.Components
                 _jump = false;
             }
 
-            PipelineStatus[EPipeline.Execute] = PipelineStatus[EPipeline.Decode];
-            PipelineStatus[EPipeline.Decode] = PipelineStatus[EPipeline.Fetch];
-            PipelineStatus[EPipeline.Fetch] = Registers[ERegister.Pc];
-            OnPropertyChanged(nameof(PipelineStatus));
+            SetPipelineStatus(EPipeline.Execute, PipelineStatus[EPipeline.Decode]);
+            SetPipelineStatus(EPipeline.Decode, PipelineStatus[EPipeline.Fetch]);
+            SetPipelineStatus(EPipeline.Fetch, Registers[ERegister.Pc]);
         }
 
         // Used for Unit tests, skipped pipeline
