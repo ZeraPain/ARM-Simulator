@@ -1,4 +1,5 @@
 ﻿using System;
+using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Resources;
@@ -26,9 +27,9 @@ namespace ARM_Simulator.Model.Commands
         protected EShiftInstruction ShiftInst;
 
         protected EOffset Offset;
-        protected bool Decoded;    
+        protected bool Decoded;
 
-        public DataAccess(ECondition condition, bool load, ESize size, string[] parameters)
+        public DataAccess(ECondition condition, bool load, ESize size, [NotNull] string[] parameters)
         {
             Condition = condition;
             Load = load;
@@ -70,7 +71,7 @@ namespace ARM_Simulator.Model.Commands
             Decoded = true;
         }
 
-        private void ParseSource(string sourceString)
+        private void ParseSource([NotNull] string sourceString)
         {
             var source = sourceString.Split(',');
             if (source.Length > 3)
@@ -91,14 +92,13 @@ namespace ARM_Simulator.Model.Commands
             {
                 Rm = Parser.ParseRegister(source[1]);
                 if (source.Length > 2)
-                {
                     Parser.ParseShiftInstruction(source[2], ref ShiftInst, ref ShiftCount);
-                }
+
                 Offset = EOffset.ImmediateShiftRm;
             }
         }
 
-        public void Parse(string[] parameters)
+        public void Parse([NotNull] string[] parameters)
         {
             if (Decoded)
                 throw new Exception("Cannot parse a decoded command");
@@ -130,11 +130,11 @@ namespace ARM_Simulator.Model.Commands
             {
                 WriteBack = true;
             }
-            else if (parameters[2].StartsWith(","))
+            else if (parameters[2].StartsWith(",", StringComparison.Ordinal))
             {
                 parameters[2] = parameters[2].Substring(1);
 
-                if (parameters[2].StartsWith("#"))
+                if (parameters[2].StartsWith("#", StringComparison.Ordinal))
                 {
                     Immediate = Parser.ParseImmediate<short>(parameters[2]);
                     if (Immediate >= 4096) throw new ArgumentOutOfRangeException();
@@ -164,13 +164,10 @@ namespace ARM_Simulator.Model.Commands
 
             bw.WriteBits((int)Condition, 28, 4); // Condition
             bw.WriteBits(1, 26, 1);
-
+            bw.WriteBits(Offset == EOffset.ImmediateShiftRm ? 1 : 0, 25, 1);
             bw.WriteBits(PreIndex ? 1 : 0, 24, 1);
             bw.WriteBits(Unsigned ? 1 : 0, 23, 1);
-
-            if (Offset == EOffset.ImmediateShiftRm)
-                bw.WriteBits(1, 22, 1);
-
+            bw.WriteBits(Size == ESize.Byte ? 1 : 0, 22, 1);
             bw.WriteBits(WriteBack ? 1 : 0, 21, 1);
             bw.WriteBits(Load ? 1 : 0, 20, 1);
             bw.WriteBits((int)Rn, 16, 4);
@@ -194,7 +191,7 @@ namespace ARM_Simulator.Model.Commands
             return bw.GetValue();
         }
 
-        public void Execute(Core armCore)
+        public void Execute([NotNull] Core armCore)
         {
             if (!Decoded)
                 throw new Exception("Cannot execute an undecoded command");
