@@ -14,7 +14,6 @@ namespace ARM_Simulator.View
     {
         private readonly SimulatorViewModel _viewModel;
 
-
         public MainWindow()
         {
             InitializeComponent();
@@ -83,7 +82,9 @@ namespace ARM_Simulator.View
                 _viewModel.File = saveFile.FileName;
             }
 
-            var content = new TextRange(RichTextBoxEditor.Document.ContentStart, RichTextBoxEditor.Document.ContentEnd).Text.TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
+            var content =
+                new TextRange(RichTextBoxEditor.Document.ContentStart, RichTextBoxEditor.Document.ContentEnd).Text
+                    .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
             File.WriteAllLines(_viewModel.File, content);
         }
 
@@ -107,5 +108,16 @@ namespace ARM_Simulator.View
             MessageBox.Show("click");
         }
 
+        private void BtnExitFile_Click(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel == null)
+            {
+                Application.Current.Shutdown();
+            }
+
+            SaveFile();
+            Application.Current.Shutdown();
+
+        }
     }
 }

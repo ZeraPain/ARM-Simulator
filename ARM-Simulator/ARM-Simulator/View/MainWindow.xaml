@@ -6,23 +6,24 @@
         xmlns:local="clr-namespace:ARM_Simulator.ViewModel"
         mc:Ignorable="d"
         x:Class="ARM_Simulator.View.MainWindow"
-        Title="{Binding Path=File}" Height="600" Width="800">
+        Title="{Binding Path=AppTitle}" Height="600" Width="800">
     <RibbonWindow.DataContext>
-        <local:SimulatorViewModel />
+        <local:SimulatorViewModel/>
     </RibbonWindow.DataContext>
     <DockPanel LastChildFill="True">
         <Ribbon DockPanel.Dock="Top" Height="130">
 
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
-                    <RibbonApplicationMenuItem Header="New File" Click="BtnNewFile_Click" />
-                    <RibbonApplicationMenuItem Header="Open File" Click="BtnLoadFile_Click"/>
-                    <RibbonApplicationMenuItem Header="Save File" Click="BtnSaveFile_Click" />
+                    <RibbonApplicationMenuItem Header="New File" ImageSource="/Resources/Images/new.png" Click="BtnNewFile_Click" />
+                    <RibbonApplicationMenuItem Header="Open File" ImageSource="/Resources/Images/open.png" Click="BtnLoadFile_Click"/>
+                    <RibbonApplicationMenuItem Header="Save File" ImageSource="/Resources/Images/save.png" Click="BtnSaveFile_Click" />
+                    <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Click="BtnExitFile_Click"/>
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
 
             <RibbonTab Header="Main" Margin="0,0,0,8">
-                <RibbonGroup>
+                <RibbonGroup Header="Runtime">
                     <RibbonButton Label="Run" LargeImageSource="/Resources/Images/run.png" Command="{Binding RunCommand}" />
                     <RibbonButton Label="Stop" LargeImageSource="/Resources/Images/stop.png" Command="{Binding StopCommand}" />
                     <RibbonButton Label="Tick" LargeImageSource="/Resources/Images/tick.png" Command="{Binding TickCommand}" />
@@ -38,11 +39,10 @@
                         <RibbonCheckBox HorizontalAlignment="Left" Label="Excecute" Height="18" Background="OrangeRed" IsChecked="{Binding Path=CoreVm.DisplayExecute}"/>
                     </StackPanel>
                 </RibbonGroup>
-                <RibbonGroup x:Name="OptionGroupBreakpoints" HorizontalAlignment="Center" VerticalAlignment="Top">
-                    <TextBlock x:Name="TextBlockBreakpoints" Text="Breakpoints" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                <RibbonGroup x:Name="OptionGroupBreakpoints" Header="Breakpoints">
                     <StackPanel Orientation="Horizontal">
-                        <RibbonButton x:Name="CheckBoxShowBreakpoints" Label="Show All" Margin="1,2,1,2" Background="LightGray" Click="CheckBoxShowBreakpoints_OnClick"/>
-                        <RibbonButton x:Name="CheckBoxRemoveBreakpoints" Label="Remove All" Margin="1,2,1,2" Background="LightGray" Click="CheckBoxRemoveBreakpoints_OnClick"/>
+                        <RibbonButton x:Name="CheckBoxShowBreakpoints" Label="Show"  LargeImageSource="/Resources/Images/showBP.png"  Click="CheckBoxShowBreakpoints_OnClick"/>
+                        <RibbonButton x:Name="CheckBoxRemoveBreakpoints" Label="Remove" LargeImageSource="/Resources/Images/removeBP.png" Click="CheckBoxRemoveBreakpoints_OnClick"/>
                     </StackPanel>
                 </RibbonGroup>
             </RibbonTab>

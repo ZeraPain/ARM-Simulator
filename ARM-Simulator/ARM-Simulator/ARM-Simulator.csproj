@@ -139,6 +139,12 @@
     <Resource Include="Resources\Images\ApplicationMenu.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\Images\new.png" />
+    <Resource Include="Resources\Images\open.png" />
+    <Resource Include="Resources\Images\save.png" />
+    <Resource Include="Resources\Images\exit.png" />
+    <Resource Include="Resources\Images\removeBP.png" />
+    <Resource Include="Resources\Images\showBP.png" />
     <Content Include="Resources\source.S" />
   </ItemGroup>
   <ItemGroup>
