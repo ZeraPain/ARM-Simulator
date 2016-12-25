@@ -5,4 +5,7 @@
     <converters:ColorConverter x:Key="ColorConverter" />
     <converters:BreakpointConverter x:Key="BreakpointConverter" />
     <converters:VisibilityConverter x:Key="VisibilityConverter" />
+    <converters:StatusConverter x:Key="StatusConverter" />
+    <converters:StatusTextConverter x:Key="StatusTextConverter" />
+    
 </ResourceDictionary>

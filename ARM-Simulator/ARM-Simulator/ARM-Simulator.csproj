@@ -89,6 +89,8 @@
     <Compile Include="Utilitiy\Helper.cs" />
     <Compile Include="ViewModel\Converters\BreakpointConverter.cs" />
     <Compile Include="ViewModel\Converters\ColorConverter.cs" />
+    <Compile Include="ViewModel\Converters\StatusConverter.cs" />
+    <Compile Include="ViewModel\Converters\StatusTextConverter.cs" />
     <Compile Include="ViewModel\CoreViewModel.cs" />
     <Compile Include="ViewModel\MemoryViewModel.cs" />
     <Compile Include="ViewModel\Observables\ObservableCommand.cs" />
@@ -146,6 +148,8 @@
     <Resource Include="Resources\Images\removeBP.png" />
     <Resource Include="Resources\Images\showBP.png" />
     <Resource Include="Resources\Images\Icon.png" />
+    <Resource Include="Resources\Images\off.png" />
+    <Resource Include="Resources\Images\on.png" />
     <Content Include="Resources\source.S" />
   </ItemGroup>
   <ItemGroup>

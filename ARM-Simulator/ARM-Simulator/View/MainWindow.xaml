@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ARM_Simulator.ViewModel"
+        xmlns:converters="clr-namespace:ARM_Simulator.ViewModel.Converters"
         mc:Ignorable="d"
         x:Class="ARM_Simulator.View.MainWindow"
         Title="{Binding AppTitle}" 
@@ -55,8 +56,28 @@
         </Ribbon>
        
         <!-- Fill this part with something! -->
-        <StatusBar DockPanel.Dock="Bottom" Height="30">
-            Status...
+        <StatusBar DockPanel.Dock="Bottom" MaxHeight="30">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="4*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem Grid.Column="2">
+                <TextBlock Text="{Binding Path=DebugMode, Converter={StaticResource StatusTextConverter}, ConverterParameter='Editor'}"/> 
+            </StatusBarItem>
+                <StatusBarItem Grid.Column="3">
+                <Image Source="{Binding Path=DebugMode, Converter={StaticResource StatusConverter}, ConverterParameter='Editor'}"/>
+            </StatusBarItem>
         </StatusBar>
 
         <StackPanel>
