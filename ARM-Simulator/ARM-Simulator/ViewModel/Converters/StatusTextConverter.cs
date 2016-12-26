@@ -18,9 +18,9 @@ namespace ARM_Simulator.ViewModel.Converters
             switch (text)
             {
                 case "Editor":
-                    return debugmode == true ? "Debugmode" : "Editor";
+                    return debugmode == true ? "Debugmode ON" : "Debugmode OFF";
                 case "Debugger":
-                    return debugmode == true ? "Editor" : "Debugmode";
+                    return debugmode == true ? "Debugmode OFF" : "Debugmode ON";
             }
 
             return null;

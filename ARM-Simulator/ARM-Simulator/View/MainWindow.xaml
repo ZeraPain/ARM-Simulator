@@ -55,7 +55,7 @@
             </RibbonTab>
         </Ribbon>
        
-        <!-- Fill this part with something! -->
+        <!-- StatusBar Bottom -->
         <StatusBar DockPanel.Dock="Bottom" MaxHeight="30">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -154,6 +154,25 @@
                             <Setter Property="Height" Value="17"/>
                         </Style>
                     </ListView.Resources>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <Separator/>
+                            <TextBlock Text="Number System"/>
+                            <Separator/>
+                            <RadioButton GroupName="Number System" Content="hexadecimal"/>
+                            <RadioButton GroupName="Number System" Content="deciamal"/>
+                            <Separator/>
+                            <TextBlock Text="Signedness"/>
+                            <Separator/>
+                            <RadioButton GroupName="Signedness" Content="signed"/>
+                            <RadioButton GroupName="Signedness" Content="unsigned"/>
+                            <Separator/>
+                            <TextBlock Text="Data Type"/>
+                            <Separator/>
+                            <RadioButton GroupName="Data Type" Content="word"/>
+                            <RadioButton GroupName="Data Type" Content="byte"/>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Register" Width="60" DisplayMemberBinding="{Binding Name}"/>
@@ -161,17 +180,36 @@
                         </GridView>
                     </ListView.View>
                 </ListView>
-
+                
                 <!-- Memory view -->
                 <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Path=MemoryVm.MemoryView}">
-                    <ListView.View>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <Separator/>
+                            <TextBlock Text="Number System"/>
+                            <Separator/>
+                            <RadioButton GroupName="Number System" Content="hexadecimal"/>
+                            <RadioButton GroupName="Number System" Content="deciamal"/>
+                            <Separator/>
+                            <TextBlock Text="Signedness"/>
+                            <Separator/>
+                            <RadioButton GroupName="Signedness" Content="signed"/>
+                            <RadioButton GroupName="Signedness" Content="unsigned"/>
+                            <Separator/>
+                            <TextBlock Text="Data Type"/>
+                            <Separator/>
+                            <RadioButton GroupName="Data Type" Content="word"/>
+                            <RadioButton GroupName="Data Type" Content="byte"/>
+                        </ContextMenu>
+                      </ListView.ContextMenu>
+                            <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Address" Width="70" DisplayMemberBinding="{Binding BaseAddress}"/>
                             <GridViewColumn Header="Memory Data" Width="Auto" DisplayMemberBinding="{Binding MemoryString}"/>
                         </GridView>
-                    </ListView.View>
+                    </ListView.View> 
                 </ListView>
-
+                  
                 <!-- Stack view  DataBinding Stack Data and Address-->
                 <ListView x:Name="ListViewStack" Grid.Row="1" Grid.Column="1" >
                     <ListView.View>
