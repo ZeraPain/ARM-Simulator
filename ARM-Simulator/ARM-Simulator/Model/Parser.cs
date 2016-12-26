@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
@@ -10,127 +11,234 @@ namespace ARM_Simulator.Model
 {
     public class Parser
     {
-        private readonly Dictionary<string, int> _labels; // Offset, Labelname
-        private readonly List<Command> _commandList;
-        private int _offset;
+        private Dictionary<string, int> _textLabels; // text section offset, Labelname
+        private List<string> _textList;
 
-        public Parser(string path)
+        private Dictionary<string, int> _dataLabels; // data section offset, Labelname
+        private MemoryStream _memoryStream;
+        private BinaryWriter _dataWriter;
+
+        private enum EFileStruct
         {
+            Undefined,
+            Text,
+            Data,
+            Comm
+        }
+
+        public Parser([CanBeNull] string path = null)
+        {
+            ParseFile(path);
+        }
+
+        private void ParseFile([CanBeNull] string path)
+        {
+            if (path == null) return;
+
             var hFile = File.ReadAllLines(path);
-            _labels = new Dictionary<string, int>();
-            _commandList = new List<Command>();
+
+            _textList = new List<string>();
+            _textLabels = new Dictionary<string, int>();
+
+            _memoryStream = new MemoryStream();
+            _dataWriter = new BinaryWriter(_memoryStream);
+            _dataLabels = new Dictionary<string, int>();
+
+            var currentSection = EFileStruct.Undefined;
 
             foreach (var hLine in hFile)
             {
-                var cmdLine = hLine;
+                var line = hLine;
 
                 // Check for comments
-                var commentIndex = cmdLine.IndexOf("@", StringComparison.Ordinal);
-                if (commentIndex > -1) cmdLine = cmdLine.Substring(0, commentIndex);
+                var commentIndex = line.IndexOf("@", StringComparison.Ordinal);
+                if (commentIndex > -1) line = line.Substring(0, commentIndex);
 
-                // Check for labels
-                var labelIndex = cmdLine.IndexOf(":", StringComparison.Ordinal);
-                if (labelIndex > -1)
+                // Remove leading, ending spaces, tabs
+                line = line.Trim(' ', '\t');
+                if (string.IsNullOrEmpty(line))
+                    continue;
+
+                // Check for sections
+                if (line.StartsWith(".", StringComparison.Ordinal))
                 {
-                    var label = cmdLine.Substring(0, labelIndex).Trim(' ', '\t');
-                    _labels.Add(label, _commandList.Count);
-
-                    if (cmdLine.Length > labelIndex+1)
-                        cmdLine = cmdLine.Substring(labelIndex+1);
-                    else
-                        continue;
+                    Enum.TryParse(line.Substring(1), true, out currentSection);
+                    continue;
                 }
 
-                cmdLine = cmdLine.Trim(' ', '\t');
-                if (string.IsNullOrEmpty(cmdLine))
-                    continue;
-
-                if (cmdLine.StartsWith(".", StringComparison.Ordinal)) // TODO: implement parameters
-                    continue;
-
-                _commandList.Add(new Command() { Commandline = cmdLine });
+                switch (currentSection)
+                {
+                    case EFileStruct.Undefined:
+                        break;
+                    case EFileStruct.Text:
+                        ParseTextSection(line);
+                        break;
+                    case EFileStruct.Data:
+                        ParseDataSection(line);
+                        break;
+                    case EFileStruct.Comm:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
-        public Parser()
+        private void ParseTextSection(string line)
         {
-            
+            // Check for label
+            var labelIndex = line.IndexOf(":", StringComparison.Ordinal);
+            if (labelIndex > -1)
+            {
+                var label = line.Substring(0, labelIndex);
+                _textLabels.Add(label, _textList.Count);
+
+                if (line.Length > labelIndex + 1)
+                    line = line.Substring(labelIndex + 1).Trim(' ', '\t');
+                else
+                    return;
+            }
+
+            // Add new Command
+            _textList.Add(line);
+        }
+
+        private void ParseDataSection([NotNull] string line)
+        {
+            var lineSplit = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+            if (lineSplit.Length != 3)
+                throw new ArgumentException("Invalid Syntax (parameter count)");
+
+            if (!lineSplit[0].EndsWith(":"))
+                throw new ArgumentException("Invalid Syntax (label name)");
+
+            _dataLabels.Add(lineSplit[0].Substring(0, lineSplit[0].Length -1), (int)_dataWriter.BaseStream.Length);
+
+            switch (lineSplit[1])
+            {
+                case ".byte":
+                    _dataWriter.Write(lineSplit[2].StartsWith("0x", StringComparison.Ordinal)
+                        ? BitConverter.GetBytes(byte.Parse(lineSplit[2].Substring(2),
+                            System.Globalization.NumberStyles.HexNumber))
+                        : BitConverter.GetBytes(byte.Parse(lineSplit[2])));
+                    break;
+                case ".word":
+                    _dataWriter.Write(lineSplit[2].StartsWith("0x", StringComparison.Ordinal)
+                        ? BitConverter.GetBytes(int.Parse(lineSplit[2].Substring(2),
+                            System.Globalization.NumberStyles.HexNumber))
+                        : BitConverter.GetBytes(int.Parse(lineSplit[2])));
+                    break;
+            }
         }
 
         [NotNull]
-        public List<int> Encode()
+        public byte[] EncodeTextSection() // Compile and link
         {
-            var source = new List<int>();
-            for (_offset = 0; _offset < _commandList.Count; _offset++)
-                source.Add(ParseLine(_commandList[_offset].Commandline).Encode());
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var binaryWriter = new BinaryWriter(memoryStream))
+                {
+                    for (var i = 0; i < _textList.Count; i++) // Linking of labels
+                        binaryWriter.Write(ParseLine(_textList[i], i).Encode());
 
-            return source;
+                    return memoryStream.ToArray();
+                }
+            }
         }
 
+        [CanBeNull]
+        public byte[] EncodeDataSection() => _memoryStream?.ToArray();
+
+        [NotNull]
         public List<Command> GetCommandList()
         {
-            if (!_labels.ContainsKey("main"))
+            if (!_textLabels.ContainsKey("main"))
                 throw new Exception("Cannot find entry point");
 
-            for (var i = 0; i < _commandList.Count; i++)
+            var commandList = new List<Command>();
+            for (var i = 0; i < _textList.Count; i++)
             {
-                _commandList[i].Status = i == _labels["main"] ? EPipeline.Fetch : EPipeline.None;
-                _commandList[i].Breakpoint = false;
-
-                foreach (var label in _labels)
+                var command = new Command
                 {
-                    if (label.Value == i)
-                    {
-                        _commandList[i].Label = label.Key;
-                    }
-                }
+                    Status = i == _textLabels["main"] ? EPipeline.Fetch : EPipeline.None,
+                    Breakpoint = false,
+                    Commandline = _textList[i]
+                };
+
+                var index = i;
+                foreach (var label in _textLabels.Where(label => label.Value == index))
+                    command.Label = label.Key;
+
+                commandList.Add(command);
             }
 
-            return _commandList;
+            return commandList;
         }
 
         [NotNull]
-        public ICommand ParseLine([NotNull] string commandLine)
+        public ICommand ParseLine([NotNull] string commandLine, int lineNumber)
         {
-            var index = commandLine.IndexOf(' ');
-            if (index == -1)
-                index = commandLine.IndexOf('\t');
+            var indexS = commandLine.IndexOf(' ');
+            var indexT = commandLine.IndexOf('\t');
 
-            if (index == -1 || commandLine.Length < index + 1)
+            var index = -1;
+            if ((indexS > -1) && (indexT > -1))
+                index = Math.Min(indexS, indexT);
+            else if ((indexS > -1) && (indexT == -1))
+                index = indexS;
+            else if ((indexT > -1) && (indexS == -1))
+                index = indexT;
+
+            if ((index == -1) || (commandLine.Length < index + 1) || commandLine.EndsWith(","))
                 throw new ArgumentException("Invalid Syntax");
 
             var commandString = commandLine.Substring(0, index);
             var parameterString = commandLine.Substring(index).Trim(' ', '\t');
 
-            var arithmetic = ParseArithmetic(commandString, parameterString);
-            if (arithmetic != null)
-                return arithmetic;
+            try
+            {
+                var arithmetic = ParseArithmetic(commandString, parameterString);
+                if (arithmetic != null)
+                    return arithmetic;
 
-            var dataaccess = ParseDataAccess(commandString, parameterString);
-            if (dataaccess != null)
-                return dataaccess;
+                var dataaccess = ParseDataAccess(commandString, parameterString);
+                if (dataaccess != null)
+                    return dataaccess;
 
-            var blocktransfer = ParseBlockTransfer(commandString, parameterString);
-            if (blocktransfer != null)
-                return blocktransfer;
+                var blocktransfer = ParseBlockTransfer(commandString, parameterString);
+                if (blocktransfer != null)
+                    return blocktransfer;
 
-            var jump = ParseJump(commandString, parameterString);
-            if (jump != null)
-                return jump;
+                var jump = ParseJump(commandString, parameterString, lineNumber);
+                if (jump != null)
+                    return jump;
 
-            var multiply = ParseMultiply(commandString, parameterString);
-            if (multiply != null)
-                return multiply;
+                var multiply = ParseMultiply(commandString, parameterString);
+                if (multiply != null)
+                    return multiply;
 
-            throw new ArgumentException("Unable to parse an invalid Command");
+                throw new ArgumentException("Unable to parse an invalid Command");
+            }
+            catch (ArgumentException ex)
+            {
+                throw new ArgumentException(ex.Message + ": " + commandLine);
+            }
+            catch (FormatException ex)
+            {
+                throw new FormatException(ex.Message + ": " + commandLine);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message + ": " + commandLine);
+            }
         }
 
         public int GetEntryPoint()
         {
-            if (!_labels.ContainsKey("main"))
+            if (!_textLabels.ContainsKey("main"))
                 throw new Exception("Cannot find entry point");
 
-            return _labels["main"] * 0x4;
+            return _textLabels["main"] * 0x4;
         }
 
         [CanBeNull]
@@ -222,7 +330,7 @@ namespace ARM_Simulator.Model
         }
 
         [CanBeNull]
-        private ICommand ParseJump(string cmdString, string parameterString)
+        private ICommand ParseJump(string cmdString, string parameterString, int lineNumber)
         {
             cmdString = cmdString.ToLower();
 
@@ -247,11 +355,11 @@ namespace ARM_Simulator.Model
                     cmdString = cmdString.Substring(1);
                 }
 
-                if (!_labels.ContainsKey(parameterString))
+                if (!_textLabels.ContainsKey(parameterString))
                     throw new ArgumentException("Unknown Label");
 
                 var conditions = ParseCondition(ref cmdString);
-                var offset = _labels[parameterString] - _offset - 2; // -2 -> Pipeline
+                var offset = _textLabels[parameterString] - lineNumber - 2; // -2 -> Pipeline
 
                 return new Jump(conditions, link ? EJump.BranchLink : EJump.Branch, offset);
             }

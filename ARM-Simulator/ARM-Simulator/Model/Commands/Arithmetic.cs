@@ -119,7 +119,7 @@ namespace ARM_Simulator.Model.Commands
                 case EOpcode.Orr:
                 case EOpcode.Bic:
                     // Check parameter count
-                    if (parameters.Length != 3 && parameters.Length != 4)
+                    if ((parameters.Length != 3) && (parameters.Length != 4))
                         throw new ArgumentException("Invalid parameter count");
 
                     // Parse Rd, Rn

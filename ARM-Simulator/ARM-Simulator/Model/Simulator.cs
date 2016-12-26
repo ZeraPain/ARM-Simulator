@@ -20,10 +20,9 @@ namespace ARM_Simulator.Model
             ArmCore.Reset();
 
             var parser = new Parser(path);
-            var source = parser.Encode();
             ArmCore.SetEntryPoint(parser.GetEntryPoint());
-            Memory.LoadSource(source);
-
+            Memory.WriteTextSection(parser.EncodeTextSection());
+            Memory.WriteDataSection(parser.EncodeDataSection());
             return parser.GetCommandList();
         }
 

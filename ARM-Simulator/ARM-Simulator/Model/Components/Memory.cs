@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using ARM_Simulator.Annotations;
 
@@ -11,6 +9,7 @@ namespace ARM_Simulator.Model.Components
     {
         public byte[] Ram { get; protected set; }
         private readonly uint _codeSectionEnd;
+        private bool _textSectionLoaded;
 
         public Memory(uint ramSize, uint codeSectionEnd)
         {
@@ -19,29 +18,44 @@ namespace ARM_Simulator.Model.Components
 
             Ram = new byte[ramSize];
             _codeSectionEnd = codeSectionEnd;
+            _textSectionLoaded = false;
+        }
+
+        public void Initialise()
+        {
+            Array.Clear(Ram, 0, Ram.Length);
+            _textSectionLoaded = false;
         }
 
         public int GetRamSize() => Ram.Length;
 
-        public void LoadSource([NotNull] List<int> source)
+        public void WriteTextSection([NotNull] byte[] source)
         {
-            var data = source.SelectMany(BitConverter.GetBytes).ToArray();
+            if (_textSectionLoaded)
+                throw new Exception("Cannot load souce to an initialised program");
 
-            if (data.Length > _codeSectionEnd)
+            if (source.Length > _codeSectionEnd)
                 throw new IndexOutOfRangeException("Code section is too small to load the source");
 
-            Array.Copy(data, 0x0, Ram, 0x0, data.Length);
+            Array.Copy(source, 0x0, Ram, 0x0, source.Length);
             OnPropertyChanged(nameof(Ram));
+
+            _textSectionLoaded = true;
         }
+
+        public void WriteDataSection(byte[] data) => Write(_codeSectionEnd + 0x1, data);
 
         public void WriteInt(uint address, int data) => Write(address, BitConverter.GetBytes(data));
 
         public void WriteByte(uint address, byte data) => Write(address, BitConverter.GetBytes(data));
 
-        public void Write(uint address, [NotNull] byte[] data)
+        public void Write(uint address, [CanBeNull] byte[] data)
         {
-            //if (address < _codeSectionEnd)
-            //    throw new AccessViolationException("Cannot write to the code section");
+            if (data == null)
+                return;
+
+            if (address < _codeSectionEnd)
+                throw new AccessViolationException("Cannot write to the code section");
 
             if (address + data.Length > Ram.Length)
                 throw new AccessViolationException("Memory out of range requested");

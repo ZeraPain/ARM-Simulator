@@ -104,7 +104,7 @@ namespace ARM_Simulator.Model.Commands
                 throw new Exception("Cannot parse a decoded command");
 
             // Check Parameter Count
-            if (parameters.Length != 2 && parameters.Length != 3)
+            if ((parameters.Length != 2) && (parameters.Length != 3))
                 throw new ArgumentException("Invalid parameter count");
 
             // Parse Source Register
