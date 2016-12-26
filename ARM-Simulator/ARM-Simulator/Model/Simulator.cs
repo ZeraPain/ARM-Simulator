@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ARM_Simulator.Annotations;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Resources;
 
@@ -15,9 +16,11 @@ namespace ARM_Simulator.Model
             ArmCore = new Core(Memory);
         }
 
+        [NotNull]
         public List<Command> LoadFile(string path)
         {
             ArmCore.Reset();
+            Memory.Initialise();
 
             var parser = new Parser(path);
             ArmCore.SetEntryPoint(parser.GetEntryPoint());
