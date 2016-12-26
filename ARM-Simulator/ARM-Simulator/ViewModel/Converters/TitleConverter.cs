@@ -5,23 +5,18 @@ using ARM_Simulator.Annotations;
 
 namespace ARM_Simulator.ViewModel.Converters
 {
-   internal class StatusTextConverter : IValueConverter
+    internal class TitleConverter : IValueConverter
     {
-        [CanBeNull]
+        [NotNull]
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var debugmode = value as bool?;
-            if (debugmode == null)
-                return null;
-
-            return debugmode == true ? "Debugmode ON" : "Debugmode OFF";
+            var file = value as string;
+            return "ARM-Simulator " + file;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
-
     }
 }
-

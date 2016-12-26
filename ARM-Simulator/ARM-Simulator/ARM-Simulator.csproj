@@ -88,9 +88,9 @@
     <Compile Include="Model\Components\Memory.cs" />
     <Compile Include="Utilitiy\Helper.cs" />
     <Compile Include="ViewModel\Converters\BreakpointConverter.cs" />
-    <Compile Include="ViewModel\Converters\ColorConverter.cs" />
     <Compile Include="ViewModel\Converters\StatusConverter.cs" />
     <Compile Include="ViewModel\Converters\StatusTextConverter.cs" />
+    <Compile Include="ViewModel\Converters\TitleConverter.cs" />
     <Compile Include="ViewModel\CoreViewModel.cs" />
     <Compile Include="ViewModel\MemoryViewModel.cs" />
     <Compile Include="ViewModel\Observables\ObservableCommand.cs" />

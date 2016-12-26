@@ -17,18 +17,6 @@ namespace ARM_Simulator.ViewModel
     {
         private bool _running;
         private Thread _runThread;
-        private string _appTitle;
-
-        public string AppTitle
-        {
-            get { return _appTitle; }
-            set
-            {
-                if (_appTitle == null || _appTitle == value) return;
-                _appTitle = value;
-                OnPropertyChanged(value);
-            }
-        }
 
         private string _file;
         public string File
@@ -38,7 +26,7 @@ namespace ARM_Simulator.ViewModel
             {
                 if (_file == value) return;
                 _file = value;
-                OnPropertyChanged(nameof(File));
+                OnPropertyChanged();
             }
         }
 
@@ -50,7 +38,7 @@ namespace ARM_Simulator.ViewModel
             {
                 if (_debugmode == value) return;
                 _debugmode = value;
-                OnPropertyChanged(nameof(DebugMode));
+                OnPropertyChanged();
             }
         }
 
@@ -71,8 +59,6 @@ namespace ARM_Simulator.ViewModel
             ArmSimulator = new Simulator();
             MemoryVm = new MemoryViewModel(ArmSimulator.Memory);
             CoreVm = new CoreViewModel(ArmSimulator.ArmCore);
-
-            AppTitle = "Arm-Simulator";
 
             StopCommand = new DelegateCommand(Stop);
             RunCommand = new DelegateCommand(Run);
@@ -160,7 +146,6 @@ namespace ARM_Simulator.ViewModel
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
         protected void OnPropertyChanged([CanBeNull] [CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
