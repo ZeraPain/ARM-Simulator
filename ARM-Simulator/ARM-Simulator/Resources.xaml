@@ -7,5 +7,7 @@
     <converters:StatusConverter x:Key="StatusConverter" />
     <converters:StatusTextConverter x:Key="StatusTextConverter" />
     <converters:TitleConverter x:Key="TitleConverter" />
+    <converters:NumberSystemConverter x:Key="NumberSystemConverter" />
+    
     
 </ResourceDictionary>

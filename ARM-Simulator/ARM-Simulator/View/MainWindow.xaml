@@ -26,8 +26,9 @@
                     <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Click="BtnExitFile_Click"/>
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
-
-            <RibbonTab Header="Main" Margin="0,0,0,8">
+            
+            <!-- Ribbon Main Menu -->
+            <RibbonTab Header="Menu" Margin="0,0,0,8">
                 <RibbonGroup Header="Runtime">
                     <RibbonButton Label="Run" LargeImageSource="/Resources/Images/run.png" Command="{Binding RunCommand}" />
                     <RibbonButton Label="Stop" LargeImageSource="/Resources/Images/stop.png" Command="{Binding StopCommand}" />
@@ -35,8 +36,6 @@
                     <RibbonButton Label="Continue" LargeImageSource="/Resources/Images/continue.png" Command="{Binding ContinueCommand}" />
                     <RibbonButton Label="Pause" LargeImageSource="/Resources/Images/pause.png" Command="{Binding PauseCommand}" />
                 </RibbonGroup>
-            </RibbonTab>
-            <RibbonTab Header="Options" Margin="0,0,0,8">
                 <RibbonGroup Header="Pipelining View">
                     <StackPanel Orientation="Vertical">
                         <RibbonCheckBox HorizontalAlignment="Left" Label="Fetch" Height="18" Background="LawnGreen" IsChecked="{Binding Path=CoreVm.DisplayFetch}"/>
@@ -158,7 +157,8 @@
                             <TextBlock Text="Number System"/>
                             <Separator/>
                             <RadioButton GroupName="Number System" Content="hexadecimal"/>
-                            <RadioButton GroupName="Number System" Content="deciamal"/>
+                            <RadioButton GroupName="Number System" Content="decimal" />
+                                         <!--</RadioButton>IsChecked="{Binding , Converter={StaticResource NumberSystemConverter}, ConverterParameter=decimal}"/>-->
                             <Separator/>
                             <TextBlock Text="Signedness"/>
                             <Separator/>
