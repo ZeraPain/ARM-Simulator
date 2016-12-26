@@ -29,7 +29,7 @@ namespace ARM_Simulator.Model
         public void TestCommand(string commandLine)
         {
             var parser = new Parser();
-            var command = parser.ParseLine(commandLine);
+            var command = parser.ParseLine(commandLine, 0);
             ArmCore.TestCommand(command);
         }
     }
