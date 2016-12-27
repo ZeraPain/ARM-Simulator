@@ -2,14 +2,16 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
 using ARM_Simulator.Annotations;
+using ARM_Simulator.Commands;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Resources;
 using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.ViewModel
 {
-    public class CoreViewModel
+    public class CoreViewModel : ContextMenuHandler
     {
         public ObservableCollection<ObservableCommand> CommandList { get; set; }
         public ObservableCollection<ObservableRegister> RegisterList { get; set; }
@@ -18,6 +20,8 @@ namespace ARM_Simulator.ViewModel
         public bool DisplayFetch { get; set; }
         public bool DisplayDecode { get; set; }
         public bool DisplayExecute { get; set; }
+
+        public ICommand RemoveBreakpointsCommand { get; protected set; }
 
         public CoreViewModel(Core core)
         {
@@ -29,6 +33,10 @@ namespace ARM_Simulator.ViewModel
             DisplayFetch = true;
             DisplayDecode = true;
             DisplayExecute = true;
+
+            ContextMenuUpdate = UpdateRegisterList;
+
+            RemoveBreakpointsCommand = new DelegateCommand(RemoveBreakpoints);
 
             UpdateRegisterList();
         }
@@ -46,10 +54,17 @@ namespace ARM_Simulator.ViewModel
             for (var i = 0; i < ArmCore.Registers.Count; i++)
             {
                 var register = ArmCore.Registers.ElementAt(i);
+                var value = register.Value;
+                if (ShowAsByte) value = (byte) value;
+
+                var valueString = value.ToString();
+                if (ShowAsUnsigned) valueString = ((uint)value).ToString();
+                if (ShowAsHexadecimal) valueString = "0x" + value.ToString("X");
+
                 if (RegisterList.Any(reg => reg.Name == register.Key))
-                    RegisterList[i].Value = register.Value.ToString();
+                    RegisterList[i].Value = valueString;
                 else
-                    RegisterList.Add(new ObservableRegister { Name = register.Key, Value = register.Value.ToString() });
+                    RegisterList.Add(new ObservableRegister { Name = register.Key, Value = valueString });
             }
         }
 
@@ -87,6 +102,12 @@ namespace ARM_Simulator.ViewModel
 
             if ((index >= 0) && (index < CommandList.Count))
                 CommandList[(int)index].Breakpoint = !CommandList[(int)index].Breakpoint;
+        }
+
+        private void RemoveBreakpoints(object parameter)
+        {
+            foreach (var t in CommandList)
+                t.Breakpoint = false;
         }
     }
 }
