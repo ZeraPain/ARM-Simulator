@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Resources;
@@ -12,10 +14,23 @@ namespace ARM_Simulator.Model.Commands
         protected EJump JumpType;
 
         protected ERegister Rm;
+
+        protected bool Linked;
         protected int Offset;
+        protected string Label;
+
+
+        public Jump(ECondition conditions, EJump jump, string label)
+        {
+            Linked = false;
+            Condition = conditions;
+            JumpType = jump;
+            Label = label;
+        }
 
         public Jump(ECondition conditions, EJump jump, int offset)
         {
+            Linked = false;
             Condition = conditions;
             JumpType = jump;
             Offset = offset;
@@ -28,12 +43,12 @@ namespace ARM_Simulator.Model.Commands
             Rm = rm;
         }
 
-        public void Parse(string[] parameters)
+        public void Parse(string parameterString)
         {
             throw new NotImplementedException();
         }
 
-        public void Execute(Core armCore)
+        public void Execute([NotNull] Core armCore)
         {
             if (!Helper.CheckConditions(Condition, armCore.GetCpsr()))
                 return;
@@ -57,6 +72,9 @@ namespace ARM_Simulator.Model.Commands
 
         public int Encode()
         {
+            if (!Linked)
+                throw new Exception("Cannot encode an unlinked command");
+
             var bw = new BitWriter();
 
             bw.WriteBits((int)Condition, 28, 4); // Condition
@@ -82,6 +100,18 @@ namespace ARM_Simulator.Model.Commands
             }
             
             return bw.GetValue();
+        }
+
+        public void Link(Dictionary<string, int> commandTable, Dictionary<string, int> dataTable, int commandOffset)
+        {
+            if (Linked)
+                return;
+
+            if (!commandTable.ContainsKey(Label))
+                throw new Exception("Invalid Label: " + Label);
+
+            Offset = commandTable[Label] - commandOffset - 2;
+            Linked = true;
         }
     }
 }

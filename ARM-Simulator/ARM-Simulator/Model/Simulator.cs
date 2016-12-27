@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Model.Components;
-using ARM_Simulator.Resources;
+using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.Model
 {
@@ -17,22 +17,23 @@ namespace ARM_Simulator.Model
         }
 
         [NotNull]
-        public List<Command> LoadFile(string path)
+        public List<ObservableCommand> LoadFile(string path)
         {
             ArmCore.Reset();
             Memory.Initialise();
 
             var parser = new Parser(path);
             ArmCore.SetEntryPoint(parser.GetEntryPoint());
-            Memory.WriteTextSection(parser.EncodeTextSection());
-            Memory.WriteDataSection(parser.EncodeDataSection());
+
+            var linker = new Linker(Memory, parser.CommandList, parser.CommandTable, parser.DataToLink);
+            linker.CompileAndLink();
+
             return parser.GetCommandList();
         }
 
-        public void TestCommand(string commandLine)
+        public void TestCommand([NotNull] string commandLine)
         {
-            var parser = new Parser();
-            var command = parser.ParseLine(commandLine, 0);
+            var command = Parser.ParseLine(commandLine);
             ArmCore.TestCommand(command);
         }
     }

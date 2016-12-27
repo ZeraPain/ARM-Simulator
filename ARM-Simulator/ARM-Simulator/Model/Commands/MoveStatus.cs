@@ -1,11 +1,13 @@
-﻿using ARM_Simulator.Interfaces;
+﻿using System;
+using System.Collections.Generic;
+using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
 
 namespace ARM_Simulator.Model.Commands
 {
     internal class MoveStatus : ICommand
     {
-        public void Parse(string[] parameters)
+        public void Parse(string parameterString)
         {
             throw new System.NotImplementedException();
         }
@@ -18,6 +20,11 @@ namespace ARM_Simulator.Model.Commands
         public int Encode()
         {
             throw new System.NotImplementedException();
+        }
+
+        public void Link(Dictionary<string, int> commandTable, Dictionary<string, int> dataTable, int commandOffset)
+        {
+
         }
     }
 }

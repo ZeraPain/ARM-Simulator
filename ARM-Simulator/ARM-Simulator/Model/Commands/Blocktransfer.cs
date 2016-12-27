@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Resources;
@@ -17,12 +19,12 @@ namespace ARM_Simulator.Model.Commands
 
         protected bool Decoded;
 
-        public Blocktransfer(ECondition condition, bool load, string[] parameters)
+        public Blocktransfer(ECondition condition, bool load, string parameterString)
         {
             Condition = condition;
             Load = load;
             Decoded = false;
-            Parse(parameters);
+            Parse(parameterString);
         }
 
         public Blocktransfer(ECondition condition, bool load, bool writeBack, ERegister rn, short regList)
@@ -35,10 +37,12 @@ namespace ARM_Simulator.Model.Commands
             Decoded = true;
         }
 
-        public void Parse(string[] parameters)
+        public void Parse([NotNull] string parameterString)
         {
             if (Decoded)
                 throw new Exception("Cannot parse a decoded command");
+
+            var parameters = Parser.ParseParameters(parameterString, new[] { '{', '}' });
 
             // Check Parameter Count
             if (parameters.Length != 2)
@@ -105,6 +109,11 @@ namespace ARM_Simulator.Model.Commands
             bw.WriteBits(RegisterList, 0, 16);
 
             return bw.GetValue();
+        }
+
+        public void Link(Dictionary<string, int> commandTable, Dictionary<string, int> dataTable, int commandOffset)
+        {
+
         }
 
         public void Execute(Core armCore)

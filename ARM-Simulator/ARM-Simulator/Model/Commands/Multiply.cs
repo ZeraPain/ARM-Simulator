@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Resources;
@@ -20,13 +21,13 @@ namespace ARM_Simulator.Model.Commands
 
         protected bool Decoded;
 
-        public Multiply(ECondition condition, EMultiplication multiplication, bool setConditionFlags, string[] parameters)
+        public Multiply(ECondition condition, EMultiplication multiplication, bool setConditionFlags, string parameterString)
         {
             Condition = condition;
             Multiplication = multiplication;
             SetConditionFlags = setConditionFlags;
             Decoded = false;
-            Parse(parameters);
+            Parse(parameterString);
         }
 
         public Multiply(ECondition condition, bool setConditionFlags, ERegister rd, ERegister rs, ERegister rm)
@@ -64,10 +65,12 @@ namespace ARM_Simulator.Model.Commands
             Decoded = true;
         }
 
-        public void Parse(string[] parameters)
+        public void Parse(string parameterString)
         {
             if (Decoded)
                 throw new Exception("Cannot parse a decoded command");
+
+            var parameters = Parser.ParseParameters(parameterString, new[] { ',' });
 
             switch (Multiplication)
             {
@@ -153,6 +156,11 @@ namespace ARM_Simulator.Model.Commands
             bw.WriteBits((int)Rm, 0, 4);
 
             return bw.GetValue();
+        }
+
+        public void Link(Dictionary<string, int> commandTable, Dictionary<string, int> dataTable, int commandOffset)
+        {
+
         }
 
         public void Execute(Core armCore)

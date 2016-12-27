@@ -8,22 +8,24 @@ namespace ARM_Simulator.Model.Components
     public class Memory : INotifyPropertyChanged
     {
         public byte[] Ram { get; protected set; }
-        private readonly uint _codeSectionEnd;
+        public uint DataSectionStart { get; protected set; }
         private bool _textSectionLoaded;
 
         public Memory(uint ramSize, uint codeSectionEnd)
         {
             if (codeSectionEnd > ramSize)
-                throw new ArgumentException("Code section cannot be bigger than ram size");
+                throw new ArgumentException("Code section cannot be bigger than ram dataSize");
 
             Ram = new byte[ramSize];
-            _codeSectionEnd = codeSectionEnd;
+            DataSectionStart = codeSectionEnd;
             _textSectionLoaded = false;
         }
 
         public void Initialise()
         {
             Array.Clear(Ram, 0, Ram.Length);
+            OnPropertyChanged(nameof(Ram));
+
             _textSectionLoaded = false;
         }
 
@@ -34,7 +36,7 @@ namespace ARM_Simulator.Model.Components
             if (_textSectionLoaded)
                 throw new Exception("Cannot load souce to an initialised program");
 
-            if (source.Length > _codeSectionEnd)
+            if (source.Length > DataSectionStart)
                 throw new IndexOutOfRangeException("Code section is too small to load the source");
 
             Array.Copy(source, 0x0, Ram, 0x0, source.Length);
@@ -43,7 +45,7 @@ namespace ARM_Simulator.Model.Components
             _textSectionLoaded = true;
         }
 
-        public void WriteDataSection(byte[] data) => Write(_codeSectionEnd + 0x1, data);
+        public void WriteDataSection(byte[] data) => Write(DataSectionStart, data);
 
         public void WriteInt(uint address, int data) => Write(address, BitConverter.GetBytes(data));
 
@@ -54,7 +56,7 @@ namespace ARM_Simulator.Model.Components
             if (data == null)
                 return;
 
-            if (address < _codeSectionEnd)
+            if (address < DataSectionStart)
                 throw new AccessViolationException("Cannot write to the code section");
 
             if (address + data.Length > Ram.Length)

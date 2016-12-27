@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
@@ -14,7 +15,7 @@ namespace ARM_Simulator.Model.Commands
         protected bool PreIndex;
         protected bool Unsigned;
         protected bool WriteBack;
-        protected readonly ESize Size;
+        protected readonly EDataSize DataSize;
         protected ERegister Rn;
         protected ERegister Rd;
 
@@ -29,17 +30,20 @@ namespace ARM_Simulator.Model.Commands
         protected EOffset Offset;
         protected bool Decoded;
 
-        public DataAccess(ECondition condition, bool load, ESize size, [NotNull] string[] parameters)
+        protected bool Linked;
+        protected string Label;
+
+        public DataAccess(ECondition condition, bool load, EDataSize dataSize, [NotNull] string parameterString)
         {
             Condition = condition;
             Load = load;
-            Size = size;
+            DataSize = dataSize;
             Decoded = false;
             PreIndex = true;
-            Parse(parameters);
+            Parse(parameterString);
         }
 
-        public DataAccess(ECondition condition, bool load, bool preIndex, bool unsigned, bool writeBack, ESize size, ERegister rn, ERegister rd, short immediate)
+        public DataAccess(ECondition condition, bool load, bool preIndex, bool unsigned, bool writeBack, EDataSize dataSize, ERegister rn, ERegister rd, short immediate)
         {
             Offset = EOffset.Immediate;
             Condition = condition;
@@ -47,14 +51,14 @@ namespace ARM_Simulator.Model.Commands
             PreIndex = preIndex;
             Unsigned = unsigned;
             WriteBack = writeBack;
-            Size = size;
+            DataSize = dataSize;
             Rn = rn;
             Rd = rd;
             Immediate = immediate;
             Decoded = true;
         }
 
-        public DataAccess(ECondition condition, bool load, bool preIndex, bool unsigned, bool writeBack, ESize size, ERegister rn, ERegister rd, byte shiftCount, EShiftInstruction shiftInst, ERegister rm)
+        public DataAccess(ECondition condition, bool load, bool preIndex, bool unsigned, bool writeBack, EDataSize dataSize, ERegister rn, ERegister rd, byte shiftCount, EShiftInstruction shiftInst, ERegister rm)
         {
             Offset = EOffset.ImmediateShiftRm;
             Condition = condition;
@@ -62,7 +66,7 @@ namespace ARM_Simulator.Model.Commands
             PreIndex = preIndex;
             Unsigned = unsigned;
             WriteBack = writeBack;
-            Size = size;
+            DataSize = dataSize;
             Rn = rn;
             Rd = rd;
             ShiftCount = shiftCount;
@@ -86,6 +90,7 @@ namespace ARM_Simulator.Model.Commands
             {
                 Immediate = Parser.ParseImmediate<short>(source[1]);
                 if (Immediate > 4096) throw new ArgumentOutOfRangeException();
+
                 Offset = EOffset.Immediate;
             }
             else
@@ -98,10 +103,9 @@ namespace ARM_Simulator.Model.Commands
             }
         }
 
-        public void Parse([NotNull] string[] parameters)
+        private void ParseTypical(string parameterString)
         {
-            if (Decoded)
-                throw new Exception("Cannot parse a decoded command");
+            var parameters = Parser.ParseParameters(parameterString, new[] { '[', ']' });
 
             // Check Parameter Count
             if ((parameters.Length != 2) && (parameters.Length != 3))
@@ -122,6 +126,7 @@ namespace ARM_Simulator.Model.Commands
             if (parameters.Length == 2)
             {
                 Decoded = true;
+                Linked = true;
                 return;
             }
 
@@ -153,12 +158,39 @@ namespace ARM_Simulator.Model.Commands
             }
 
             Decoded = true;
+            Linked = true;
+        }
+
+        public void Parse([NotNull] string parameterString)
+        {
+            if (Decoded)
+                throw new Exception("Cannot parse a decoded command");
+
+            if (parameterString.IndexOf("[", StringComparison.Ordinal) != -1)
+            {
+                ParseTypical(parameterString);
+            }
+            else
+            {
+                var parameters = Parser.ParseParameters(parameterString, new[] { ',' });
+                if (parameters.Length != 2)
+                    throw new ArgumentException("Invalid Syntax");
+
+                Rd = Parser.ParseRegister(parameters[0]);
+                Rn = ERegister.Pc;
+                Label = parameters[1];
+                Decoded = true;
+                Linked = false;
+            }
         }
 
         public int Encode()
         {
             if (!Decoded)
                 throw new Exception("Cannot convert an undecoded command");
+
+            if (!Linked)
+                throw new Exception("Cannot encode an unlinked command");
 
             var bw = new BitWriter();
 
@@ -167,7 +199,7 @@ namespace ARM_Simulator.Model.Commands
             bw.WriteBits(Offset == EOffset.ImmediateShiftRm ? 1 : 0, 25, 1);
             bw.WriteBits(PreIndex ? 1 : 0, 24, 1);
             bw.WriteBits(Unsigned ? 1 : 0, 23, 1);
-            bw.WriteBits(Size == ESize.Byte ? 1 : 0, 22, 1);
+            bw.WriteBits(DataSize == EDataSize.Byte ? 1 : 0, 22, 1);
             bw.WriteBits(WriteBack ? 1 : 0, 21, 1);
             bw.WriteBits(Load ? 1 : 0, 20, 1);
             bw.WriteBits((int)Rn, 16, 4);
@@ -189,6 +221,19 @@ namespace ARM_Simulator.Model.Commands
             }
 
             return bw.GetValue();
+        }
+
+        public void Link(Dictionary<string, int> commandTable, Dictionary<string, int> dataTable, int commandOffset)
+        {
+            if (Linked)
+                return;
+
+            if (!commandTable.ContainsKey(Label))
+                throw new Exception("Invalid Label: " + Label);
+
+            var offset = (commandTable[Label] - commandOffset - 2) * 0x4;
+            Immediate = (short) offset;
+            Linked = true;
         }
 
         public void Execute([NotNull] Core armCore)
@@ -218,12 +263,12 @@ namespace ARM_Simulator.Model.Commands
 
             if (Load)
             {
-                switch (Size)
+                switch (DataSize)
                 {
-                    case ESize.Word:
+                    case EDataSize.Word:
                         armCore.SetRegValue(Rd, armCore.Ram.ReadInt(addr));
                         break;
-                    case ESize.Byte:
+                    case EDataSize.Byte:
                         armCore.SetRegValue(Rd, armCore.Ram.ReadByte(addr));
                         break;
                     default:
@@ -232,12 +277,12 @@ namespace ARM_Simulator.Model.Commands
             }
             else
             {
-                switch (Size)
+                switch (DataSize)
                 {
-                    case ESize.Word:
+                    case EDataSize.Word:
                         armCore.Ram.WriteInt(addr, armCore.GetRegValue(Rd));
                         break;
-                    case ESize.Byte:
+                    case EDataSize.Byte:
                         armCore.Ram.WriteByte(addr, (byte)armCore.GetRegValue(Rd));
                         break;
                     default:

@@ -142,36 +142,36 @@ namespace ARM_Simulator.Model.Components
             {
                 case 0x04100000: // LDR + offset
                     immediate = (short) br.ReadBits(0, 12);
-                    return new DataAccess(conditions, true, preIndex, unsigned, writeBack, ESize.Word, rn, rd, immediate);
+                    return new DataAccess(conditions, true, preIndex, unsigned, writeBack, EDataSize.Word, rn, rd, immediate);
                 case 0x06100000: // LDR + Rm shift value
                     shiftValue = (byte) br.ReadBits(7, 5);
                     shiftInst = (EShiftInstruction) br.ReadBits(5, 2);
                     rm = (ERegister) br.ReadBits(0, 4);
-                    return new DataAccess(conditions, true, preIndex, unsigned, writeBack, ESize.Word, rn, rd, shiftValue, shiftInst, rm);
+                    return new DataAccess(conditions, true, preIndex, unsigned, writeBack, EDataSize.Word, rn, rd, shiftValue, shiftInst, rm);
                 case 0x04500000: // LDRB + offset
                     immediate = (short)br.ReadBits(0, 12);
-                    return new DataAccess(conditions, true, preIndex, unsigned, writeBack, ESize.Byte, rn, rd, immediate);
+                    return new DataAccess(conditions, true, preIndex, unsigned, writeBack, EDataSize.Byte, rn, rd, immediate);
                 case 0x06500000: // LDRB + Rm shift value
                     shiftValue = (byte)br.ReadBits(7, 5);
                     shiftInst = (EShiftInstruction)br.ReadBits(5, 2);
                     rm = (ERegister)br.ReadBits(0, 4);
-                    return new DataAccess(conditions, true, preIndex, unsigned, writeBack, ESize.Byte, rn, rd, shiftValue, shiftInst, rm);
+                    return new DataAccess(conditions, true, preIndex, unsigned, writeBack, EDataSize.Byte, rn, rd, shiftValue, shiftInst, rm);
                 case 0x04000000: // STR + offset
                     immediate = (short)br.ReadBits(0, 12);
-                    return new DataAccess(conditions, false, preIndex, unsigned, writeBack, ESize.Word, rn, rd, immediate);
+                    return new DataAccess(conditions, false, preIndex, unsigned, writeBack, EDataSize.Word, rn, rd, immediate);
                 case 0x06000000: // STR + Rm shift value
                     shiftValue = (byte)br.ReadBits(7, 5);
                     shiftInst = (EShiftInstruction)br.ReadBits(5, 2);
                     rm = (ERegister)br.ReadBits(0, 4);
-                    return new DataAccess(conditions, false, preIndex, unsigned, writeBack, ESize.Word, rn, rd, shiftValue, shiftInst, rm);
+                    return new DataAccess(conditions, false, preIndex, unsigned, writeBack, EDataSize.Word, rn, rd, shiftValue, shiftInst, rm);
                 case 0x04400000: // STRB + offset
                     immediate = (short)br.ReadBits(0, 12);
-                    return new DataAccess(conditions, false, preIndex, unsigned, writeBack, ESize.Byte, rn, rd, immediate);
+                    return new DataAccess(conditions, false, preIndex, unsigned, writeBack, EDataSize.Byte, rn, rd, immediate);
                 case 0x06400000: // STRB + Rm shift value
                     shiftValue = (byte)br.ReadBits(7, 5);
                     shiftInst = (EShiftInstruction)br.ReadBits(5, 2);
                     rm = (ERegister)br.ReadBits(0, 4);
-                    return new DataAccess(conditions, false, preIndex, unsigned, writeBack, ESize.Byte, rn, rd, shiftValue, shiftInst, rm);
+                    return new DataAccess(conditions, false, preIndex, unsigned, writeBack, EDataSize.Byte, rn, rd, shiftValue, shiftInst, rm);
             }
 
             switch (command & 0x0e1000f0) // Special DataAccess (thumb)

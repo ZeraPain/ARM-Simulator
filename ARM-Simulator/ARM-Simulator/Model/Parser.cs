@@ -6,19 +6,18 @@ using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
 using ARM_Simulator.Resources;
+using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.Model
 {
     public class Parser
     {
-        private Dictionary<string, int> _textLabels; // text section offset, Labelname
-        private List<string> _textList;
+        public Dictionary<string, int> CommandTable { get; protected set; } // text section offset, Labelname
+        public List<string> CommandList { get; protected set; }
 
-        private Dictionary<string, int> _dataLabels; // data section offset, Labelname
-        private MemoryStream _memoryStream;
-        private BinaryWriter _dataWriter;
+        public Dictionary<string, byte[]> DataToLink { get; protected set; }
 
-        private enum EFileStruct
+        private enum EFileSection
         {
             Undefined,
             Text,
@@ -26,7 +25,7 @@ namespace ARM_Simulator.Model
             Comm
         }
 
-        public Parser([CanBeNull] string path = null)
+        public Parser(string path)
         {
             ParseFile(path);
         }
@@ -37,14 +36,11 @@ namespace ARM_Simulator.Model
 
             var hFile = File.ReadAllLines(path);
 
-            _textList = new List<string>();
-            _textLabels = new Dictionary<string, int>();
+            CommandList = new List<string>();
+            CommandTable = new Dictionary<string, int>();
+            DataToLink = new Dictionary<string, byte[]>();
 
-            _memoryStream = new MemoryStream();
-            _dataWriter = new BinaryWriter(_memoryStream);
-            _dataLabels = new Dictionary<string, int>();
-
-            var currentSection = EFileStruct.Undefined;
+            var currentSection = EFileSection.Undefined;
 
             foreach (var hLine in hFile)
             {
@@ -60,23 +56,30 @@ namespace ARM_Simulator.Model
                     continue;
 
                 // Check for sections
-                if (line.StartsWith(".", StringComparison.Ordinal))
+                if (line.StartsWith(".", StringComparison.Ordinal) && line.Length > 4)
                 {
-                    Enum.TryParse(line.Substring(1), true, out currentSection);
-                    continue;
+                    switch (line.Substring(1, 4))
+                    {
+                        case "text":
+                            currentSection = EFileSection.Text;
+                            continue;
+                        case "data":
+                            currentSection = EFileSection.Data;
+                            continue;
+                    }
                 }
 
                 switch (currentSection)
                 {
-                    case EFileStruct.Undefined:
+                    case EFileSection.Undefined:
                         break;
-                    case EFileStruct.Text:
+                    case EFileSection.Text:
                         ParseTextSection(line);
                         break;
-                    case EFileStruct.Data:
+                    case EFileSection.Data:
                         ParseDataSection(line);
                         break;
-                    case EFileStruct.Comm:
+                    case EFileSection.Comm:
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -91,7 +94,7 @@ namespace ARM_Simulator.Model
             if (labelIndex > -1)
             {
                 var label = line.Substring(0, labelIndex);
-                _textLabels.Add(label, _textList.Count);
+                CommandTable.Add(label, CommandList.Count);
 
                 if (line.Length > labelIndex + 1)
                     line = line.Substring(labelIndex + 1).Trim(' ', '\t');
@@ -100,7 +103,7 @@ namespace ARM_Simulator.Model
             }
 
             // Add new Command
-            _textList.Add(line);
+            CommandList.Add(line);
         }
 
         private void ParseDataSection([NotNull] string line)
@@ -112,18 +115,18 @@ namespace ARM_Simulator.Model
             if (!lineSplit[0].EndsWith(":"))
                 throw new ArgumentException("Invalid Syntax (label name)");
 
-            _dataLabels.Add(lineSplit[0].Substring(0, lineSplit[0].Length -1), (int)_dataWriter.BaseStream.Length);
-
             switch (lineSplit[1])
             {
                 case ".byte":
-                    _dataWriter.Write(lineSplit[2].StartsWith("0x", StringComparison.Ordinal)
+                    DataToLink.Add(lineSplit[0].Substring(0, lineSplit[0].Length - 1),
+                        lineSplit[2].StartsWith("0x", StringComparison.Ordinal)
                         ? BitConverter.GetBytes(byte.Parse(lineSplit[2].Substring(2),
                             System.Globalization.NumberStyles.HexNumber))
                         : BitConverter.GetBytes(byte.Parse(lineSplit[2])));
                     break;
                 case ".word":
-                    _dataWriter.Write(lineSplit[2].StartsWith("0x", StringComparison.Ordinal)
+                    DataToLink.Add(lineSplit[0].Substring(0, lineSplit[0].Length - 1),
+                        lineSplit[2].StartsWith("0x", StringComparison.Ordinal)
                         ? BitConverter.GetBytes(int.Parse(lineSplit[2].Substring(2),
                             System.Globalization.NumberStyles.HexNumber))
                         : BitConverter.GetBytes(int.Parse(lineSplit[2])));
@@ -131,42 +134,37 @@ namespace ARM_Simulator.Model
             }
         }
 
-        [NotNull]
-        public byte[] EncodeTextSection() // Compile and link
+        [CanBeNull]
+        private static ICommand ParseDataDefinition([NotNull] string commandLine, [CanBeNull] string parameterString)
         {
-            using (var memoryStream = new MemoryStream())
-            {
-                using (var binaryWriter = new BinaryWriter(memoryStream))
-                {
-                    for (var i = 0; i < _textList.Count; i++) // Linking of labels
-                        binaryWriter.Write(ParseLine(_textList[i], i).Encode());
+            if (!commandLine.StartsWith(".", StringComparison.Ordinal) || (parameterString == null))
+                return null;
 
-                    return memoryStream.ToArray();
-                }
-            }
+            EDataSize dataSize;
+            if (!Enum.TryParse(commandLine.Substring(1), true, out dataSize))
+                return null;
+
+            return new Datadefinition(dataSize, parameterString);
         }
 
-        [CanBeNull]
-        public byte[] EncodeDataSection() => _memoryStream?.ToArray();
-
         [NotNull]
-        public List<Command> GetCommandList()
+        public List<ObservableCommand> GetCommandList()
         {
-            if (!_textLabels.ContainsKey("main"))
+            if (!CommandTable.ContainsKey("main"))
                 throw new Exception("Cannot find entry point");
 
-            var commandList = new List<Command>();
-            for (var i = 0; i < _textList.Count; i++)
+            var commandList = new List<ObservableCommand>();
+            for (var i = 0; i < CommandList.Count; i++)
             {
-                var command = new Command
+                var command = new ObservableCommand
                 {
-                    Status = i == _textLabels["main"] ? EPipeline.Fetch : EPipeline.None,
+                    Status = i == CommandTable["main"] ? EPipeline.Fetch : EPipeline.None,
                     Breakpoint = false,
-                    Commandline = _textList[i]
+                    Commandline = CommandList[i]
                 };
 
                 var index = i;
-                foreach (var label in _textLabels.Where(label => label.Value == index))
+                foreach (var label in CommandTable.Where(label => label.Value == index))
                     command.Label = label.Key;
 
                 commandList.Add(command);
@@ -176,7 +174,7 @@ namespace ARM_Simulator.Model
         }
 
         [NotNull]
-        public ICommand ParseLine([NotNull] string commandLine, int lineNumber)
+        public static ICommand ParseLine([NotNull] string commandLine)
         {
             var indexS = commandLine.IndexOf(' ');
             var indexT = commandLine.IndexOf('\t');
@@ -190,13 +188,17 @@ namespace ARM_Simulator.Model
                 index = indexT;
 
             if ((index == -1) || (commandLine.Length < index + 1) || commandLine.EndsWith(","))
-                throw new ArgumentException("Invalid Syntax");
+                throw new ArgumentException("Invalid Syntax:" + commandLine);
 
             var commandString = commandLine.Substring(0, index);
             var parameterString = commandLine.Substring(index).Trim(' ', '\t');
 
             try
             {
+                var datadefinition = ParseDataDefinition(commandString, parameterString);
+                if (datadefinition != null)
+                    return datadefinition;
+
                 var arithmetic = ParseArithmetic(commandString, parameterString);
                 if (arithmetic != null)
                     return arithmetic;
@@ -209,7 +211,7 @@ namespace ARM_Simulator.Model
                 if (blocktransfer != null)
                     return blocktransfer;
 
-                var jump = ParseJump(commandString, parameterString, lineNumber);
+                var jump = ParseJump(commandString, parameterString);
                 if (jump != null)
                     return jump;
 
@@ -235,10 +237,10 @@ namespace ARM_Simulator.Model
 
         public int GetEntryPoint()
         {
-            if (!_textLabels.ContainsKey("main"))
+            if (!CommandTable.ContainsKey("main"))
                 throw new Exception("Cannot find entry point");
 
-            return _textLabels["main"] * 0x4;
+            return CommandTable["main"] * 0x4;
         }
 
         [CanBeNull]
@@ -250,7 +252,6 @@ namespace ARM_Simulator.Model
             var args = cmdString.Substring(3, cmdString.Length - 3).ToLower();
             var condition = ParseCondition(ref args);
             bool setConditionFlags;
-            var parameters = ParseParameters(parameterString, new[] { ',' });
 
             EOpcode opCode;
             if (!Enum.TryParse(cmdString.Substring(0, 3).ToLower(), true, out opCode))
@@ -279,7 +280,7 @@ namespace ARM_Simulator.Model
                     throw new ArgumentOutOfRangeException();
             }
 
-            return new Arithmetic(condition, opCode, setConditionFlags, parameters);
+            return new Arithmetic(condition, opCode, setConditionFlags, parameterString);
         }
 
         [CanBeNull]
@@ -293,17 +294,16 @@ namespace ARM_Simulator.Model
 
             var conditionFlags = ParseCondition(ref args);
             var size = ParseSize(args);
-            var parameters = ParseParameters(parameterString, new[] { '[', ']' });
 
             switch (cmdString)
             {
                 case "str":
-                    return new DataAccess(conditionFlags, false, size, parameters);
+                    return new DataAccess(conditionFlags, false, size, parameterString);
                 case "ldr":
-                    return new DataAccess(conditionFlags, true, size, parameters);
+                    return new DataAccess(conditionFlags, true, size, parameterString);
+                default:
+                    return null;
             }
-
-            return null;
         }
 
         [CanBeNull]
@@ -314,23 +314,21 @@ namespace ARM_Simulator.Model
 
             var args = cmdString.Substring(3, cmdString.Length - 3).ToLower();
             cmdString = cmdString.Substring(0, 3).ToLower();
-
             var condition = ParseCondition(ref args);
-            var parameters = ParseParameters(parameterString, new[] { '{', '}' });
 
             switch (cmdString)
             {
                 case "stm":
-                    return new Blocktransfer(condition, false, parameters);
+                    return new Blocktransfer(condition, false, parameterString);
                 case "ldm":
-                    return new Blocktransfer(condition, true, parameters);
+                    return new Blocktransfer(condition, true, parameterString);
                 default:
                     return null;
             }
         }
 
         [CanBeNull]
-        private ICommand ParseJump(string cmdString, string parameterString, int lineNumber)
+        private static ICommand ParseJump(string cmdString, string parameterString)
         {
             cmdString = cmdString.ToLower();
 
@@ -355,20 +353,16 @@ namespace ARM_Simulator.Model
                     cmdString = cmdString.Substring(1);
                 }
 
-                if (!_textLabels.ContainsKey(parameterString))
-                    throw new ArgumentException("Unknown Label");
-
                 var conditions = ParseCondition(ref cmdString);
-                var offset = _textLabels[parameterString] - lineNumber - 2; // -2 -> Pipeline
 
-                return new Jump(conditions, link ? EJump.BranchLink : EJump.Branch, offset);
+                return new Jump(conditions, link ? EJump.BranchLink : EJump.Branch, parameterString);
             }
 
             return null;
         }
 
         [CanBeNull]
-        private static ICommand ParseMultiply(string cmdString, string parameterString)
+        private static ICommand ParseMultiply([NotNull] string cmdString, string parameterString)
         {
             if (cmdString.Length <= 2)
                 return null;
@@ -402,11 +396,12 @@ namespace ARM_Simulator.Model
 
             var conditionFlags = ParseCondition(ref args);
             var setConditionFlags = ParseSetConditionFlags(args);
-            var parameters = ParseParameters(parameterString, new[] { ',' });
-            return new Multiply(conditionFlags, multiplication, setConditionFlags, parameters);
+            
+            return new Multiply(conditionFlags, multiplication, setConditionFlags, parameterString);
         }
 
-        private static string[] ParseParameters(string parameterString, char[] seperator)
+        [NotNull]
+        public static string[] ParseParameters([NotNull] string parameterString, char[] seperator)
         {
             var parameters = parameterString.Split(seperator, StringSplitOptions.RemoveEmptyEntries);
             for (var i = 0; i < parameters.Length; i++)
@@ -415,7 +410,7 @@ namespace ARM_Simulator.Model
             return parameters;
         }
 
-        private static bool ParseSetConditionFlags(string args)
+        private static bool ParseSetConditionFlags([CanBeNull] string args)
         {
             if (string.IsNullOrEmpty(args))
                 return false;
@@ -423,17 +418,17 @@ namespace ARM_Simulator.Model
             return args == "s";
         }
 
-        private static ESize ParseSize(string args)
+        private static EDataSize ParseSize([CanBeNull] string args)
         {
             if (string.IsNullOrEmpty(args))
-                return ESize.Word;
+                return EDataSize.Word;
 
             switch (args)
             {
                 case "b":
-                    return ESize.Byte;
+                    return EDataSize.Byte;
                 default:
-                    return ESize.Word;
+                    return EDataSize.Word;
             }
         }
 
@@ -515,8 +510,8 @@ namespace ARM_Simulator.Model
                 var value = long.Parse(parameter.Substring(3), System.Globalization.NumberStyles.HexNumber);
                 return (T)Convert.ChangeType(value, typeof(T));
             }
-                
-            if (parameter.StartsWith("#"))
+
+            if (parameter.StartsWith("#", StringComparison.Ordinal))
                 parameter = parameter.Substring(1);
 
             return (T)Convert.ChangeType(long.Parse(parameter), typeof(T));

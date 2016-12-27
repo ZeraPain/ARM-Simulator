@@ -36,13 +36,9 @@ namespace ARM_Simulator.ViewModel
         private void Update(object sender, [NotNull] PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Registers")
-            {
                 UpdateRegisterList();
-            }
             else if (e.PropertyName == "PipelineStatus")
-            {
                 UpdatePipelineStatus();
-            }
         }
 
         private void UpdateRegisterList()
@@ -78,17 +74,11 @@ namespace ARM_Simulator.ViewModel
             }
         }
 
-        public void UpdateList([NotNull] IEnumerable<Command> cmdList)
+        public void UpdateList([NotNull] List<ObservableCommand> cmdList)
         {
             CommandList.Clear();
             foreach (var x in cmdList)
-                CommandList.Add(new ObservableCommand()
-                {
-                    Breakpoint = x.Breakpoint,
-                    Commandline = x.Commandline,
-                    Label = x.Label,
-                    Status = x.Status
-                });
+                CommandList.Add(x);
         }
 
         public void ToggleBreakPoint(object parameter)
