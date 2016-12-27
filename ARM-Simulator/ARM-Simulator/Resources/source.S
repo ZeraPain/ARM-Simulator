@@ -1,6 +1,8 @@
 @@testfile	
 
 .text
+xptr:
+	.word X
 	mov r0, #4
 main:
 	mov r1, #1
@@ -16,8 +18,6 @@ L1:	add r2, r2, r1
 	beq main
 	b L1
 
-xptr:
-	.word X
 yptr:
 	.word Y
 zptr:

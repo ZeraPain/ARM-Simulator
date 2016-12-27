@@ -33,16 +33,15 @@ namespace ARM_Simulator.Model.Commands
 
         public int Encode()
         {
-            if (!Linked)
-                throw new Exception("Cannot encode an unlinked command");
+            if (!Linked) throw new InvalidOperationException();
 
             return Value;
         }
 
         public void Link(Dictionary<string, int> commandTable, [NotNull] Dictionary<string, int> dataTable, int commandOffset)
         {
-            if (!dataTable.ContainsKey(Label))
-                throw new Exception("Unknown Label: " + Label);
+            if (Linked) return;
+            if (!dataTable.ContainsKey(Label)) throw new Exception("Unknown Label: " + Label);
 
             Value = dataTable[Label];
             Linked = true;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
@@ -86,12 +87,10 @@ namespace ARM_Simulator.Model.Commands
             {
                 Immediate = Parser.ParseImmediate<byte>(operand2);
                 ShiftCount = 0;
-                if (!string.IsNullOrEmpty(shiftValue)) // rotate right
-                {
-                    Rotate = Parser.ParseImmediate<byte>(shiftValue);
-                    if (Rotate >= 16)
-                        throw new ArgumentOutOfRangeException();
-                }
+                if (string.IsNullOrEmpty(shiftValue)) return EOperand2.RotateImmediate;
+
+                Rotate = Parser.ParseImmediate<byte>(shiftValue);
+                if (Rotate >= 16) throw new ArgumentOutOfRangeException();
 
                 return EOperand2.RotateImmediate;
             }
@@ -99,17 +98,14 @@ namespace ARM_Simulator.Model.Commands
             Rm = Parser.ParseRegister(operand2); // use register
 
             if (!string.IsNullOrEmpty(shiftValue) && Parser.ParseShiftInstruction(shiftValue, ref ShiftInst, ref ShiftCount, ref Rs))
-            {
                 return EOperand2.RsShiftRm;
-            }
 
             return EOperand2.ImmediateShiftRm;
         }
 
         public void Parse([NotNull] string parameterString)
         {
-            if (Decoded)
-                throw new Exception("Cannot parse a decoded command");
+            if (Decoded) throw new InvalidOperationException();
 
             var parameters = Parser.ParseParameters(parameterString, new[] { ',' });
 
@@ -122,9 +118,7 @@ namespace ARM_Simulator.Model.Commands
                 case EOpcode.Eor:
                 case EOpcode.Orr:
                 case EOpcode.Bic:
-                    // Check parameter count
-                    if ((parameters.Length != 3) && (parameters.Length != 4))
-                        throw new ArgumentException("Invalid parameter count");
+                    if ((parameters.Length != 3) && (parameters.Length != 4)) throw new TargetParameterCountException();
 
                     // Parse Rd, Rn
                     Rd = Parser.ParseRegister(parameters[0]);
@@ -135,8 +129,7 @@ namespace ARM_Simulator.Model.Commands
                 case EOpcode.Mov:
                 case EOpcode.Mvn:
                     // Check for valid parameter count
-                    if (parameters.Length != 2 && parameters.Length != 3)
-                        throw new ArgumentException("Invalid parameter count");
+                    if ((parameters.Length != 2) && (parameters.Length != 3)) throw new TargetParameterCountException();
 
                     // Parse Rd
                     Rd = Parser.ParseRegister(parameters[0]);
@@ -148,8 +141,7 @@ namespace ARM_Simulator.Model.Commands
                 case EOpcode.Cmp:
                 case EOpcode.Cmn:
                     // Check for valid parameter count
-                    if (parameters.Length != 2 && parameters.Length != 3)
-                        throw new ArgumentException("Invalid parameter count");
+                    if ((parameters.Length != 2) && (parameters.Length != 3)) throw new TargetParameterCountException();
 
                     // Parse Rn
                     Rn = Parser.ParseRegister(parameters[0]);
@@ -163,16 +155,12 @@ namespace ARM_Simulator.Model.Commands
 
         public int Encode()
         {
-            if (!Decoded)
-                throw new Exception("Cannot convert an undecoded command");
+            if (!Decoded) throw new InvalidOperationException();
 
             var bw = new BitWriter();
 
             bw.WriteBits((int)Condition, 28, 4); // Condition
-
-            if (Operand2 == EOperand2.RotateImmediate)
-                bw.WriteBits(1, 25, 1);
-
+            if (Operand2 == EOperand2.RotateImmediate) bw.WriteBits(1, 25, 1);
             bw.WriteBits((int)Opcode, 21, 4); // Opcode
             bw.WriteBits(SetConditionFlags ? 1 : 0, 20, 1); // Set condition flags
 
@@ -206,7 +194,7 @@ namespace ARM_Simulator.Model.Commands
 
         public void Link(Dictionary<string, int> commandTable, Dictionary<string, int> dataTable, int commandOffset)
         {
-            
+
         }
 
         private int Calculation(Core armCore, int value)
@@ -263,11 +251,8 @@ namespace ARM_Simulator.Model.Commands
 
         public void Execute(Core armCore)
         {
-            if (!Decoded)
-                throw new Exception("Cannot execute an undecoded command");
-
-            if (!Helper.CheckConditions(Condition, armCore.GetCpsr()))
-                return;
+            if (!Decoded) throw new InvalidOperationException();
+            if (!Helper.CheckConditions(Condition, armCore.GetCpsr())) return;
 
             var value = 0;
             var carry = false;
@@ -332,7 +317,7 @@ namespace ARM_Simulator.Model.Commands
             var n = (int)newValue < 0;
             var z = (int)newValue == 0;
             var c = (newValue & 0x100000000) > 0;
-            var v = newValue < int.MinValue || newValue > int.MaxValue;
+            var v = (newValue < int.MinValue) || (newValue > int.MaxValue);
 
             return new Flags(n, z, c, v);
         }

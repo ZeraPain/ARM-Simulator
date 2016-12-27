@@ -25,7 +25,7 @@ namespace ARM_Simulator.Model
             var parser = new Parser(path);
             ArmCore.SetEntryPoint(parser.GetEntryPoint());
 
-            var linker = new Linker(Memory, parser.CommandList, parser.CommandTable, parser.DataToLink);
+            var linker = new Linker(Memory, parser.CommandList, parser.CommandTable, parser.DataList, parser.DataTable);
             linker.CompileAndLink();
 
             return parser.GetCommandList();

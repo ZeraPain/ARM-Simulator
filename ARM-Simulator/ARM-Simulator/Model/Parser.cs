@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
@@ -12,10 +13,11 @@ namespace ARM_Simulator.Model
 {
     public class Parser
     {
-        public Dictionary<string, int> CommandTable { get; protected set; } // text section offset, Labelname
+        public Dictionary<string, int> CommandTable { get; protected set; } // Labelname, Offset
         public List<string> CommandList { get; protected set; }
 
-        public Dictionary<string, byte[]> DataToLink { get; protected set; }
+        public Dictionary<string, int> DataTable { get; protected set; } // Labelname, Offset
+        public List<byte[]> DataList { get; protected set; }
 
         private enum EFileSection
         {
@@ -27,6 +29,12 @@ namespace ARM_Simulator.Model
 
         public Parser(string path)
         {
+            CommandTable = new Dictionary<string, int>();
+            CommandList = new List<string>();
+
+            DataTable = new Dictionary<string, int>();
+            DataList = new List<byte[]>();
+
             ParseFile(path);
         }
 
@@ -34,12 +42,12 @@ namespace ARM_Simulator.Model
         {
             if (path == null) return;
 
+            CommandTable.Clear();
+            CommandList.Clear();
+            DataTable.Clear();
+            DataList.Clear();
+
             var hFile = File.ReadAllLines(path);
-
-            CommandList = new List<string>();
-            CommandTable = new Dictionary<string, int>();
-            DataToLink = new Dictionary<string, byte[]>();
-
             var currentSection = EFileSection.Undefined;
 
             foreach (var hLine in hFile)
@@ -108,28 +116,37 @@ namespace ARM_Simulator.Model
 
         private void ParseDataSection([NotNull] string line)
         {
+            // Check for label
+            var labelIndex = line.IndexOf(":", StringComparison.Ordinal);
+            if (labelIndex > -1)
+            {
+                var label = line.Substring(0, labelIndex);
+                var offset = DataList.SelectMany(a => a).ToArray().Length;
+                DataTable.Add(label, offset);
+
+                if (line.Length > labelIndex + 1)
+                    line = line.Substring(labelIndex + 1).Trim(' ', '\t');
+                else
+                    return;
+            }
+
             var lineSplit = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-            if (lineSplit.Length != 3)
+            if (lineSplit.Length != 2)
                 throw new ArgumentException("Invalid Syntax (parameter count)");
 
-            if (!lineSplit[0].EndsWith(":"))
-                throw new ArgumentException("Invalid Syntax (label name)");
-
-            switch (lineSplit[1])
+            switch (lineSplit[0])
             {
                 case ".byte":
-                    DataToLink.Add(lineSplit[0].Substring(0, lineSplit[0].Length - 1),
-                        lineSplit[2].StartsWith("0x", StringComparison.Ordinal)
-                        ? BitConverter.GetBytes(byte.Parse(lineSplit[2].Substring(2),
+                    DataList.Add(lineSplit[1].StartsWith("0x", StringComparison.Ordinal)
+                        ? BitConverter.GetBytes(byte.Parse(lineSplit[1].Substring(2),
                             System.Globalization.NumberStyles.HexNumber))
-                        : BitConverter.GetBytes(byte.Parse(lineSplit[2])));
+                        : BitConverter.GetBytes(byte.Parse(lineSplit[1])));
                     break;
                 case ".word":
-                    DataToLink.Add(lineSplit[0].Substring(0, lineSplit[0].Length - 1),
-                        lineSplit[2].StartsWith("0x", StringComparison.Ordinal)
-                        ? BitConverter.GetBytes(int.Parse(lineSplit[2].Substring(2),
+                    DataList.Add(lineSplit[1].StartsWith("0x", StringComparison.Ordinal)
+                        ? BitConverter.GetBytes(int.Parse(lineSplit[1].Substring(2),
                             System.Globalization.NumberStyles.HexNumber))
-                        : BitConverter.GetBytes(int.Parse(lineSplit[2])));
+                        : BitConverter.GetBytes(int.Parse(lineSplit[1])));
                     break;
             }
         }
@@ -187,14 +204,13 @@ namespace ARM_Simulator.Model
             else if ((indexT > -1) && (indexS == -1))
                 index = indexT;
 
-            if ((index == -1) || (commandLine.Length < index + 1) || commandLine.EndsWith(","))
-                throw new ArgumentException("Invalid Syntax:" + commandLine);
-
-            var commandString = commandLine.Substring(0, index);
-            var parameterString = commandLine.Substring(index).Trim(' ', '\t');
-
             try
             {
+                if ((index == -1) || (commandLine.Length < index + 1) || commandLine.EndsWith(",")) throw new TargetParameterCountException();
+
+                var commandString = commandLine.Substring(0, index);
+                var parameterString = commandLine.Substring(index).Trim(' ', '\t');
+
                 var datadefinition = ParseDataDefinition(commandString, parameterString);
                 if (datadefinition != null)
                     return datadefinition;
@@ -219,15 +235,23 @@ namespace ARM_Simulator.Model
                 if (multiply != null)
                     return multiply;
 
-                throw new ArgumentException("Unable to parse an invalid Command");
+                throw new ArgumentException();
             }
-            catch (ArgumentException ex)
+            catch (TargetParameterCountException)
             {
-                throw new ArgumentException(ex.Message + ": " + commandLine);
+                throw new TargetParameterCountException("Invalid Parameter Count: " + commandLine);
             }
-            catch (FormatException ex)
+            catch (ArgumentOutOfRangeException)
             {
-                throw new FormatException(ex.Message + ": " + commandLine);
+                throw new ArgumentOutOfRangeException("Invalid Parameter Size: " + commandLine);
+            }
+            catch (ArgumentException)
+            {
+                throw new ArgumentException("Invalid / Unknown Syntax: " + commandLine);
+            }
+            catch (FormatException)
+            {
+                throw new FormatException("Invalid Format: " + commandLine);
             }
             catch (Exception ex)
             {

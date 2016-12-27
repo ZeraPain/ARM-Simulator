@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
+using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.Resources;
@@ -65,26 +67,23 @@ namespace ARM_Simulator.Model.Commands
             Decoded = true;
         }
 
-        public void Parse(string parameterString)
+        public void Parse([NotNull] string parameterString)
         {
-            if (Decoded)
-                throw new Exception("Cannot parse a decoded command");
+            if (Decoded) throw new InvalidOperationException();
 
             var parameters = Parser.ParseParameters(parameterString, new[] { ',' });
 
             switch (Multiplication)
             {
                 case EMultiplication.Mul:
-                    if (parameters.Length != 3)
-                        throw new ArgumentException("Invalid parameter count");
+                    if (parameters.Length != 3) throw new TargetParameterCountException();
 
                     Rd = Parser.ParseRegister(parameters[0]);
                     Rm = Parser.ParseRegister(parameters[1]);
                     Rs = Parser.ParseRegister(parameters[2]);
                     break;
                 case EMultiplication.Mla:
-                    if (parameters.Length != 4)
-                        throw new ArgumentException("Invalid parameter count");
+                    if (parameters.Length != 4) throw new TargetParameterCountException();
 
                     Rd = Parser.ParseRegister(parameters[0]);
                     Rm = Parser.ParseRegister(parameters[1]);
@@ -95,8 +94,7 @@ namespace ARM_Simulator.Model.Commands
                 case EMultiplication.Smull:
                 case EMultiplication.Umlal:
                 case EMultiplication.UMull:
-                    if (parameters.Length != 4)
-                        throw new ArgumentException("Invalid parameter count");
+                    if (parameters.Length != 4) throw new TargetParameterCountException();
 
                     RdLo = Parser.ParseRegister(parameters[0]);
                     RdHi = Parser.ParseRegister(parameters[1]);
@@ -112,8 +110,7 @@ namespace ARM_Simulator.Model.Commands
 
         public int Encode()
         {
-            if (!Decoded)
-                throw new Exception("Cannot convert an undecoded command");
+            if (!Decoded) throw new InvalidOperationException();
 
             var bw = new BitWriter();
 
@@ -163,13 +160,10 @@ namespace ARM_Simulator.Model.Commands
 
         }
 
-        public void Execute(Core armCore)
+        public void Execute([NotNull] Core armCore)
         {
-            if (!Decoded)
-                throw new Exception("Cannot execute an undecoded command");
-
-            if (!Helper.CheckConditions(Condition, armCore.GetCpsr()))
-                return;
+            if (!Decoded) throw new InvalidOperationException();
+            if (!Helper.CheckConditions(Condition, armCore.GetCpsr())) return;
 
             const uint lo = 0xFFFFFFFF;
             const ulong hi = 0xFFFFFFFF00000000;
