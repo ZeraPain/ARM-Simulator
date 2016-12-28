@@ -136,5 +136,11 @@ namespace ARM_Simulator.View
             _viewModel.ArmSimulator.Memory.safe = true;
   
         }
+
+        private void CheckBoxShowBreakpoints_OnClick(object sender, RoutedEventArgs e)
+        {
+            ShowBreakpoints subWindow = new ShowBreakpoints();  
+            subWindow.Show();
+        }
     }
 }
