@@ -8,7 +8,7 @@
         x:Class="ARM_Simulator.View.MainWindow"
         Title="{Binding File, Converter={StaticResource TitleConverter}}" 
         Width="800"
-        Height="620"
+        Height="630"
         ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen"
         Icon="/Resources/Images/Icon.png">
@@ -36,6 +36,9 @@
                     <RibbonButton Label="Continue" LargeImageSource="/Resources/Images/continue.png" Command="{Binding ContinueCommand}" />
                     <RibbonButton Label="Pause" LargeImageSource="/Resources/Images/pause.png" Command="{Binding PauseCommand}" />
                 </RibbonGroup>
+                <RibbonGroup Header="Syntax">
+                    <RibbonButton Label="Check" LargeImageSource="/Resources/Images/check.png"/>
+                </RibbonGroup>
                 <RibbonGroup Header="Pipelining View">
                     <StackPanel Orientation="Vertical">
                         <RibbonCheckBox HorizontalAlignment="Left" Label="Fetch" Height="18" Background="LawnGreen" IsChecked="{Binding Path=CoreVm.DisplayFetch}"/>
@@ -43,10 +46,10 @@
                         <RibbonCheckBox HorizontalAlignment="Left" Label="Excecute" Height="18" Background="OrangeRed" IsChecked="{Binding Path=CoreVm.DisplayExecute}"/>
                     </StackPanel>
                 </RibbonGroup>
-                <RibbonGroup x:Name="OptionGroupBreakpoints" Header="Breakpoints">
+                <RibbonGroup  Header="Breakpoints">
                     <StackPanel Orientation="Horizontal">
-                        <RibbonButton x:Name="CheckBoxShowBreakpoints" Label="Show"  LargeImageSource="/Resources/Images/showBP.png"  Click="CheckBoxShowBreakpoints_OnClick"/>
-                        <RibbonButton x:Name="CheckBoxRemoveBreakpoints" Label="Remove" LargeImageSource="/Resources/Images/removeBP.png" Click="CheckBoxRemoveBreakpoints_OnClick"/>
+                        <RibbonButton  Label="Show"  LargeImageSource="/Resources/Images/showBP.png"  Click="CheckBoxShowBreakpoints_OnClick"/>
+                        <RibbonButton  Label="Remove" LargeImageSource="/Resources/Images/removeBP.png" Click="CheckBoxRemoveBreakpoints_OnClick"/>
                     </StackPanel>
                 </RibbonGroup>
             </RibbonTab>

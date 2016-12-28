@@ -153,6 +153,7 @@
     <Resource Include="Resources\Images\Icon.png" />
     <Resource Include="Resources\Images\off.png" />
     <Resource Include="Resources\Images\on.png" />
+    <Resource Include="Resources\Images\check.png" />
     <Content Include="Resources\source.S" />
   </ItemGroup>
   <ItemGroup>
