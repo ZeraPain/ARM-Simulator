@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Documents;
@@ -24,6 +25,12 @@ namespace ARM_Simulator.View
             InitializeComponent();
             _viewModel = DataContext as SimulatorViewModel;
             LoadFile("../../Resources/source.S");
+        }
+
+        private void OnClosing(object sender, CancelEventArgs e)
+        {
+            subWindow.Close();
+            e.Cancel = false;
         }
 
         private void ListViewCode_MouseDoubleClick(object sender, MouseButtonEventArgs e)
