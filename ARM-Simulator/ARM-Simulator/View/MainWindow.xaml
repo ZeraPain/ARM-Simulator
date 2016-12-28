@@ -15,7 +15,7 @@
     <RibbonWindow.DataContext>
         <local:SimulatorViewModel/>
     </RibbonWindow.DataContext>
-    <DockPanel LastChildFill="True">
+    <DockPanel LastChildFill="True"> 
  
         <!-- This Ribbon Editor Menu is only visible while editing a file -->
         <Ribbon DockPanel.Dock="Top" Height="130" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">

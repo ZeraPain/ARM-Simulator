@@ -3,18 +3,24 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ARM_Simulator.View"
+        xmlns:viewModel="clr-namespace:ARM_Simulator.ViewModel"
         mc:Ignorable="d"
-        Title="Show Breakpoints" Height="300" Width="300">
-    <Grid>
-        <ListView x:Name="ShowBP">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Line" Width="30"/>
-                    <GridViewColumn Header="Command" Width="auto"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
-
-    </Grid>
+        Title="Show Breakpoints" Height="300" Width="300"
+        WindowStartupLocation="CenterScreen">
+    
+    <RibbonWindow.DataContext>
+        <viewModel:SimulatorViewModel/>
+    </RibbonWindow.DataContext>
+    <DockPanel LastChildFill="True">
+        <Grid DockPanel.Dock="Top">
+            <ListView x:Name="ShowBP">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Line" Width="30"/>
+                        <GridViewColumn Header="Command" Width="auto"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
+        </DockPanel>
 </RibbonWindow>

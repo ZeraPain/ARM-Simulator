@@ -1,11 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using ARM_Simulator.Model;
-using ARM_Simulator.Model.Components;
 using ARM_Simulator.ViewModel;
 using Microsoft.Win32;
 
@@ -17,6 +15,7 @@ namespace ARM_Simulator.View
     public partial class MainWindow
     {
         private readonly SimulatorViewModel _viewModel;
+        ShowBreakpoints subWindow = new ShowBreakpoints();
         private string _path;
         
 
@@ -106,6 +105,7 @@ namespace ARM_Simulator.View
         private void BtnExitFile_Click(object sender, RoutedEventArgs e)
         {
             SaveFile();
+            subWindow.Close();
             Application.Current.Shutdown();
         }
 
@@ -139,7 +139,7 @@ namespace ARM_Simulator.View
 
         private void CheckBoxShowBreakpoints_OnClick(object sender, RoutedEventArgs e)
         {
-            ShowBreakpoints subWindow = new ShowBreakpoints();  
+              
             subWindow.Show();
         }
     }
