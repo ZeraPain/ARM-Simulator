@@ -6,7 +6,7 @@ xptr:
 	mov r0, #4
 main:
 	mov r1, #1
-	mov r2, #3
+	mov r2, #1
 	mov r3, #3
 	ldr r7, main
 	ldr r5, xptr

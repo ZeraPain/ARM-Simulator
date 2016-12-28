@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
+using ARM_Simulator.Model;
 using ARM_Simulator.ViewModel;
 using Microsoft.Win32;
 
@@ -13,6 +15,10 @@ namespace ARM_Simulator.View
     public partial class MainWindow
     {
         private readonly SimulatorViewModel _viewModel;
+        private readonly Simulator _simulator;
+        private readonly CoreViewModel _core;
+        private string _path;
+        
 
         public MainWindow()
         {
@@ -43,8 +49,8 @@ namespace ARM_Simulator.View
         private void LoadFile(string path)
         {
             if (_viewModel == null) return;
-
             _viewModel.File = path;
+            _path = path;
             var range = new TextRange(RichTextBoxEditor.Document.ContentStart, RichTextBoxEditor.Document.ContentEnd);
             var fStream = new FileStream(_viewModel.File, FileMode.OpenOrCreate);
             range.Load(fStream, DataFormats.Text);
@@ -106,6 +112,18 @@ namespace ARM_Simulator.View
         {
             SaveFile();
             Application.Current.Shutdown();
+        }
+
+        private void ButtonCheckSyntax_OnClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+               
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, ex.Source);
+            }
         }
     }
 }
