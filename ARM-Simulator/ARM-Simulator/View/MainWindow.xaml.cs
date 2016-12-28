@@ -30,7 +30,6 @@ namespace ARM_Simulator.View
                 return;
 
             _viewModel.CoreVm.ToggleBreakPoint(index);
-            ListViewCode.Items.Refresh();
         }
 
         private void BtnNewFile_Click(object sender, RoutedEventArgs e)
@@ -103,21 +102,10 @@ namespace ARM_Simulator.View
             MessageBox.Show("click");
         }
 
-        private void CheckBoxRemoveBreakpoints_OnClick(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("click");
-        }
-
         private void BtnExitFile_Click(object sender, RoutedEventArgs e)
         {
-            if (_viewModel == null)
-            {
-                Application.Current.Shutdown();
-            }
-
             SaveFile();
             Application.Current.Shutdown();
-
         }
     }
 }

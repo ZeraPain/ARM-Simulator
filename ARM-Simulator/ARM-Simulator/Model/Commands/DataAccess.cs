@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
@@ -13,7 +14,7 @@ namespace ARM_Simulator.Model.Commands
         protected ECondition Condition;
         protected bool Load;
         protected bool PreIndex;
-        protected bool Unsigned;
+        protected bool Up;
         protected bool WriteBack;
         protected readonly EDataSize DataSize;
         protected ERegister Rn;
@@ -39,7 +40,9 @@ namespace ARM_Simulator.Model.Commands
             Load = load;
             DataSize = dataSize;
             Decoded = false;
+            Linked = false;
             PreIndex = true;
+            Up = true;
             Parse(parameterString);
         }
 
@@ -49,13 +52,14 @@ namespace ARM_Simulator.Model.Commands
             Condition = condition;
             Load = load;
             PreIndex = preIndex;
-            Unsigned = unsigned;
+            Up = unsigned;
             WriteBack = writeBack;
             DataSize = dataSize;
             Rn = rn;
             Rd = rd;
             Immediate = immediate;
             Decoded = true;
+            Linked = true;
         }
 
         public DataAccess(ECondition condition, bool load, bool preIndex, bool unsigned, bool writeBack, EDataSize dataSize, ERegister rn, ERegister rd, byte shiftCount, EShiftInstruction shiftInst, ERegister rm)
@@ -64,7 +68,7 @@ namespace ARM_Simulator.Model.Commands
             Condition = condition;
             Load = load;
             PreIndex = preIndex;
-            Unsigned = unsigned;
+            Up = unsigned;
             WriteBack = writeBack;
             DataSize = dataSize;
             Rn = rn;
@@ -73,22 +77,26 @@ namespace ARM_Simulator.Model.Commands
             ShiftInst = shiftInst;
             Rm = rm;
             Decoded = true;
+            Linked = true;
         }
 
         private void ParseSource([NotNull] string sourceString)
         {
             var source = sourceString.Split(',');
-            if (source.Length > 3)
-                throw new ArgumentException("Invalid syntax");
+            if (source.Length > 3) throw new TargetParameterCountException();
 
             Rn = Parser.ParseRegister(source[0]);
-
-            if (source.Length <= 1)
-                return;
+            if (source.Length == 1) return;
 
             if (source[1].StartsWith("#", StringComparison.Ordinal))
             {
                 Immediate = Parser.ParseImmediate<short>(source[1]);
+                if (Immediate < 0)
+                {
+                    Up = false;
+                    Immediate *= -1;
+                }
+
                 if (Immediate > 4096) throw new ArgumentOutOfRangeException();
 
                 Offset = EOffset.Immediate;
@@ -96,101 +104,85 @@ namespace ARM_Simulator.Model.Commands
             else
             {
                 Rm = Parser.ParseRegister(source[1]);
-                if (source.Length > 2)
-                    Parser.ParseShiftInstruction(source[2], ref ShiftInst, ref ShiftCount);
+                if (source.Length > 2) Parser.ParseShiftInstruction(source[2], ref ShiftInst, ref ShiftCount);
 
                 Offset = EOffset.ImmediateShiftRm;
             }
         }
 
-        private void ParseTypical(string parameterString)
+        private void ParseLabelAccess([NotNull] string parameterString)
         {
-            var parameters = Parser.ParseParameters(parameterString, new[] { '[', ']' });
-
-            // Check Parameter Count
-            if ((parameters.Length != 2) && (parameters.Length != 3))
-                throw new ArgumentException("Invalid parameter count");
-
-            // Parse Source Register
-            if (!parameters[0].EndsWith(","))
-                throw new ArgumentException("Invalid syntax");
-
-            // Resize
-            parameters[0] = parameters[0].Substring(0, parameters[0].Length - 1);
+            var parameters = Parser.ParseParameters(parameterString, new[] { ',' });
+            if (parameters.Length != 2) throw new TargetParameterCountException();
 
             Rd = Parser.ParseRegister(parameters[0]);
+            Rn = ERegister.Pc;
+            Label = parameters[1];
+            Decoded = true;
+            Linked = false;
+        }
 
-            // Parse Source Address
-            ParseSource(parameters[1]);
-
-            if (parameters.Length == 2)
+        public void Parse([NotNull] string parameterString)
+        {
+            // Check if a label might be accessed
+            if ((parameterString.IndexOf("[", StringComparison.Ordinal) == -1) && (parameterString.IndexOf("]", StringComparison.Ordinal) == -1))
             {
-                Decoded = true;
-                Linked = true;
+                ParseLabelAccess(parameterString);
                 return;
             }
 
-            // Parse third parameter
-            if (parameters[2].Equals("!"))
-            {
-                WriteBack = true;
-            }
-            else if (parameters[2].StartsWith(",", StringComparison.Ordinal))
-            {
-                parameters[2] = parameters[2].Substring(1);
+            var parameters = Parser.ParseParameters(parameterString, new[] {'[', ']'});
+            if ((parameters.Length != 2) && (parameters.Length != 3)) throw new TargetParameterCountException();
+            if (!parameters[0].EndsWith(",")) throw new ArgumentException();
 
-                if (parameters[2].StartsWith("#", StringComparison.Ordinal))
+            Rd = Parser.ParseRegister(parameters[0].Substring(0, parameters[0].Length - 1));
+
+            // Parse second parameter (source)
+            ParseSource(parameters[1]);
+
+            // Parse third parameter (writeback, postindex)
+            if (parameters.Length == 3)
+            {
+                if (parameters[2].Equals("!")) // Writeback
                 {
-                    Immediate = Parser.ParseImmediate<short>(parameters[2]);
-                    if (Immediate >= 4096) throw new ArgumentOutOfRangeException();
+                    WriteBack = true;
+                }
+                else if (parameters[2].StartsWith(",", StringComparison.Ordinal)) // PostIndex
+                {
+                    parameters[2] = parameters[2].Substring(1);
+
+                    if (parameters[2].StartsWith("#", StringComparison.Ordinal))
+                    {
+                        Immediate = Parser.ParseImmediate<short>(parameters[2]);
+                        if (Immediate < 0)
+                        {
+                            Up = false;
+                            Immediate *= -1;
+                        }
+
+                        if (Immediate >= 4096) throw new ArgumentOutOfRangeException();
+                    }
+                    else
+                    {
+                        Rm = Parser.ParseRegister(parameters[2]);
+                    }
+
+                    WriteBack = true;
+                    PreIndex = false;
                 }
                 else
                 {
-                    Rm = Parser.ParseRegister(parameters[2]);
+                    throw new ArgumentException();
                 }
-
-                WriteBack = true;
-                PreIndex = false;
-            }
-            else
-            {
-                throw new ArgumentException("Invalid syntax");
             }
 
             Decoded = true;
             Linked = true;
         }
 
-        public void Parse([NotNull] string parameterString)
-        {
-            if (Decoded)
-                throw new Exception("Cannot parse a decoded command");
-
-            if (parameterString.IndexOf("[", StringComparison.Ordinal) != -1)
-            {
-                ParseTypical(parameterString);
-            }
-            else
-            {
-                var parameters = Parser.ParseParameters(parameterString, new[] { ',' });
-                if (parameters.Length != 2)
-                    throw new ArgumentException("Invalid Syntax");
-
-                Rd = Parser.ParseRegister(parameters[0]);
-                Rn = ERegister.Pc;
-                Label = parameters[1];
-                Decoded = true;
-                Linked = false;
-            }
-        }
-
         public int Encode()
         {
-            if (!Decoded)
-                throw new Exception("Cannot convert an undecoded command");
-
-            if (!Linked)
-                throw new Exception("Cannot encode an unlinked command");
+            if (!Decoded || !Linked) throw new InvalidOperationException();
 
             var bw = new BitWriter();
 
@@ -198,7 +190,7 @@ namespace ARM_Simulator.Model.Commands
             bw.WriteBits(1, 26, 1);
             bw.WriteBits(Offset == EOffset.ImmediateShiftRm ? 1 : 0, 25, 1);
             bw.WriteBits(PreIndex ? 1 : 0, 24, 1);
-            bw.WriteBits(Unsigned ? 1 : 0, 23, 1);
+            bw.WriteBits(Up ? 1 : 0, 23, 1);
             bw.WriteBits(DataSize == EDataSize.Byte ? 1 : 0, 22, 1);
             bw.WriteBits(WriteBack ? 1 : 0, 21, 1);
             bw.WriteBits(Load ? 1 : 0, 20, 1);
@@ -225,24 +217,24 @@ namespace ARM_Simulator.Model.Commands
 
         public void Link(Dictionary<string, int> commandTable, Dictionary<string, int> dataTable, int commandOffset)
         {
-            if (Linked)
-                return;
-
-            if (!commandTable.ContainsKey(Label))
-                throw new Exception("Invalid Label: " + Label);
+            if (Linked) return;
+            if (!commandTable.ContainsKey(Label)) throw new Exception("Unknown Label: " + Label);
 
             var offset = (commandTable[Label] - commandOffset - 2) * 0x4;
             Immediate = (short) offset;
+            if (Immediate < 0)
+            {
+                Up = false;
+                Immediate *= -1;
+            }
+
             Linked = true;
         }
 
         public void Execute([NotNull] Core armCore)
         {
-            if (!Decoded)
-                throw new Exception("Cannot execute an undecoded command");
-
-            if (!Helper.CheckConditions(Condition, armCore.GetCpsr()))
-                return;
+            if (!Decoded || !Linked) throw new InvalidOperationException();
+            if (!Helper.CheckConditions(Condition, armCore.GetCpsr())) return;
 
             int value;
 
@@ -259,7 +251,9 @@ namespace ARM_Simulator.Model.Commands
                     throw new ArgumentOutOfRangeException();
             }
 
-            var addr = PreIndex ? (uint)(armCore.GetRegValue(Rn) + value) : (uint)armCore.GetRegValue(Rn);
+            var addr = PreIndex ?
+                Up ? (uint)(armCore.GetRegValue(Rn) + value) : (uint)(armCore.GetRegValue(Rn) - value)
+                : (uint)armCore.GetRegValue(Rn);
 
             if (Load)
             {
@@ -290,7 +284,7 @@ namespace ARM_Simulator.Model.Commands
                 }
             }
 
-            if (WriteBack) armCore.SetRegValue(Rn, armCore.GetRegValue(Rn) + value);
+            if (WriteBack) armCore.SetRegValue(Rn, Up ? armCore.GetRegValue(Rn) + value : armCore.GetRegValue(Rn) - value);
         }
     }
 }

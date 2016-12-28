@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
@@ -39,18 +40,12 @@ namespace ARM_Simulator.Model.Commands
 
         public void Parse([NotNull] string parameterString)
         {
-            if (Decoded)
-                throw new Exception("Cannot parse a decoded command");
+            if (Decoded) throw new InvalidOperationException();
 
             var parameters = Parser.ParseParameters(parameterString, new[] { '{', '}' });
 
-            // Check Parameter Count
-            if (parameters.Length != 2)
-                throw new ArgumentException("Invalid parameter count");
-
-            // Parse Destination Register
-            if (!parameters[0].EndsWith(","))
-                throw new ArgumentException("Invalid syntax");
+            if (parameters.Length != 2) throw new TargetParameterCountException();
+            if (!parameters[0].EndsWith(",")) throw new ArgumentException();
 
             parameters[0] = parameters[0].Substring(0, parameters[0].Length - 1);
 
@@ -76,16 +71,14 @@ namespace ARM_Simulator.Model.Commands
                     case 2:
                         var startReg = Parser.ParseRegister(regRange[0]);
                         var endReg = Parser.ParseRegister(regRange[1]);
-                        if (endReg < startReg)
-                            throw new ArgumentException("Invalid syntax");
+                        if (endReg < startReg) throw new ArgumentException();
 
                         for (var i = startReg; i <= endReg; i++)
-                        {
                             RegisterList |= 1 << (int)i;
-                        }
+
                         break;
                     default:
-                        throw new ArgumentException("Invalid syntax");
+                        throw new ArgumentException();
                 }
             }
 
@@ -94,17 +87,14 @@ namespace ARM_Simulator.Model.Commands
 
         public int Encode()
         {
-            if (!Decoded)
-                throw new Exception("Cannot convert an undecoded command");
+            if (!Decoded) throw new InvalidOperationException();
 
             var bw = new BitWriter();
 
             bw.WriteBits((int)Condition, 28, 4); // Condition
             bw.WriteBits(1, 27, 1);
-
             bw.WriteBits(WriteBack ? 1 : 0, 21, 1);
             bw.WriteBits(Load ? 1 : 0, 20, 1);
-
             bw.WriteBits((int)Rn, 16, 4);
             bw.WriteBits(RegisterList, 0, 16);
 
@@ -116,15 +106,12 @@ namespace ARM_Simulator.Model.Commands
 
         }
 
-        public void Execute(Core armCore)
+        public void Execute([NotNull] Core armCore)
         {
-            if (!Decoded)
-                throw new Exception("Cannot execute an undecoded command");
+            if (!Decoded) throw new InvalidOperationException();
+            if (!Helper.CheckConditions(Condition, armCore.GetCpsr())) return;
 
-            if (!Helper.CheckConditions(Condition, armCore.GetCpsr()))
-                return;
-
-            var basisAdr = armCore.GetRegValue(Rn);
+            var baseAddress = armCore.GetRegValue(Rn);
 
             if (Load)
             {
@@ -133,9 +120,9 @@ namespace ARM_Simulator.Model.Commands
                     if ((RegisterList & (1 << i)) == 0)
                         continue;
 
-                    var memValue = armCore.Ram.ReadInt((uint) basisAdr);
+                    var memValue = armCore.Ram.ReadInt((uint)baseAddress);
                     armCore.SetRegValue((ERegister) i, memValue);
-                    basisAdr += 4;
+                    baseAddress += 4;
                 }
             }
             else
@@ -145,14 +132,13 @@ namespace ARM_Simulator.Model.Commands
                     if ((RegisterList & (1 << i)) == 0)
                         continue;
 
-                    basisAdr -= 4;
+                    baseAddress -= 4;
                     var regValue = armCore.GetRegValue((ERegister)i);
-                    armCore.Ram.WriteInt((uint)basisAdr, regValue);
+                    armCore.Ram.WriteInt((uint)baseAddress, regValue);
                 }
             }
-            
-            if (WriteBack)
-                armCore.SetRegValue(Rn, basisAdr);
+
+            if (WriteBack) armCore.SetRegValue(Rn, baseAddress);
         }
     }
 }

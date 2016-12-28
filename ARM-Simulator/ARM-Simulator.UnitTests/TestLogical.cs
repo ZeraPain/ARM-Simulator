@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using ARM_Simulator.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,8 +14,8 @@ namespace ARM_Simulator.UnitTests
         [TestMethod]
         public void TestSyntax()
         {
-            AssertFail<ArgumentException>("tst r1,");
-            AssertFail<ArgumentException>("tst ,");
+            AssertFail<TargetParameterCountException>("tst r1,");
+            AssertFail<TargetParameterCountException>("tst ,");
             AssertFail<FormatException>("tst r1, #0x");
             AssertFail<FormatException>("tst r1, #");
             AssertFail<FormatException>("tst r1, #0f");

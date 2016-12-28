@@ -9,17 +9,17 @@ namespace ARM_Simulator.Model.Commands
     {
         public void Parse(string parameterString)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void Execute(Core armCore)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public int Encode()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public void Link(Dictionary<string, int> commandTable, Dictionary<string, int> dataTable, int commandOffset)

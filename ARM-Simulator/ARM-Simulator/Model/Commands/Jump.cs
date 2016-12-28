@@ -22,18 +22,18 @@ namespace ARM_Simulator.Model.Commands
 
         public Jump(ECondition conditions, EJump jump, string label)
         {
-            Linked = false;
             Condition = conditions;
             JumpType = jump;
             Label = label;
+            Linked = false;
         }
 
         public Jump(ECondition conditions, EJump jump, int offset)
         {
-            Linked = false;
             Condition = conditions;
             JumpType = jump;
             Offset = offset;
+            Linked = true;
         }
 
         public Jump(ECondition conditions, EJump jump, ERegister rm)
@@ -41,6 +41,7 @@ namespace ARM_Simulator.Model.Commands
             Condition = conditions;
             JumpType = jump;
             Rm = rm;
+            Linked = true;
         }
 
         public void Parse(string parameterString)
@@ -50,8 +51,8 @@ namespace ARM_Simulator.Model.Commands
 
         public void Execute([NotNull] Core armCore)
         {
-            if (!Helper.CheckConditions(Condition, armCore.GetCpsr()))
-                return;
+            if (!Linked) throw new InvalidOperationException();
+            if (!Helper.CheckConditions(Condition, armCore.GetCpsr())) return;
 
             switch (JumpType)
             {
@@ -72,8 +73,7 @@ namespace ARM_Simulator.Model.Commands
 
         public int Encode()
         {
-            if (!Linked)
-                throw new Exception("Cannot encode an unlinked command");
+            if (!Linked) throw new InvalidOperationException();
 
             var bw = new BitWriter();
 
@@ -98,17 +98,14 @@ namespace ARM_Simulator.Model.Commands
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            
+
             return bw.GetValue();
         }
 
         public void Link(Dictionary<string, int> commandTable, Dictionary<string, int> dataTable, int commandOffset)
         {
-            if (Linked)
-                return;
-
-            if (!commandTable.ContainsKey(Label))
-                throw new Exception("Invalid Label: " + Label);
+            if (Linked)  return;
+            if (!commandTable.ContainsKey(Label)) throw new Exception("Unknown Label: " + Label);
 
             Offset = commandTable[Label] - commandOffset - 2;
             Linked = true;

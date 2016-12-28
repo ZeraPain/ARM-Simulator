@@ -7,8 +7,8 @@
     mc:Ignorable="d"
         x:Class="ARM_Simulator.View.MainWindow"
         Title="{Binding File, Converter={StaticResource TitleConverter}}" 
-        Width="800"
-        Height="630"
+        Width="900"
+        Height="700"
         ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen"
         Icon="/Resources/Images/Icon.png">
@@ -26,18 +26,15 @@
                     <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Click="BtnExitFile_Click"/>
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
-            
+
             <!-- Ribbon Main Menu -->
             <RibbonTab Header="Menu" Margin="0,0,0,8">
                 <RibbonGroup Header="Runtime">
-                    <RibbonButton Label="Run" LargeImageSource="/Resources/Images/run.png" Command="{Binding RunCommand}" />
-                    <RibbonButton Label="Stop" LargeImageSource="/Resources/Images/stop.png" Command="{Binding StopCommand}" />
-                    <RibbonButton Label="Tick" LargeImageSource="/Resources/Images/tick.png" Command="{Binding TickCommand}" />
-                    <RibbonButton Label="Continue" LargeImageSource="/Resources/Images/continue.png" Command="{Binding ContinueCommand}" />
-                    <RibbonButton Label="Pause" LargeImageSource="/Resources/Images/pause.png" Command="{Binding PauseCommand}" />
-                </RibbonGroup>
-                <RibbonGroup Header="Syntax">
-                    <RibbonButton Label="Check" LargeImageSource="/Resources/Images/check.png"/>
+                    <RibbonButton Label="Run" LargeImageSource="/Resources/Images/run.png" Command="{Binding Path=RunCommand}" />
+                    <RibbonButton Label="Stop" LargeImageSource="/Resources/Images/stop.png" Command="{Binding Path=StopCommand}" />
+                    <RibbonButton Label="Tick" LargeImageSource="/Resources/Images/tick.png" Command="{Binding Path=TickCommand}" />
+                    <RibbonButton Label="Continue" LargeImageSource="/Resources/Images/continue.png" Command="{Binding Path=ContinueCommand}" />
+                    <RibbonButton Label="Pause" LargeImageSource="/Resources/Images/pause.png" Command="{Binding Path=PauseCommand}" />
                 </RibbonGroup>
                 <RibbonGroup Header="Pipelining View">
                     <StackPanel Orientation="Vertical">
@@ -46,15 +43,15 @@
                         <RibbonCheckBox HorizontalAlignment="Left" Label="Excecute" Height="18" Background="OrangeRed" IsChecked="{Binding Path=CoreVm.DisplayExecute}"/>
                     </StackPanel>
                 </RibbonGroup>
-                <RibbonGroup  Header="Breakpoints">
+                <RibbonGroup x:Name="OptionGroupBreakpoints" Header="Breakpoints">
                     <StackPanel Orientation="Horizontal">
-                        <RibbonButton  Label="Show"  LargeImageSource="/Resources/Images/showBP.png"  Click="CheckBoxShowBreakpoints_OnClick"/>
-                        <RibbonButton  Label="Remove" LargeImageSource="/Resources/Images/removeBP.png" Click="CheckBoxRemoveBreakpoints_OnClick"/>
+                        <RibbonButton x:Name="CheckBoxShowBreakpoints" Label="Show"  LargeImageSource="/Resources/Images/showBP.png"  Click="CheckBoxShowBreakpoints_OnClick"/>
+                        <RibbonButton x:Name="CheckBoxRemoveBreakpoints" Label="Remove" LargeImageSource="/Resources/Images/removeBP.png" Command="{Binding Path=CoreVm.RemoveBreakpointsCommand}" />
                     </StackPanel>
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>
-       
+
         <!-- StatusBar Bottom -->
         <StatusBar DockPanel.Dock="Bottom" MaxHeight="30">
             <StatusBar.ItemsPanel>
@@ -73,163 +70,135 @@
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
             <StatusBarItem Grid.Column="2">
-                <TextBlock Text="{Binding Path=DebugMode, Converter={StaticResource StatusTextConverter}, ConverterParameter='Editor'}"/> 
+                <TextBlock Text="{Binding Path=DebugMode, Converter={StaticResource StatusTextConverter}, ConverterParameter='Editor'}"/>
             </StatusBarItem>
-                <StatusBarItem Grid.Column="3">
+            <StatusBarItem Grid.Column="3">
                 <Image Source="{Binding Path=DebugMode, Converter={StaticResource StatusConverter}, ConverterParameter='Editor'}"/>
             </StatusBarItem>
         </StatusBar>
 
-        <StackPanel>
-            <!-- This is only visible while editing a file -->
-            <Grid x:Name="EditMode" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="350" />
-                    <RowDefinition Height="120" />
-                </Grid.RowDefinitions>
+        <!-- This is only visible while editing a file -->
+        <Grid Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="120" />
+            </Grid.RowDefinitions>
 
-                <RichTextBox AcceptsReturn="True" x:Name="RichTextBoxEditor" Grid.Row="0" AcceptsTab="True" KeyDown="RichTextBoxEditor_OnKeyDown">
-                    <RichTextBox.Resources>
-                        <Style TargetType="{x:Type Paragraph}">
-                            <Setter Property="Margin" Value="0"/>
-                        </Style>
-                    </RichTextBox.Resources>
-                </RichTextBox>
-                <RichTextBox x:Name="RichTextBoxLog" Grid.Row="1" IsEnabled="False">
-                    <RichTextBox.Resources>
-                        <Style TargetType="{x:Type Paragraph}">
-                            <Setter Property="Margin" Value="0"/>
-                        </Style>
-                    </RichTextBox.Resources>
-                    <FlowDocument>
-                        <Paragraph>
-                            <Run Text="+++ Output Window +++"/>
-                        </Paragraph>
-                    </FlowDocument>
-                </RichTextBox>
-            </Grid>
+            <RichTextBox AcceptsReturn="True" x:Name="RichTextBoxEditor" Grid.Row="0" AcceptsTab="True" KeyDown="RichTextBoxEditor_OnKeyDown">
+                <RichTextBox.Resources>
+                    <Style TargetType="{x:Type Paragraph}">
+                        <Setter Property="Margin" Value="0"/>
+                    </Style>
+                </RichTextBox.Resources>
+            </RichTextBox>
+            <RichTextBox x:Name="RichTextBoxLog" Grid.Row="1" IsEnabled="False">
+                <RichTextBox.Resources>
+                    <Style TargetType="{x:Type Paragraph}">
+                        <Setter Property="Margin" Value="0"/>
+                    </Style>
+                </RichTextBox.Resources>
+                <FlowDocument>
+                    <Paragraph>
+                        <Run Text="+++ Output Window +++"/>
+                    </Paragraph>
+                </FlowDocument>
+            </RichTextBox>
+        </Grid>
 
-            <!-- This is only visible while debugging a file -->
-            <Grid x:Name="DebugMode" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Debugger'}">
+        <!-- This is only visible while debugging a file -->
+        <Grid Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Debugger'}">
 
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="320" />
-                    <RowDefinition Height="150" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="150" />
-                </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="150" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="150" />
+            </Grid.ColumnDefinitions>
 
-                <!-- Code section -->
-                <ListView Grid.Row="0" Grid.Column="0" x:Name="ListViewCode" MouseDoubleClick="ListViewCode_MouseDoubleClick" ItemsSource="{Binding Path=CoreVm.CommandList, Mode=TwoWay}">
-                    <ListView.Resources>
-                        <Style TargetType="{x:Type ListViewItem}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Status}" Value="1">
-                                    <Setter Property="Background" Value="LawnGreen" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Status}" Value="2">
-                                    <Setter Property="Background" Value="Yellow" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Status}" Value="3">
-                                    <Setter Property="Background" Value="OrangeRed" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ListView.Resources>
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="BP" Width="20" DisplayMemberBinding="{Binding Converter={StaticResource BreakpointConverter}}"/>
-                            <GridViewColumn Header="Label" Width="50" DisplayMemberBinding="{Binding Label}"/>
-                            <GridViewColumn Header="Code" Width="Auto" DisplayMemberBinding="{Binding Commandline}" />
-                        </GridView>
-                    </ListView.View>
-                </ListView>
+            <!-- Code section -->
+            <ListView Grid.Row="0" Grid.Column="0" x:Name="ListViewCode" MouseDoubleClick="ListViewCode_MouseDoubleClick" ItemsSource="{Binding Path=CoreVm.CommandList}">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Status}" Value="1">
+                                <Setter Property="Background" Value="LawnGreen" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Status}" Value="2">
+                                <Setter Property="Background" Value="Yellow" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Status}" Value="3">
+                                <Setter Property="Background" Value="OrangeRed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="BP" Width="20" DisplayMemberBinding="{Binding Breakpoint, Converter={StaticResource BreakpointConverter}}"/>
+                        <GridViewColumn Header="Label" Width="50" DisplayMemberBinding="{Binding Label}"/>
+                        <GridViewColumn Header="Code" Width="Auto" DisplayMemberBinding="{Binding Commandline}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
 
-                <!-- Register view -->
-                <ListView Grid.Row="0" Grid.Column="1" x:Name="ListViewRegister" ItemsSource="{Binding Path=CoreVm.RegisterList}">
-                    <ListView.Resources>
-                        <Style TargetType="{x:Type ListViewItem}">
-                            <Setter Property="Height" Value="17"/>
-                        </Style>
-                    </ListView.Resources>
-                    <ListView.ContextMenu>
-                        <ContextMenu>
-                            <Separator/>
-                            <TextBlock Text="Number System"/>
-                            <Separator/>
-                            <RadioButton GroupName="Number System" Content="hexadecimal"/>
-                            <RadioButton GroupName="Number System" Content="decimal" />
-                                         <!--</RadioButton>IsChecked="{Binding , Converter={StaticResource NumberSystemConverter}, ConverterParameter=decimal}"/>-->
-                            <Separator/>
-                            <TextBlock Text="Signedness"/>
-                            <Separator/>
-                            <RadioButton GroupName="Signedness" Content="signed"/>
-                            <RadioButton GroupName="Signedness" Content="unsigned"/>
-                            <Separator/>
-                            <TextBlock Text="Data Type"/>
-                            <Separator/>
-                            <RadioButton GroupName="Data Type" Content="word"/>
-                            <RadioButton GroupName="Data Type" Content="byte"/>
-                        </ContextMenu>
-                    </ListView.ContextMenu>
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Register" Width="60" DisplayMemberBinding="{Binding Name}"/>
-                            <GridViewColumn Header="Value" Width="80" DisplayMemberBinding="{Binding Value}"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-                
-                <!-- Memory view -->
-                <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Path=MemoryVm.MemoryView}">
-                    <ListView.ContextMenu>
-                        <ContextMenu>
-                            <Separator/>
-                            <TextBlock Text="Number System"/>
-                            <Separator/>
-                            <RadioButton GroupName="Number System" Content="hexadecimal"/>
-                            <RadioButton GroupName="Number System" Content="deciamal"/>
-                            <Separator/>
-                            <TextBlock Text="Signedness"/>
-                            <Separator/>
-                            <RadioButton GroupName="Signedness" Content="signed"/>
-                            <RadioButton GroupName="Signedness" Content="unsigned"/>
-                            <Separator/>
-                            <TextBlock Text="Data Type"/>
-                            <Separator/>
-                            <RadioButton GroupName="Data Type" Content="word"/>
-                            <RadioButton GroupName="Data Type" Content="byte"/>
-                        </ContextMenu>
-                      </ListView.ContextMenu>
-                            <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Address" Width="70" DisplayMemberBinding="{Binding BaseAddress}"/>
-                            <GridViewColumn Header="Memory Data" Width="Auto" DisplayMemberBinding="{Binding MemoryString}"/>
-                        </GridView>
-                    </ListView.View> 
-                </ListView>
-                  
-                <!-- Stack view  DataBinding Stack Data and Address-->
-                <ListView x:Name="ListViewStack" Grid.Row="1" Grid.Column="1" >
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Address" Width="60" />
-                            <GridViewColumn Header="Stack Data" Width="80" />
-                        </GridView>
-                    </ListView.View>
-                </ListView>
+            <!-- Register view -->
+            <ListView Grid.Row="0" Grid.Column="1" x:Name="ListViewRegister" ItemsSource="{Binding Path=CoreVm.RegisterList}">
+                <ListView.Resources>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="Height" Value="20" />
+                    </Style>
+                </ListView.Resources>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <Separator/>
+                        <TextBlock Text="Number System"/>
+                        <Separator/>
+                        <RadioButton GroupName="Number System" Content="decimal" IsChecked="{Binding Path=CoreVm.ShowAsHexadecimal, Converter={StaticResource BoolInverter}}" />
+                        <RadioButton GroupName="Number System" Content="hexadecimal" IsChecked="{Binding Path=CoreVm.ShowAsHexadecimal}" />
+                        <Separator/>
+                        <TextBlock Text="Signedness"/>
+                        <Separator/>
+                        <RadioButton GroupName="Signedness" Content="signed" IsChecked="{Binding Path=CoreVm.ShowAsUnsigned, Converter={StaticResource BoolInverter}}" />
+                        <RadioButton GroupName="Signedness" Content="unsigned" IsChecked="{Binding Path=CoreVm.ShowAsUnsigned}" />
+                        <Separator/>
+                        <TextBlock Text="Data Type"/>
+                        <Separator/>
+                        <RadioButton GroupName="Data Type" Content="word" IsChecked="{Binding Path=CoreVm.ShowAsByte, Converter={StaticResource BoolInverter}}" />
+                        <RadioButton GroupName="Data Type" Content="byte" IsChecked="{Binding Path=CoreVm.ShowAsByte}" />
+                    </ContextMenu>
+                </ListView.ContextMenu>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Register" Width="Auto" DisplayMemberBinding="{Binding Name}"/>
+                        <GridViewColumn Header="Value" Width="76" DisplayMemberBinding="{Binding Value}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
 
+            <!-- Memory view -->
+            <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Path=MemoryVm.MemoryView}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Address" Width="80" DisplayMemberBinding="{Binding BaseAddress}"/>
+                        <GridViewColumn Header="Memory Data" Width="Auto" DisplayMemberBinding="{Binding MemoryString}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
 
-            </Grid>
-        </StackPanel>
+            <!-- Stack view  DataBinding Stack Data and Address-->
+            <ListView x:Name="ListViewStack" Grid.Row="1" Grid.Column="1" >
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Address" Width="60" />
+                        <GridViewColumn Header="Stack Data" Width="80" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
 
-      
-
+        </Grid>
     </DockPanel>
-
-       
 </RibbonWindow>
 
 

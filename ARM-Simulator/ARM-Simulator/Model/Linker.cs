@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using ARM_Simulator.Model.Components;
 
 namespace ARM_Simulator.Model
@@ -7,30 +8,28 @@ namespace ARM_Simulator.Model
     internal class Linker
     {
         protected Memory Ram;
-        protected List<string> CommandList;
         protected Dictionary<string, int> CommandTable;
-        protected Dictionary<string, byte[]> DataToLink;
+        protected List<string> CommandList;
         protected Dictionary<string, int> DataTable;
+        protected List<byte[]> DataList;
 
-        public Linker(Memory ram, List<string> commandList, Dictionary<string, int> commandTable, Dictionary<string, byte[]> dataToLink)
+        public Linker(Memory ram, List<string> commandList, Dictionary<string, int> commandTable, List<byte[]> dataList, Dictionary<string, int> dataTable)
         {
             Ram = ram;
             CommandList = commandList;
             CommandTable = commandTable;
-            DataToLink = dataToLink;
-            GenerateDataTable();
+            DataTable = dataTable;
+            DataList = dataList;
+            UpdateDataTable();
         }
 
-        private void GenerateDataTable()
+        private void UpdateDataTable()
         {
-            DataTable = new Dictionary<string, int>();
-
             var offset = (int)Ram.DataSectionStart;
-            foreach (var data in DataToLink)
-            {
-                DataTable.Add(data.Key, offset);
-                offset += data.Value.Length;
-            }
+
+            var keys = DataTable.Keys.ToList();
+            foreach (var key in keys)
+                DataTable[key] += offset;
         }
 
         public void CompileAndLink()
@@ -60,16 +59,8 @@ namespace ARM_Simulator.Model
 
         private void CompileAndLinkDataSection()
         {
-            using (var memoryStream = new MemoryStream())
-            {
-                using (var binaryWriter = new BinaryWriter(memoryStream))
-                {
-                    foreach (var data in DataToLink)
-                        binaryWriter.Write(data.Value);
-
-                    Ram.WriteDataSection(memoryStream.ToArray());
-                }
-            }
+            var data = DataList.SelectMany(a => a).ToArray();
+            Ram.WriteDataSection(data);
         }
     }
 }

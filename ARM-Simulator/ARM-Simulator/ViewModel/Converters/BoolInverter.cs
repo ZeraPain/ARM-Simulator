@@ -2,22 +2,25 @@
 using System.Globalization;
 using System.Windows.Data;
 using ARM_Simulator.Annotations;
-using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.ViewModel.Converters
 {
-    internal class BreakpointConverter : IValueConverter
+    internal class BoolInverter : IValueConverter
     {
         [CanBeNull]
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var breakpoint = value as bool?;
-            return breakpoint == true ? "\u25A0" : "-";
+            var status = value as bool?;
+
+            return !status;
         }
 
+        [CanBeNull]
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            var status = value as bool?;
+
+            return !status;
         }
     }
 }

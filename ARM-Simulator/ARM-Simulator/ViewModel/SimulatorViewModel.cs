@@ -46,11 +46,11 @@ namespace ARM_Simulator.ViewModel
         public MemoryViewModel MemoryVm { get; protected set; }
         public CoreViewModel CoreVm { get; protected set; }
 
-        public ICommand RunCommand { get; set; }
-        public ICommand StopCommand { get; set; }
-        public ICommand TickCommand { get; set; }
-        public ICommand ContinueCommand { get; set; }
-        public ICommand PauseCommand { get; set; }
+        public ICommand RunCommand { get; protected set; }
+        public ICommand StopCommand { get; protected set; }
+        public ICommand TickCommand { get; protected set; }
+        public ICommand ContinueCommand { get; protected set; }
+        public ICommand PauseCommand { get; protected set; }
 
         public SimulatorViewModel()
         {

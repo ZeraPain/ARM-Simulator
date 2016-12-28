@@ -9,6 +9,7 @@ namespace ARM_Simulator.Model.Components
 {
     internal class Decoder
     {
+        [CanBeNull]
         private static ICommand DecodeArithmetic(int command)
         {
             var br = new BitReader(command);
@@ -66,6 +67,7 @@ namespace ARM_Simulator.Model.Components
             return null;
         }
 
+        [CanBeNull]
         private static ICommand DecodeMul(int command)
         {
             var br = new BitReader(command);
@@ -109,6 +111,7 @@ namespace ARM_Simulator.Model.Components
             return null;
         }
 
+        [CanBeNull]
         private static ICommand DecodeSwap(int command)
         {
             switch (command & 0x0fc000f0)
@@ -122,7 +125,8 @@ namespace ARM_Simulator.Model.Components
             return null;
         }
 
-        private ICommand DecodeDataAccess(int command)
+        [CanBeNull]
+        private static ICommand DecodeDataAccess(int command)
         {
             var br = new BitReader(command);
 
@@ -189,6 +193,7 @@ namespace ARM_Simulator.Model.Components
             return null;
         }
 
+        [CanBeNull]
         private static ICommand DecodeBranch(int command)
         {
             var br = new BitReader(command);
@@ -208,6 +213,7 @@ namespace ARM_Simulator.Model.Components
             return null;
         }
 
+        [CanBeNull]
         private static ICommand DecodeMrs(int command)
         {
             switch (command & 0x0ff00000)

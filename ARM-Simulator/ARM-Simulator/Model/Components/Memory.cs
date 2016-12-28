@@ -13,8 +13,7 @@ namespace ARM_Simulator.Model.Components
 
         public Memory(uint ramSize, uint codeSectionEnd)
         {
-            if (codeSectionEnd > ramSize)
-                throw new ArgumentException("Code section cannot be bigger than ram dataSize");
+            if (codeSectionEnd > ramSize) throw new ArgumentOutOfRangeException();
 
             Ram = new byte[ramSize];
             DataSectionStart = codeSectionEnd;
@@ -33,11 +32,8 @@ namespace ARM_Simulator.Model.Components
 
         public void WriteTextSection([NotNull] byte[] source)
         {
-            if (_textSectionLoaded)
-                throw new Exception("Cannot load souce to an initialised program");
-
-            if (source.Length > DataSectionStart)
-                throw new IndexOutOfRangeException("Code section is too small to load the source");
+            if (_textSectionLoaded) throw new InvalidOperationException();
+            if (source.Length > DataSectionStart) throw new OutOfMemoryException();
 
             Array.Copy(source, 0x0, Ram, 0x0, source.Length);
             OnPropertyChanged(nameof(Ram));
@@ -53,14 +49,9 @@ namespace ARM_Simulator.Model.Components
 
         public void Write(uint address, [CanBeNull] byte[] data)
         {
-            if (data == null)
-                return;
-
-            if (address < DataSectionStart)
-                throw new AccessViolationException("Cannot write to the code section");
-
-            if (address + data.Length > Ram.Length)
-                throw new AccessViolationException("Memory out of range requested");
+            if (data == null) return;
+            if (address < DataSectionStart) throw new AccessViolationException();
+            if (address + data.Length > Ram.Length) throw new OutOfMemoryException();
 
             Array.Copy(data, 0, Ram, address, data.Length);
             OnPropertyChanged(nameof(Ram));
@@ -73,8 +64,7 @@ namespace ARM_Simulator.Model.Components
         [NotNull]
         public byte[] Read(uint address, int length)
         {
-            if (address + length > Ram.Length)
-                throw new IndexOutOfRangeException("Undefined memory location");
+            if (address + length > Ram.Length) throw new AccessViolationException();
 
             var buffer = new byte[length];
             Array.Copy(Ram, address, buffer, 0, buffer.Length);
