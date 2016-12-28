@@ -117,8 +117,11 @@ namespace ARM_Simulator.View
         private void ButtonCheckSyntax_OnClick(object sender, RoutedEventArgs e)
         {
             try
-            {
-               
+            {   var parser = new Parser(_path);
+                foreach (var commandLine in parser.CommandList)
+                {
+                    Parser.ParseLine(commandLine);
+                }
             }
             catch (Exception ex)
             {

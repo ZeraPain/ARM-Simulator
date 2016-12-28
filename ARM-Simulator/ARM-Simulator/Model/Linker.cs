@@ -23,6 +23,11 @@ namespace ARM_Simulator.Model
             UpdateDataTable();
         }
 
+        public Linker(List<string> commandList)
+        {
+            CommandList = commandList;
+        }
+
         private void UpdateDataTable()
         {
             var offset = (int)Ram.DataSectionStart;

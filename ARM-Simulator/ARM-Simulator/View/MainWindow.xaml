@@ -20,20 +20,25 @@
         <!-- This Ribbon Editor Menu is only visible while editing a file -->
         <Ribbon DockPanel.Dock="Top" Height="130" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">
             <!-- Application Menu -->
-                <Ribbon.ApplicationMenu>
-                    <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
-                        <RibbonApplicationMenuItem Header="New File" ImageSource="/Resources/Images/new.png" Click="BtnNewFile_Click" />
-                        <RibbonApplicationMenuItem Header="Open File" ImageSource="/Resources/Images/open.png" Click="BtnLoadFile_Click"/>
-                        <RibbonApplicationMenuItem Header="Save File" ImageSource="/Resources/Images/save.png" Click="BtnSaveFile_Click" />
-                        <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Click="BtnExitFile_Click"/>
-                    </RibbonApplicationMenu>
-                </Ribbon.ApplicationMenu>
+            <Ribbon.ApplicationMenu>
+                <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
+                    <RibbonApplicationMenuItem Header="New File" ImageSource="/Resources/Images/new.png" Click="BtnNewFile_Click" />
+                    <RibbonApplicationMenuItem Header="Open File" ImageSource="/Resources/Images/open.png" Click="BtnLoadFile_Click"/>
+                    <RibbonApplicationMenuItem Header="Save File" ImageSource="/Resources/Images/save.png" Click="BtnSaveFile_Click" />
+                    <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Click="BtnExitFile_Click"/>
+                </RibbonApplicationMenu>
+            </Ribbon.ApplicationMenu>
+            
                 <RibbonTab Header="Editor" Margin="0,0,0,8">
-                <RibbonGroup Header="Runtime">
-                    <RibbonButton Label="Run" LargeImageSource="/Resources/Images/run.png" Command="{Binding Path=RunCommand}" />
+                <RibbonGroup Header="Save">
+                    <RibbonButton  LargeImageSource="/Resources/Images/save.png"  Click="BtnSaveFile_Click" />
                 </RibbonGroup>
-                <RibbonGroup Header="Syntax">
+                <RibbonGroup Header="Run">
+                    <RibbonButton  LargeImageSource="/Resources/Images/run.png" Command="{Binding Path=RunCommand}" />
+                </RibbonGroup>
+                <RibbonGroup Header="Extras">
                     <RibbonButton Label="Check" LargeImageSource="/Resources/Images/check.png" Click="ButtonCheckSyntax_OnClick"/>
+                    <CheckBox Content="Allow Unsafe Code"/>
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>
