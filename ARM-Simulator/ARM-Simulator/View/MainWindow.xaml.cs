@@ -18,7 +18,6 @@ namespace ARM_Simulator.View
         private readonly SimulatorViewModel _viewModel;
        private readonly ShowBreakpoints _subWindow = new ShowBreakpoints();
         private string _path;
-        
 
         public MainWindow()
         {
@@ -115,10 +114,6 @@ namespace ARM_Simulator.View
             }
         }
 
-        private void BtnExitFile_Click(object sender, RoutedEventArgs e)
-        {
-            CloseApplication();
-        }
 
         private void ButtonCheckSyntax_OnClick(object sender, RoutedEventArgs e)
         {
@@ -149,10 +144,8 @@ namespace ARM_Simulator.View
         }
 
         private void ButtonShowBreakpoints_OnClick(object sender, RoutedEventArgs e)
-        {
-            //TODO: Fenster kann man nur einmal öffnen und schließen
-            var showBreakpoints = _subWindow;
-            if (showBreakpoints != null && !showBreakpoints.IsActive) _subWindow?.Show();
-        }
+        {    
+          if(!_subWindow.IsActive) _subWindow.Show();    
+        }  
     }
 }

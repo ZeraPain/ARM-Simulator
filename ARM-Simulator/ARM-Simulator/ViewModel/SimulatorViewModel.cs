@@ -51,6 +51,7 @@ namespace ARM_Simulator.ViewModel
         public ICommand TickCommand { get; protected set; }
         public ICommand ContinueCommand { get; protected set; }
         public ICommand PauseCommand { get; protected set; }
+        public ICommand ExitCommand { get; protected set; }
 
         public SimulatorViewModel()
         {
@@ -65,6 +66,7 @@ namespace ARM_Simulator.ViewModel
             TickCommand = new DelegateCommand(Tick);
             ContinueCommand = new DelegateCommand(Continue);
             PauseCommand = new DelegateCommand(Pause);
+            ExitCommand = new DelegateCommand(Exit);
         }
 
         private void Run(object parameter)
@@ -116,6 +118,11 @@ namespace ARM_Simulator.ViewModel
         {
             if (!DebugMode) return;
             _running = false;
+        }
+
+        private void Exit(object parameter)
+        {
+            Application.Current.Shutdown();
         }
 
         private void RunThread()

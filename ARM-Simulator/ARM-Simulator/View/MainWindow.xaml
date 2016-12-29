@@ -26,7 +26,7 @@
                     <RibbonApplicationMenuItem Header="New File" ImageSource="/Resources/Images/new.png" Click="BtnNewFile_Click" />
                     <RibbonApplicationMenuItem Header="Open File" ImageSource="/Resources/Images/open.png" Click="BtnLoadFile_Click"/>
                     <RibbonApplicationMenuItem Header="Save File" ImageSource="/Resources/Images/save.png" Click="BtnSaveFile_Click" />
-                    <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Click="BtnExitFile_Click"/>
+                    <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}"/>
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
 
@@ -52,7 +52,7 @@
                         <RibbonApplicationMenuItem Header="New File" ImageSource="/Resources/Images/new.png" Click="BtnNewFile_Click" />
                         <RibbonApplicationMenuItem Header="Open File" ImageSource="/Resources/Images/open.png" Click="BtnLoadFile_Click"/>
                         <RibbonApplicationMenuItem Header="Save File" ImageSource="/Resources/Images/save.png" Click="BtnSaveFile_Click" />
-                        <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Click="BtnExitFile_Click"/>
+                        <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}"/>
                     </RibbonApplicationMenu>
                 </Ribbon.ApplicationMenu>
                 <RibbonTab Header="Debug" Margin="0,0,0,8"  >

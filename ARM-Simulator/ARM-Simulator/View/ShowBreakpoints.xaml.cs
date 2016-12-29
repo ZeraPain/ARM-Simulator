@@ -15,6 +15,7 @@ namespace ARM_Simulator.View
 
         private void ShowBreakpoints_OnClosing(object sender, CancelEventArgs e)
         {
+           e.Cancel = true;
            BpWindow.Hide();
         }
     }

@@ -2,15 +2,19 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using ARM_Simulator.Annotations;
+using ARM_Simulator.Commands;
+using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.ViewModel
 {
-    public class MemoryViewModel
+    internal class MemoryViewModel
     {
         public ObservableCollection<ObservableMemoryStream> MemoryView { get; protected set; }
         private readonly Memory _memory;
+
+        public ICommand UnsafeCommand { get; protected set; }
 
         public MemoryViewModel(Memory memory)
         {
@@ -18,6 +22,13 @@ namespace ARM_Simulator.ViewModel
             _memory.PropertyChanged += Update;
 
             MemoryView = new ObservableCollection<ObservableMemoryStream>();
+
+           // UnsafeCommand = new DelegateCommand(Unsafe);
+        }
+
+        private void Unsafe(object parameter)
+        {
+            
         }
 
         private void Update(object sender, [NotNull] PropertyChangedEventArgs e)
