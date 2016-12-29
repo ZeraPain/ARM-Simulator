@@ -9,9 +9,8 @@ namespace ARM_Simulator.Model.Components
     {
         public byte[] Ram { get; protected set; }
         public uint DataSectionStart { get; protected set; }
-        public bool safe = true;
         private bool _textSectionLoaded;
-        
+        public bool AllowUnsafeCode { get; set; }
 
         public Memory(uint ramSize, uint codeSectionEnd)
         {
@@ -33,8 +32,7 @@ namespace ARM_Simulator.Model.Components
         public int GetRamSize() => Ram.Length;
 
         public void WriteTextSection([NotNull] byte[] source)
-        {   
-            
+        {
             if (_textSectionLoaded) throw new InvalidOperationException();
             if (source.Length > DataSectionStart) throw new OutOfMemoryException();
 
@@ -53,7 +51,7 @@ namespace ARM_Simulator.Model.Components
         public void Write(uint address, [CanBeNull] byte[] data)
         {
             if (data == null) return;
-            if ((address < DataSectionStart) && safe) throw new AccessViolationException();
+            if ((address < DataSectionStart) && !AllowUnsafeCode) throw new AccessViolationException();
             if (address + data.Length > Ram.Length) throw new OutOfMemoryException();
 
             Array.Copy(data, 0, Ram, address, data.Length);

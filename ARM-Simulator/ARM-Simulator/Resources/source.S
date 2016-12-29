@@ -8,6 +8,8 @@ main:
 	mov r1, #2
 	mov r2, #1
 	mov r3, #3
+	mov r4, #100
+	str r2, [r4]
 	ldr r7, main
 	ldr r5, xptr
 	ldr r6, [r5]

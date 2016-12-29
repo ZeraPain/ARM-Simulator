@@ -39,7 +39,7 @@
                 </RibbonGroup>
                 <RibbonGroup Header="Extras">
                     <RibbonButton Label="Check" LargeImageSource="/Resources/Images/check.png" Command="{Binding SyntaxCommand}"/>
-                    <CheckBox x:Name="CheckBoxSafe" Content="Allow Unsafe Code"  />
+                    <CheckBox x:Name="CheckBoxSafe" Content="Allow Unsafe Code" IsChecked="{Binding ArmSimulator.Memory.AllowUnsafeCode}" />
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>

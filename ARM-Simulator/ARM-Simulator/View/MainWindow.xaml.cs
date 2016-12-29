@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Documents;
@@ -15,7 +14,7 @@ namespace ARM_Simulator.View
     public partial class MainWindow
     {
         private readonly SimulatorViewModel _viewModel;
-        private readonly ShowBreakpoints _subWindow = new ShowBreakpoints();
+        private ShowBreakpoints _subWindow;
 
         public MainWindow()
         {
@@ -24,16 +23,10 @@ namespace ARM_Simulator.View
             LoadFile("../../Resources/source.S");
         }
 
-        private void CloseApplication()
-        {
-            _subWindow.Close();
-            SaveFile();
-            Application.Current.Shutdown();
-        }
-
         private void OnClosing(object sender, CancelEventArgs e)
         {
-           CloseApplication();
+            SaveFile();
+            Application.Current.Shutdown();
         }
 
         private void ListViewCode_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -58,6 +51,7 @@ namespace ARM_Simulator.View
         private void LoadFile(string path)
         {
             if (_viewModel == null) return;
+
             _viewModel.File = path;
             var range = new TextRange(RichTextBoxEditor.Document.ContentStart, RichTextBoxEditor.Document.ContentEnd);
             var fStream = new FileStream(_viewModel.File, FileMode.OpenOrCreate);
@@ -110,23 +104,19 @@ namespace ARM_Simulator.View
                 SaveFile();
             }
         }
-        //TODO
-        private void CheckBox_Unsafe_Checked(object sender, RoutedEventArgs e)
-        {
-            if (_viewModel.ArmSimulator.Memory == null) return;
-                   _viewModel.ArmSimulator.Memory.safe = false;
-        }
-
-        private void CheckBox_Safe_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (_viewModel.ArmSimulator.Memory == null) return;
-            _viewModel.ArmSimulator.Memory.safe = true;
-  
-        }
 
         private void ButtonShowBreakpoints_OnClick(object sender, RoutedEventArgs e)
-        {    
-          if(!_subWindow.IsActive) _subWindow.Show();    
-        }  
+        {
+            if (_subWindow == null)
+            {
+                _subWindow = new ShowBreakpoints();
+                _subWindow.Show();
+            }
+            else
+            {
+                _subWindow.Close();
+                _subWindow = null;
+            }
+        }
     }
 }
