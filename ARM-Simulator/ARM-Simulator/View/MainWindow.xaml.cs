@@ -16,7 +16,6 @@ namespace ARM_Simulator.View
     {
         private readonly SimulatorViewModel _viewModel;
         private readonly ShowBreakpoints _subWindow = new ShowBreakpoints();
-        private string _path;
 
         public MainWindow()
         {
@@ -60,7 +59,6 @@ namespace ARM_Simulator.View
         {
             if (_viewModel == null) return;
             _viewModel.File = path;
-            _path = path;
             var range = new TextRange(RichTextBoxEditor.Document.ContentStart, RichTextBoxEditor.Document.ContentEnd);
             var fStream = new FileStream(_viewModel.File, FileMode.OpenOrCreate);
             range.Load(fStream, DataFormats.Text);
