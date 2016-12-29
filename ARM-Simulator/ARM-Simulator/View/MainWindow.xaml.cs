@@ -16,7 +16,7 @@ namespace ARM_Simulator.View
     public partial class MainWindow
     {
         private readonly SimulatorViewModel _viewModel;
-        ShowBreakpoints subWindow = new ShowBreakpoints();
+       private readonly ShowBreakpoints _subWindow = new ShowBreakpoints();
         private string _path;
         
 
@@ -27,10 +27,16 @@ namespace ARM_Simulator.View
             LoadFile("../../Resources/source.S");
         }
 
+        private void CloseApplication()
+        {
+            _subWindow.Close();
+            SaveFile();
+            Application.Current.Shutdown();
+        }
+
         private void OnClosing(object sender, CancelEventArgs e)
         {
-            subWindow.Close();
-            e.Cancel = false;
+           CloseApplication();
         }
 
         private void ListViewCode_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -111,9 +117,7 @@ namespace ARM_Simulator.View
 
         private void BtnExitFile_Click(object sender, RoutedEventArgs e)
         {
-            SaveFile();
-            subWindow.Close();
-            Application.Current.Shutdown();
+            CloseApplication();
         }
 
         private void ButtonCheckSyntax_OnClick(object sender, RoutedEventArgs e)
@@ -145,9 +149,8 @@ namespace ARM_Simulator.View
         }
 
         private void CheckBoxShowBreakpoints_OnClick(object sender, RoutedEventArgs e)
-        {
-              
-            subWindow.Show();
+        { 
+            _subWindow.Show();
         }
     }
 }
