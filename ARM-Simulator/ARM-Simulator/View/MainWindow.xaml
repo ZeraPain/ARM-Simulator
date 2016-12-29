@@ -38,8 +38,8 @@
                     <RibbonButton  LargeImageSource="/Resources/Images/save.png"  Click="BtnSaveFile_Click" />
                 </RibbonGroup>
                 <RibbonGroup Header="Extras">
-                    <RibbonButton Label="Check" LargeImageSource="/Resources/Images/check.png" Click="ButtonCheckSyntax_OnClick"/>
-                    <CheckBox x:Name="CheckBoxSafe" Content="Allow Unsafe Code" Checked="CheckBox_Unsafe_Checked" Unchecked="CheckBox_Safe_Unchecked" />
+                    <RibbonButton Label="Check" LargeImageSource="/Resources/Images/check.png" Command="{Binding SyntaxCommand}"/>
+                    <CheckBox x:Name="CheckBoxSafe" Content="Allow Unsafe Code"  />
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>

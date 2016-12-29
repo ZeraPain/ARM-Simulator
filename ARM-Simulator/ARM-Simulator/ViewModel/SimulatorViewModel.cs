@@ -52,6 +52,7 @@ namespace ARM_Simulator.ViewModel
         public ICommand ContinueCommand { get; protected set; }
         public ICommand PauseCommand { get; protected set; }
         public ICommand ExitCommand { get; protected set; }
+        public ICommand SyntaxCommand { get; protected set; }
 
         public SimulatorViewModel()
         {
@@ -67,6 +68,7 @@ namespace ARM_Simulator.ViewModel
             ContinueCommand = new DelegateCommand(Continue);
             PauseCommand = new DelegateCommand(Pause);
             ExitCommand = new DelegateCommand(Exit);
+            SyntaxCommand = new DelegateCommand(SyntaxCheck);
         }
 
         private void Run(object parameter)
@@ -123,6 +125,22 @@ namespace ARM_Simulator.ViewModel
         private void Exit(object parameter)
         {
             Application.Current.Shutdown();
+        }
+
+        private void SyntaxCheck(object parameter)
+        {
+            try
+            {
+                var parser = new Parser(_file);
+                foreach (var commandLine in parser.CommandList)
+                {
+                    Parser.ParseLine(commandLine);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, ex.Source);
+            }
         }
 
         private void RunThread()

@@ -1,20 +1,34 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Commands;
-using ARM_Simulator.Interfaces;
+using ARM_Simulator.Model;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.ViewModel
 {
-    internal class MemoryViewModel
+    internal class MemoryViewModel : INotifyPropertyChanged
     {
         public ObservableCollection<ObservableMemoryStream> MemoryView { get; protected set; }
         private readonly Memory _memory;
 
-        public ICommand UnsafeCommand { get; protected set; }
+        private string _file;
+        public string File
+        {
+            get { return _file; }
+            set
+            {
+                if (_file == value) return;
+                _file = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DelegateCommand UnsafeCommand { get; protected set; }
 
         public MemoryViewModel(Memory memory)
         {
@@ -23,12 +37,12 @@ namespace ARM_Simulator.ViewModel
 
             MemoryView = new ObservableCollection<ObservableMemoryStream>();
 
-           // UnsafeCommand = new DelegateCommand(Unsafe);
+           UnsafeCommand = new DelegateCommand(Unsafe);
         }
 
         private void Unsafe(object parameter)
         {
-            
+            //TODO
         }
 
         private void Update(object sender, [NotNull] PropertyChangedEventArgs e)
@@ -65,5 +79,8 @@ namespace ARM_Simulator.ViewModel
                 }
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CanBeNull] [CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

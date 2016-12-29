@@ -4,7 +4,6 @@ using System.IO;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
-using ARM_Simulator.Model;
 using ARM_Simulator.ViewModel;
 using Microsoft.Win32;
 
@@ -16,7 +15,7 @@ namespace ARM_Simulator.View
     public partial class MainWindow
     {
         private readonly SimulatorViewModel _viewModel;
-       private readonly ShowBreakpoints _subWindow = new ShowBreakpoints();
+        private readonly ShowBreakpoints _subWindow = new ShowBreakpoints();
         private string _path;
 
         public MainWindow()
@@ -113,23 +112,7 @@ namespace ARM_Simulator.View
                 SaveFile();
             }
         }
-
-
-        private void ButtonCheckSyntax_OnClick(object sender, RoutedEventArgs e)
-        {
-            try
-            {   var parser = new Parser(_path);
-                foreach (var commandLine in parser.CommandList)
-                {
-                    Parser.ParseLine(commandLine);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, ex.Source);
-            }
-        }
-
+        //TODO
         private void CheckBox_Unsafe_Checked(object sender, RoutedEventArgs e)
         {
             if (_viewModel.ArmSimulator.Memory == null) return;
