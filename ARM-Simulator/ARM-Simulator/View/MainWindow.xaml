@@ -72,8 +72,8 @@
                 </RibbonGroup>
                 <RibbonGroup x:Name="OptionGrouppoints" Header="Breakpoints">
                     <StackPanel Orientation="Horizontal">
-                        <RibbonButton x:Name="CheckBoxShowBreakpoints" Label="Show"  LargeImageSource="/Resources/Images/showBP.png" Click="CheckBoxShowBreakpoints_OnClick"/>
-                        <RibbonButton x:Name="CheckBoxRemoveBreakpoints" Label="Remove" LargeImageSource="/Resources/Images/removeBP.png" Command="{Binding Path=CoreVm.RemoveBreakpointsCommand}" />
+                        <RibbonButton  Label="Show"  LargeImageSource="/Resources/Images/showBP.png" Click="ButtonShowBreakpoints_OnClick"/>
+                        <RibbonButton  Label="Remove" LargeImageSource="/Resources/Images/removeBP.png" Command="{Binding Path=CoreVm.RemoveBreakpointsCommand}" />
                     </StackPanel>
                 </RibbonGroup>
             </RibbonTab>

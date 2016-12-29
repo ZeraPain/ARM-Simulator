@@ -148,9 +148,11 @@ namespace ARM_Simulator.View
   
         }
 
-        private void CheckBoxShowBreakpoints_OnClick(object sender, RoutedEventArgs e)
-        { 
-            _subWindow.Show();
+        private void ButtonShowBreakpoints_OnClick(object sender, RoutedEventArgs e)
+        {
+            //TODO: Fenster kann man nur einmal öffnen und schließen
+            var showBreakpoints = _subWindow;
+            if (showBreakpoints != null && !showBreakpoints.IsActive) _subWindow?.Show();
         }
     }
 }

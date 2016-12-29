@@ -5,22 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:ARM_Simulator.ViewModel"
         mc:Ignorable="d"
+        x:Name="BpWindow"
         Title="Show Breakpoints" Height="300" Width="300"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Closing="ShowBreakpoints_OnClosing">
     
     <RibbonWindow.DataContext>
         <viewModel:SimulatorViewModel/>
     </RibbonWindow.DataContext>
+
     <DockPanel LastChildFill="True">
-        <Grid DockPanel.Dock="Top">
-            <ListView x:Name="ShowBP">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Line" Width="30"/>
-                        <GridViewColumn Header="Command" Width="auto"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-        </Grid>
-        </DockPanel>
+        <ListView x:Name="ShowBp">
+            <ListView.Resources>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <Setter Property="Height" Value="20" />
+                </Style>
+            </ListView.Resources>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Command" Width="auto" DisplayMemberBinding="{Binding Path=CoreVm.CommandList, Converter={StaticResource BreakpointCommandConverter}}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </DockPanel>
 </RibbonWindow>
