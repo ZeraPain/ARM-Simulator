@@ -109,8 +109,7 @@ namespace ARM_Simulator.View
         {
             if (_subWindow == null)
             {
-                _subWindow = new ShowBreakpoints();
-                _subWindow.DataContext = _viewModel;
+                _subWindow = new ShowBreakpoints {DataContext = _viewModel};
                 _subWindow.Show();
             }
             else

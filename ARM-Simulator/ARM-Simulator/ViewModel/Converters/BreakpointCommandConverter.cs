@@ -17,9 +17,19 @@ namespace ARM_Simulator.ViewModel.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var commandList = value as ObservableCollection<ObservableCommand>;
-
-            if (commandList == null) return null;
-            return (from command in commandList where command.Breakpoint select command.Commandline);
+            ObservableCollection<string> commandBreakpointList = null;
+            if (commandList != null)
+            {
+                foreach (var command in commandList)
+                {
+                    commandBreakpointList = new ObservableCollection<string>();
+                    if (command.Breakpoint)
+                    {
+                        commandBreakpointList.Add(command.Commandline);
+                    }
+                }
+            }
+            return commandBreakpointList;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
