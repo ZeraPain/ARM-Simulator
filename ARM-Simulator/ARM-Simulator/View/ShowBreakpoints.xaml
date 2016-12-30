@@ -15,7 +15,7 @@
     </RibbonWindow.DataContext>
 
     <DockPanel LastChildFill="True">
-        <ListView x:Name="ShowBp">
+        <ListView x:Name="ShowBp" ItemsSource="{Binding Path=CoreVm.CommandList}">
             <ListView.Resources>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Setter Property="Height" Value="20" />
@@ -23,7 +23,7 @@
             </ListView.Resources>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Command" Width="auto" DisplayMemberBinding="{Binding Path=CoreVm.CommandList, Converter={StaticResource BreakpointCommandConverter}}"/>
+                    <GridViewColumn Header="Command" Width="auto" DisplayMemberBinding="{Binding Commandline,Mode=TwoWay}"/>
                 </GridView>
             </ListView.View>
         </ListView>
