@@ -52,8 +52,12 @@ namespace ARM_Simulator.ViewModel
                 UpdatePipelineStatus();
         }
 
-        public void ShowBreakpoints()
+        public void UpdateShowBreakpoints()
         {
+            if (BreakpointCommandList.Any())
+            {
+               BreakpointCommandList.Clear();
+            }
             if (CommandList == null) return;
             foreach (var command in CommandList)
             {
@@ -63,13 +67,6 @@ namespace ARM_Simulator.ViewModel
                 }
             }
         }
-
-        public void ClearShowBreakpoints()
-        {
-            BreakpointCommandList = new ObservableCollection<ObservableCommand>();
-        }
-
-
 
         private void UpdateRegisterList()
         {
@@ -124,10 +121,13 @@ namespace ARM_Simulator.ViewModel
 
             if ((index >= 0) && (index < CommandList.Count))
                 CommandList[(int)index].Breakpoint = !CommandList[(int)index].Breakpoint;
+ 
+            UpdateShowBreakpoints();
         }
 
         private void RemoveBreakpoints(object parameter)
         {
+           BreakpointCommandList.Clear();
             foreach (var t in CommandList)
                 t.Breakpoint = false;
         }

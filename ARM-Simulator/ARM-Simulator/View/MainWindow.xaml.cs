@@ -110,13 +110,11 @@ namespace ARM_Simulator.View
             if (_subWindow == null)
             {
                 _subWindow = new ShowBreakpoints {DataContext = _viewModel};
-                _viewModel.CoreVm.ShowBreakpoints();
                 _subWindow.Show();
             }
             else
             {
                 _subWindow.Close();
-                _viewModel.CoreVm.ClearShowBreakpoints();
                 _subWindow = null;
             }
         }
