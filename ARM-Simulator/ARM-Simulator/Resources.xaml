@@ -3,7 +3,6 @@
                     xmlns:converters="clr-namespace:ARM_Simulator.ViewModel.Converters">
 
     <converters:BreakpointConverter x:Key="BreakpointConverter" />
-    <converters:BreakpointCommandConverter x:Key="BreakpointCommandConverter" />
     <converters:VisibilityConverter x:Key="VisibilityConverter" />
     <converters:StatusConverter x:Key="StatusConverter" />
     <converters:StatusTextConverter x:Key="StatusTextConverter" />

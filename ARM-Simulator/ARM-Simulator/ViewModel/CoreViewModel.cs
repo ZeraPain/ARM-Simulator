@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace ARM_Simulator.ViewModel
     {
         public ObservableCollection<ObservableCommand> CommandList { get; set; }
         public ObservableCollection<ObservableRegister> RegisterList { get; set; }
+        public ObservableCollection<ObservableCommand> BreakpointCommandList { get; set; }
         public Core ArmCore { get; set; }
 
         public bool DisplayFetch { get; set; }
@@ -29,6 +31,7 @@ namespace ARM_Simulator.ViewModel
             ArmCore.PropertyChanged += Update;
             RegisterList = new ObservableCollection<ObservableRegister>();
             CommandList = new ObservableCollection<ObservableCommand>();
+            BreakpointCommandList = new ObservableCollection<ObservableCommand>();
 
             DisplayFetch = true;
             DisplayDecode = true;
@@ -48,6 +51,25 @@ namespace ARM_Simulator.ViewModel
             else if (e.PropertyName == "PipelineStatus")
                 UpdatePipelineStatus();
         }
+
+        public void ShowBreakpoints()
+        {
+            if (CommandList == null) return;
+            foreach (var command in CommandList)
+            {
+                if (command.Breakpoint)
+                {
+                    BreakpointCommandList.Add(command);
+                }
+            }
+        }
+
+        public void ClearShowBreakpoints()
+        {
+            BreakpointCommandList = new ObservableCollection<ObservableCommand>();
+        }
+
+
 
         private void UpdateRegisterList()
         {

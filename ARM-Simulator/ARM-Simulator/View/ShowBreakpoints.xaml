@@ -6,8 +6,7 @@
         xmlns:viewModel="clr-namespace:ARM_Simulator.ViewModel"
         mc:Ignorable="d"
         x:Name="BpWindow"
-        Title="Show Breakpoints" Height="300" Width="300"
-        WindowStartupLocation="CenterScreen"
+        Title="Show Breakpoints" Height="auto" Width="150"
         Closing="ShowBreakpoints_OnClosing">
     
     <RibbonWindow.DataContext>
@@ -16,7 +15,7 @@
   
 
     <DockPanel LastChildFill="True">
-        <ListView x:Name="ShowBp" >
+        <ListView x:Name="ShowBp" ItemsSource="{Binding Path=CoreVm.BreakpointCommandList}">
             <ListView.Resources>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Setter Property="Height" Value="20" />
@@ -24,10 +23,13 @@
             </ListView.Resources>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Command" Width="auto" DisplayMemberBinding="{Binding Path=CoreVm.CommandList ,Converter={StaticResource BreakpointCommandConverter}, Mode=TwoWay}"/>
+                    <GridViewColumn Header="Command" Width="auto" DisplayMemberBinding="{Binding  Commandline}"/>
                 </GridView>
             </ListView.View>
         </ListView>
     </DockPanel>
+    
+    
+    
 </RibbonWindow>
 

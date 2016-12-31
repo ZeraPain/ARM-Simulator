@@ -57,7 +57,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ViewModel\Converters\BreakpointCommandConverter.cs" />
     <Compile Include="View\ShowBreakpoints.xaml.cs">
       <DependentUpon>ShowBreakpoints.xaml</DependentUpon>
     </Compile>
