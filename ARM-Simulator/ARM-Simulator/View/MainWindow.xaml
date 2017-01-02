@@ -31,15 +31,16 @@
             </Ribbon.ApplicationMenu>
 
             <RibbonTab Header="Editor" Margin="0,0,0,8">
-                <RibbonGroup Header="Run">
-                    <RibbonButton  LargeImageSource="/Resources/Images/run.png" Command="{Binding Path=RunCommand}" />
+                <RibbonGroup >
+                    <RibbonButton  Label="Run" LargeImageSource="/Resources/Images/run.png" Width="auto" Height="auto" Command="{Binding Path=RunCommand}" />
                 </RibbonGroup>
-                <RibbonGroup Header="Save">
-                    <RibbonButton  LargeImageSource="/Resources/Images/save.png"  Click="BtnSaveFile_Click" />
+                <RibbonGroup >
+                    <RibbonButton   Label="Save" LargeImageSource="/Resources/Images/save.png" Width="auto" Height="auto" Click="BtnSaveFile_Click" />
                 </RibbonGroup>
                 <RibbonGroup Header="Extras">
-                    <RibbonButton Label="Check" LargeImageSource="/Resources/Images/check.png" Command="{Binding SyntaxCommand}"/>
-                    <CheckBox x:Name="CheckBoxSafe" Content="Allow Unsafe Code" IsChecked="{Binding ArmSimulator.Memory.AllowUnsafeCode}" />
+                    <RibbonButton Label="Check" LargeImageSource="/Resources/Images/check.png" Width="auto" Height="auto" Command="{Binding SyntaxCommand}"/>
+                    <Separator></Separator>
+                    <CheckBox  Content="Allow Unsafe Code" IsChecked="{Binding ArmSimulator.Memory.AllowUnsafeCode}" />
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>
@@ -57,11 +58,11 @@
                 </Ribbon.ApplicationMenu>
                 <RibbonTab Header="Debug" Margin="0,0,0,8"  >
                 <RibbonGroup Header="Runtime">
-                    <RibbonButton  Label="Restart"  LargeImageSource="/Resources/Images/run.png" Command="{Binding Path=RunCommand}" />
-                    <RibbonButton Label="Stop" LargeImageSource="/Resources/Images/stop.png" Command="{Binding Path=StopCommand}" />
-                    <RibbonButton Label="Tick" LargeImageSource="/Resources/Images/tick.png" Command="{Binding Path=TickCommand}" />
-                    <RibbonButton Label="Continue" LargeImageSource="/Resources/Images/continue.png" Command="{Binding Path=ContinueCommand}" />
-                    <RibbonButton Label="Pause" LargeImageSource="/Resources/Images/pause.png" Command="{Binding Path=PauseCommand}" />
+                    <RibbonButton  Label="Restart"  LargeImageSource="/Resources/Images/restart.png" Width="auto" Height="auto" Command="{Binding Path=RunCommand}" />
+                    <RibbonButton Label="Stop" LargeImageSource="/Resources/Images/stop.png" Width="auto" Height="auto" Command="{Binding Path=StopCommand}" />
+                    <RibbonButton Label="Tick" LargeImageSource="/Resources/Images/tick.png" Width="auto" Height="auto" Command="{Binding Path=TickCommand}" />
+                    <RibbonButton Label="Continue" LargeImageSource="/Resources/Images/continue.png" Width="auto" Height="auto" Command="{Binding Path=ContinueCommand}" />
+                    <RibbonButton Label="Pause" LargeImageSource="/Resources/Images/pause.png" Width="auto" Height="auto" Command="{Binding Path=PauseCommand}" />
                 </RibbonGroup>
                 <RibbonGroup Header="Pipelining View">
                     <StackPanel Orientation="Vertical">
@@ -72,8 +73,8 @@
                 </RibbonGroup>
                 <RibbonGroup x:Name="OptionGrouppoints" Header="Breakpoints">
                     <StackPanel Orientation="Horizontal">
-                        <RibbonButton  Label="Show"  LargeImageSource="/Resources/Images/showBP.png" Click="ButtonShowBreakpoints_OnClick"/>
-                        <RibbonButton  Label="Remove" LargeImageSource="/Resources/Images/removeBP.png" Command="{Binding Path=CoreVm.RemoveBreakpointsCommand}" />
+                        <RibbonButton  Label="Show"  LargeImageSource="/Resources/Images/showBP.png"  Width="auto" Height="auto" Click="ButtonShowBreakpoints_OnClick"/>
+                        <RibbonButton  Label="Remove" LargeImageSource="/Resources/Images/removeBP.png" Width="auto" Height="auto" Command="{Binding Path=CoreVm.RemoveBreakpointsCommand}" />
                     </StackPanel>
                 </RibbonGroup>
             </RibbonTab>
@@ -224,6 +225,10 @@
                     </GridView>
                 </ListView.View>
             </ListView>
+            
+            
+            
+
 
         </Grid>
     </DockPanel>

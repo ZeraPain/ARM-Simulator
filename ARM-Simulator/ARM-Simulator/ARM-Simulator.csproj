@@ -35,6 +35,10 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>
+    </ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -57,6 +61,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\Components\Stack.cs" />
     <Compile Include="View\ShowBreakpoints.xaml.cs">
       <DependentUpon>ShowBreakpoints.xaml</DependentUpon>
     </Compile>
@@ -153,16 +158,18 @@
     <Resource Include="Resources\Images\ApplicationMenu.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Unbenannt.ico" />
     <Resource Include="Resources\Images\new.png" />
     <Resource Include="Resources\Images\open.png" />
     <Resource Include="Resources\Images\save.png" />
     <Resource Include="Resources\Images\exit.png" />
     <Resource Include="Resources\Images\removeBP.png" />
     <Resource Include="Resources\Images\showBP.png" />
-    <Resource Include="Resources\Images\Icon.png" />
     <Resource Include="Resources\Images\off.png" />
     <Resource Include="Resources\Images\on.png" />
     <Resource Include="Resources\Images\check.png" />
+    <Resource Include="Resources\Images\restart.png" />
+    <Resource Include="Resources\Images\Icon.png" />
     <Content Include="Resources\source.S" />
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +184,7 @@
   <ItemGroup>
     <Resource Include="Resources\Images\stop.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
