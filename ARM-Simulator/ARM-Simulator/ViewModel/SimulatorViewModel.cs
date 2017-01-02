@@ -97,14 +97,7 @@ namespace ARM_Simulator.ViewModel
         {
             if (!DebugMode) return;
 
-            try
-            {
-                CoreVm.ArmCore.Tick();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, ex.Source);
-            }
+            CoreVm.ArmCore.Tick();
         }
 
         private void Continue(object paramter)
@@ -122,10 +115,7 @@ namespace ARM_Simulator.ViewModel
             _running = false;
         }
 
-        private void Exit(object parameter)
-        {
-            Application.Current.Shutdown();
-        }
+        private static void Exit(object parameter) => Application.Current.Shutdown();
 
         private void SyntaxCheck(object parameter)
         {
@@ -145,22 +135,15 @@ namespace ARM_Simulator.ViewModel
 
         private void RunThread()
         {
-            try
+            while (_running)
             {
-                while (_running)
-                {
-                    Application.Current.Dispatcher.Invoke(
-                        DispatcherPriority.Background,
-                        (Action)(() =>
-                        {
-                                CoreVm.ArmCore.Tick();
-                                if (IsBreakPoint()) _running = false;
-                        }));
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, ex.Source);
+                Application.Current.Dispatcher.Invoke(
+                    DispatcherPriority.Background,
+                    (Action)(() =>
+                    {
+                        _running = CoreVm.ArmCore.Tick();
+                        if (IsBreakPoint()) _running = false;
+                    }));
             }
         }
 

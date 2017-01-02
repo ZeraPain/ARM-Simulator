@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Resources;
@@ -114,29 +115,38 @@ namespace ARM_Simulator.Model.Components
 
         public int GetCpsr() => _cpsr;
 
-        public void Tick()
+        public bool Tick()
         {
-            // Pipeline
-            var fetch = Ram.ReadInt((uint)GetRegValue(ERegister.Pc)); // Fetch
-            var decode = _decoder.Decode(_fetch); // Decode
-            _decode?.Execute(this); // Execute
-
-            if (!_jump)
+            try
             {
-                _fetch = fetch;
-                _decode = decode;
-                SetRegValue(ERegister.Pc, Registers[ERegister.Pc] + 0x4);
-            }
-            else
-            {
-                _fetch = null;
-                _decode = null;
-                _jump = false;
-            }
+                // Pipeline
+                var fetch = Ram.ReadInt((uint) GetRegValue(ERegister.Pc)); // Fetch
+                var decode = _decoder.Decode(_fetch); // Decode
+                _decode?.Execute(this); // Execute
 
-            SetPipelineStatus(EPipeline.Execute, PipelineStatus[EPipeline.Decode]);
-            SetPipelineStatus(EPipeline.Decode, PipelineStatus[EPipeline.Fetch]);
-            SetPipelineStatus(EPipeline.Fetch, Registers[ERegister.Pc]);
+                if (!_jump)
+                {
+                    _fetch = fetch;
+                    _decode = decode;
+                    SetRegValue(ERegister.Pc, Registers[ERegister.Pc] + 0x4);
+                }
+                else
+                {
+                    _fetch = null;
+                    _decode = null;
+                    _jump = false;
+                }
+
+                SetPipelineStatus(EPipeline.Execute, PipelineStatus[EPipeline.Decode]);
+                SetPipelineStatus(EPipeline.Decode, PipelineStatus[EPipeline.Fetch]);
+                SetPipelineStatus(EPipeline.Fetch, Registers[ERegister.Pc]);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, ex.Source);
+                return false;
+            }
         }
 
         // Used for Unit tests, skipped pipeline

@@ -51,6 +51,7 @@ namespace ARM_Simulator.View
         private void LoadFile(string path)
         {
             if (_viewModel == null) return;
+            if (!File.Exists(path)) return;
 
             _viewModel.File = path;
             var range = new TextRange(RichTextBoxEditor.Document.ContentStart, RichTextBoxEditor.Document.ContentEnd);
