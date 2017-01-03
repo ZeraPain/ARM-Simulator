@@ -16,8 +16,8 @@
     <RibbonWindow.DataContext>
         <local:SimulatorViewModel/>
     </RibbonWindow.DataContext>
-    <DockPanel LastChildFill="True"> 
- 
+    <DockPanel LastChildFill="True">
+
         <!-- This Ribbon Editor Menu is only visible while editing a file -->
         <Ribbon DockPanel.Dock="Top" Height="130" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">
             <!-- Application Menu -->
@@ -40,23 +40,23 @@
                 <RibbonGroup Header="Extras">
                     <RibbonButton Label="Check" LargeImageSource="/Resources/Images/check.png" Width="auto" Height="auto" Command="{Binding SyntaxCommand}"/>
                     <Separator></Separator>
-                    <CheckBox  Content="Allow Unsafe Code" IsChecked="{Binding ArmSimulator.Memory.AllowUnsafeCode}" />
+                    <RibbonCheckBox Label="Allow Unsafe Code" Height="18"  IsChecked="{Binding ArmSimulator.Memory.AllowUnsafeCode}" />
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>
-        
+
         <!-- This Ribbon Debug Menu is only visible while debugging a file -->
         <Ribbon DockPanel.Dock="Top" Height="130" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Debugger'}">
             <!-- Application Menu -->
-                <Ribbon.ApplicationMenu>
-                    <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
-                        <RibbonApplicationMenuItem Header="New File" ImageSource="/Resources/Images/new.png" Click="BtnNewFile_Click" />
-                        <RibbonApplicationMenuItem Header="Open File" ImageSource="/Resources/Images/open.png" Click="BtnLoadFile_Click"/>
-                        <RibbonApplicationMenuItem Header="Save File" ImageSource="/Resources/Images/save.png" Click="BtnSaveFile_Click" />
-                        <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}"/>
-                    </RibbonApplicationMenu>
-                </Ribbon.ApplicationMenu>
-                <RibbonTab Header="Debug" Margin="0,0,0,8"  >
+            <Ribbon.ApplicationMenu>
+                <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
+                    <RibbonApplicationMenuItem Header="New File" ImageSource="/Resources/Images/new.png" Click="BtnNewFile_Click" />
+                    <RibbonApplicationMenuItem Header="Open File" ImageSource="/Resources/Images/open.png" Click="BtnLoadFile_Click"/>
+                    <RibbonApplicationMenuItem Header="Save File" ImageSource="/Resources/Images/save.png" Click="BtnSaveFile_Click" />
+                    <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}"/>
+                </RibbonApplicationMenu>
+            </Ribbon.ApplicationMenu>
+            <RibbonTab Header="Debug" Margin="0,0,0,8"  >
                 <RibbonGroup Header="Runtime">
                     <RibbonButton  Label="Restart"  LargeImageSource="/Resources/Images/restart.png" Width="auto" Height="auto" Command="{Binding Path=RunCommand}" />
                     <RibbonButton Label="Stop" LargeImageSource="/Resources/Images/stop.png" Width="auto" Height="auto" Command="{Binding Path=StopCommand}" />
@@ -79,7 +79,6 @@
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>
-        
 
         <!-- StatusBar Bottom -->
         <StatusBar DockPanel.Dock="Bottom" MaxHeight="30">
@@ -166,8 +165,8 @@
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="BP" Width="20" DisplayMemberBinding="{Binding Breakpoint, Converter={StaticResource BreakpointConverter}}"/>
-                        <GridViewColumn Header="Label" Width="50" DisplayMemberBinding="{Binding Label}"/>
-                        <GridViewColumn Header="Code" Width="Auto" DisplayMemberBinding="{Binding Commandline}" />
+                        <GridViewColumn Header="Label" Width="100" DisplayMemberBinding="{Binding Label}"/>
+                        <GridViewColumn Header="Code" Width="300" DisplayMemberBinding="{Binding Commandline}" />
                     </GridView>
                 </ListView.View>
             </ListView>
@@ -225,10 +224,6 @@
                     </GridView>
                 </ListView.View>
             </ListView>
-            
-            
-            
-
 
         </Grid>
     </DockPanel>

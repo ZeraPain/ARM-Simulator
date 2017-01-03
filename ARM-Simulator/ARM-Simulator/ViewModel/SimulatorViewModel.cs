@@ -4,12 +4,15 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Threading;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Commands;
 using ARM_Simulator.Model;
 using ARM_Simulator.Resources;
+using ARM_Simulator.View;
+using Microsoft.Win32;
 
 namespace ARM_Simulator.ViewModel
 {
@@ -45,6 +48,7 @@ namespace ARM_Simulator.ViewModel
         public Simulator ArmSimulator { get; protected set; }
         public MemoryViewModel MemoryVm { get; protected set; }
         public CoreViewModel CoreVm { get; protected set; }
+        public MainWindow HelperMainWindow { get; protected set; }
 
         public ICommand RunCommand { get; protected set; }
         public ICommand StopCommand { get; protected set; }
@@ -73,6 +77,7 @@ namespace ARM_Simulator.ViewModel
 
         private void Run(object parameter)
         {
+
             try
             {
                 var cmdlist = ArmSimulator.LoadFile(_file);
@@ -115,8 +120,8 @@ namespace ARM_Simulator.ViewModel
             _running = false;
         }
 
-        private static void Exit(object parameter) => Application.Current.Shutdown();
-
+        private static void Exit(object parameter) => Application.Current.Shutdown();  
+      
         private void SyntaxCheck(object parameter)
         {
             try
@@ -132,6 +137,8 @@ namespace ARM_Simulator.ViewModel
                 MessageBox.Show(ex.Message, ex.Source);
             }
         }
+
+
 
         private void RunThread()
         {

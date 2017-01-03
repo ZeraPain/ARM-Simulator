@@ -25,7 +25,8 @@ namespace ARM_Simulator.View
 
         private void OnClosing(object sender, CancelEventArgs e)
         {
-            SaveFile();
+            SavingDialog();
+            //this closes all Windows of the Application
             Application.Current.Shutdown();
         }
 
@@ -73,7 +74,7 @@ namespace ARM_Simulator.View
             LoadFile(openFile.FileName);
         }
 
-        private void SaveFile()
+        public void SaveFile()
         {
             if (_viewModel == null) return;
 
@@ -94,6 +95,19 @@ namespace ARM_Simulator.View
                 new TextRange(RichTextBoxEditor.Document.ContentStart, RichTextBoxEditor.Document.ContentEnd).Text
                     .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
             File.WriteAllLines(_viewModel.File, content);
+        }
+
+        private void SavingDialog()
+        {
+            MessageBoxResult result = MessageBox.Show("Möchtest du Speichern?", "Save File", MessageBoxButton.YesNo);
+            switch (result)
+            {
+                case MessageBoxResult.Yes:
+                    SaveFile();
+                    break;
+                case MessageBoxResult.No:
+                    break;
+            }
         }
 
         private void BtnSaveFile_Click(object sender, RoutedEventArgs e) => SaveFile();
