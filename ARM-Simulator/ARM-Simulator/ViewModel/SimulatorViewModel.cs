@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -20,6 +21,7 @@ namespace ARM_Simulator.ViewModel
     {
         private bool _running;
         private Thread _runThread;
+        private ShowBreakpoints _subWindow;
 
         private string _file;
         public string File
@@ -48,9 +50,11 @@ namespace ARM_Simulator.ViewModel
         public Simulator ArmSimulator { get; protected set; }
         public MemoryViewModel MemoryVm { get; protected set; }
         public CoreViewModel CoreVm { get; protected set; }
-        public MainWindow HelperMainWindow { get; protected set; }
 
-        public ICommand SaveCommand { get; protected set; }
+        public ICommand NewFileCommand { get; protected set; }
+        public ICommand SaveFileCommand { get; protected set; }
+        public ICommand LoadFileCommand { get; protected set; }
+
         public ICommand RunCommand { get; protected set; }
         public ICommand StopCommand { get; protected set; }
         public ICommand TickCommand { get; protected set; }
@@ -58,6 +62,7 @@ namespace ARM_Simulator.ViewModel
         public ICommand PauseCommand { get; protected set; }
         public ICommand ExitCommand { get; protected set; }
         public ICommand SyntaxCommand { get; protected set; }
+        public ICommand ShowBreakpointsCommand { get; protected set; }
 
         public SimulatorViewModel()
         {
@@ -67,7 +72,9 @@ namespace ARM_Simulator.ViewModel
             MemoryVm = new MemoryViewModel(ArmSimulator.Memory);
             CoreVm = new CoreViewModel(ArmSimulator.ArmCore);
 
-            SaveCommand = new DelegateCommand(SaveFile);
+            NewFileCommand = new DelegateCommand(NewFile);
+            SaveFileCommand = new DelegateCommand(SaveFile);
+            LoadFileCommand = new DelegateCommand(LoadFileDialog);
             StopCommand = new DelegateCommand(Stop);
             RunCommand = new DelegateCommand(Run);
             TickCommand = new DelegateCommand(Tick);
@@ -75,6 +82,43 @@ namespace ARM_Simulator.ViewModel
             PauseCommand = new DelegateCommand(Pause);
             ExitCommand = new DelegateCommand(Exit);
             SyntaxCommand = new DelegateCommand(SyntaxCheck);
+            ShowBreakpointsCommand = new DelegateCommand(ShowBreakpoints);
+        }
+
+        private void NewFile(object parameter)
+        {
+            var document = parameter as FlowDocument;
+            if (document == null) return;
+
+            File = null;
+            document.Blocks.Clear();
+        }
+
+        private void LoadFileDialog(object parameter)
+        {
+            var document = parameter as FlowDocument;
+            if (document == null) return;
+
+            var openFile = new OpenFileDialog
+            {
+                Filter = "Assembly files (*.S)|*.S|All files (*.*)|*.*"
+            };
+
+            if (openFile.ShowDialog() != true || !System.IO.File.Exists(openFile.FileName))
+                return;
+
+            LoadFile(openFile.FileName, document);
+        }
+
+        public void LoadFile(string path, FlowDocument document)
+        {
+            if (!System.IO.File.Exists(path)) return;
+
+            File = path;
+            var range = new TextRange(document.ContentStart, document.ContentEnd);
+            var fStream = new FileStream(File, FileMode.OpenOrCreate);
+            range.Load(fStream, DataFormats.Text);
+            fStream.Close();
         }
 
         public void SaveFile(object parameter)
@@ -145,7 +189,7 @@ namespace ARM_Simulator.ViewModel
         }
 
         private static void Exit(object parameter) => Application.Current.Shutdown();  
-      
+
         private void SyntaxCheck(object parameter)
         {
             try
@@ -161,8 +205,6 @@ namespace ARM_Simulator.ViewModel
                 MessageBox.Show(ex.Message, ex.Source);
             }
         }
-
-
 
         private void RunThread()
         {
@@ -182,6 +224,20 @@ namespace ARM_Simulator.ViewModel
         {
             var pogramCounter = CoreVm.ArmCore.PipelineStatus[EPipeline.Execute];
             return CoreVm.CommandList.Where((cmd, index) => cmd.Breakpoint && index*4 == pogramCounter).Any();
+        }
+
+        private void ShowBreakpoints(object parameter)
+        {
+            if (_subWindow == null)
+            {
+                _subWindow = new ShowBreakpoints { DataContext = this };
+                _subWindow.Show();
+            }
+            else
+            {
+                _subWindow.Close();
+                _subWindow = null;
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

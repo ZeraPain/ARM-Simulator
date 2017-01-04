@@ -2,13 +2,12 @@
 using System.Globalization;
 using System.Windows.Data;
 using ARM_Simulator.Annotations;
-using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.ViewModel.Converters
 {
     internal class BreakpointConverter : IValueConverter
     {
-        [CanBeNull]
+        [NotNull]
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var breakpoint = value as bool?;
