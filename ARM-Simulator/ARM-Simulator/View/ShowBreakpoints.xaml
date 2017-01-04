@@ -1,4 +1,4 @@
-﻿<RibbonWindow x:Class="ARM_Simulator.View.ShowBreakpoints"
+﻿<Window x:Class="ARM_Simulator.View.ShowBreakpoints"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,16 +6,22 @@
         xmlns:viewModel="clr-namespace:ARM_Simulator.ViewModel"
         mc:Ignorable="d"
         x:Name="BpWindow"
-        Title="Show Breakpoints" Height="auto" Width="150"
+        Title="Show Breakpoints" Width="150"
+        SizeToContent="Height"
         Closing="ShowBreakpoints_OnClosing">
-    
-    <RibbonWindow.DataContext>
-        <viewModel:SimulatorViewModel/>
-    </RibbonWindow.DataContext>
-  
 
+    <Window.DataContext>
+        <viewModel:SimulatorViewModel/>
+    </Window.DataContext>
+  
     <DockPanel LastChildFill="True">
-        <ListView x:Name="ShowBp" ItemsSource="{Binding Path=CoreVm.BreakpointCommandList}">
+
+        <Grid VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+
+            </Grid.RowDefinitions>
+            <ListView x:Name="ShowBp" ItemsSource="{Binding Path=CoreVm.BreakpointCommandList}">
             <ListView.Resources>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Setter Property="Height" Value="20" />
@@ -27,9 +33,11 @@
                 </GridView>
             </ListView.View>
         </ListView>
+            
+      </Grid>
     </DockPanel>
     
     
     
-</RibbonWindow>
+</Window>
 
