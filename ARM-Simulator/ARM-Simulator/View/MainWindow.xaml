@@ -116,18 +116,23 @@
                     </Style>
                 </RichTextBox.Resources>
             </RichTextBox>
-            <RichTextBox x:Name="RichTextBoxLog" Grid.Row="1" IsEnabled="False">
-                <RichTextBox.Resources>
-                    <Style TargetType="{x:Type Paragraph}">
-                        <Setter Property="Margin" Value="0"/>
+            
+            <!-- Output Window for Error Message -->
+            <ListView x:Name="ListViewLog" Grid.Row="1" ItemsSource="{Binding ErrorMessages}">
+                <ListView.Resources>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="Height" Value="auto"/>
+                        <Setter Property="FontSize" Value="14"/>
+                        <Setter Property="Background" Value="DarkOrange" />
+                        <Setter Property="BorderBrush" Value="OrangeRed"/>
                     </Style>
-                </RichTextBox.Resources>
-                <FlowDocument>
-                    <Paragraph>
-                        <Run Text="+++ Output Window +++"/>
-                    </Paragraph>
-                </FlowDocument>
-            </RichTextBox>
+                </ListView.Resources>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Error Message" Width="auto" DisplayMemberBinding="{Binding}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
         </Grid>
 
         <!-- This is only visible while debugging a file -->

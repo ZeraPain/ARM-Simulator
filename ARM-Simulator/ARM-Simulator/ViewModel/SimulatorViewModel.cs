@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,8 @@ namespace ARM_Simulator.ViewModel
         private bool _running;
         private Thread _runThread;
         private ShowBreakpoints _subWindow;
+
+        public ObservableCollection<string> ErrorMessages { get; } = new ObservableCollection<string>();
 
         private string _file;
         public string File
@@ -146,6 +149,8 @@ namespace ARM_Simulator.ViewModel
 
         private void Run(object parameter)
         {
+            
+            if (ErrorMessages.Any()) ErrorMessages.Clear();
             try
             {
                 var cmdlist = ArmSimulator.LoadFile(_file);
@@ -154,7 +159,7 @@ namespace ARM_Simulator.ViewModel
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, ex.Source);
+                ErrorMessages.Add(ex.Message);   
             }
         }
 
@@ -192,6 +197,7 @@ namespace ARM_Simulator.ViewModel
 
         private void SyntaxCheck(object parameter)
         {
+            if(ErrorMessages.Any()) ErrorMessages.Clear();
             try
             {
                 var parser = new Parser(_file);
@@ -199,10 +205,11 @@ namespace ARM_Simulator.ViewModel
                 {
                     Parser.ParseLine(commandLine);
                 }
+                
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, ex.Source);
+                ErrorMessages.Add(ex.Message);
             }
         }
 
@@ -239,6 +246,7 @@ namespace ARM_Simulator.ViewModel
                 _subWindow = null;
             }
         }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CanBeNull] [CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
