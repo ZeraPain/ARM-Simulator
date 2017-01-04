@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -74,49 +75,31 @@ namespace ARM_Simulator.View
             LoadFile(openFile.FileName);
         }
 
-        public void SaveFile()
-        {
-            if (_viewModel == null) return;
-
-            if (string.IsNullOrEmpty(_viewModel.File))
-            {
-                var saveFile = new SaveFileDialog
-                {
-                    Filter = "Assembly files (*.S)|*.S|All files (*.*)|*.*"
-                };
-
-                if (saveFile.ShowDialog() != true)
-                    return;
-
-                _viewModel.File = saveFile.FileName;
-            }
-
-            var content =
-                new TextRange(RichTextBoxEditor.Document.ContentStart, RichTextBoxEditor.Document.ContentEnd).Text
-                    .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
-            File.WriteAllLines(_viewModel.File, content);
-        }
-
         private void SavingDialog()
         {
-            MessageBoxResult result = MessageBox.Show("Möchtest du Speichern?", "Save File", MessageBoxButton.YesNo);
-            switch (result)
+            var content = new TextRange(RichTextBoxEditor.Document.ContentStart, RichTextBoxEditor.Document.ContentEnd).Text
+                    .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
+            var areEqual = File.ReadAllLines(_viewModel.File).SequenceEqual(content);
+
+            if (!areEqual)
             {
-                case MessageBoxResult.Yes:
-                    SaveFile();
-                    break;
-                case MessageBoxResult.No:
-                    break;
+                var result = MessageBox.Show("Do you want to save your changes?", "Save File", MessageBoxButton.YesNo);
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        _viewModel.SaveFile(RichTextBoxEditor.Document);
+                        break;
+                    case MessageBoxResult.No:
+                        break;
+                }
             }
         }
-
-        private void BtnSaveFile_Click(object sender, RoutedEventArgs e) => SaveFile();
 
         private void RichTextBoxEditor_OnKeyDown(object sender, KeyEventArgs e)
         {
             if ((e.Key == Key.S) && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
-                SaveFile();
+                _viewModel.SaveFile(RichTextBoxEditor.Document);
             }
         }
 

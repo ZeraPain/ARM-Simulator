@@ -25,7 +25,7 @@
                 <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
                     <RibbonApplicationMenuItem Header="New File" ImageSource="/Resources/Images/new.png" Click="BtnNewFile_Click" />
                     <RibbonApplicationMenuItem Header="Open File" ImageSource="/Resources/Images/open.png" Click="BtnLoadFile_Click"/>
-                    <RibbonApplicationMenuItem Header="Save File" ImageSource="/Resources/Images/save.png" Click="BtnSaveFile_Click" />
+                    <RibbonApplicationMenuItem Header="Save File" ImageSource="/Resources/Images/save.png" Command="{Binding Path=SaveCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                     <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}"/>
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
@@ -35,7 +35,7 @@
                     <RibbonButton  Label="Run" LargeImageSource="/Resources/Images/run.png" Width="auto" Height="auto" Command="{Binding Path=RunCommand}" />
                 </RibbonGroup>
                 <RibbonGroup >
-                    <RibbonButton   Label="Save" LargeImageSource="/Resources/Images/save.png" Width="auto" Height="auto" Click="BtnSaveFile_Click" />
+                    <RibbonButton   Label="Save" LargeImageSource="/Resources/Images/save.png" Width="auto" Height="auto" Command="{Binding Path=SaveCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                 </RibbonGroup>
                 <RibbonGroup Header="Extras">
                     <RibbonButton Label="Check" LargeImageSource="/Resources/Images/check.png" Width="auto" Height="auto" Command="{Binding SyntaxCommand}"/>
@@ -52,7 +52,7 @@
                 <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
                     <RibbonApplicationMenuItem Header="New File" ImageSource="/Resources/Images/new.png" Click="BtnNewFile_Click" />
                     <RibbonApplicationMenuItem Header="Open File" ImageSource="/Resources/Images/open.png" Click="BtnLoadFile_Click"/>
-                    <RibbonApplicationMenuItem Header="Save File" ImageSource="/Resources/Images/save.png" Click="BtnSaveFile_Click" />
+                    <RibbonApplicationMenuItem Header="Save File" ImageSource="/Resources/Images/save.png" Command="{Binding Path=SaveCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                     <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}"/>
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>

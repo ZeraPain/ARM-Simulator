@@ -50,6 +50,7 @@ namespace ARM_Simulator.ViewModel
         public CoreViewModel CoreVm { get; protected set; }
         public MainWindow HelperMainWindow { get; protected set; }
 
+        public ICommand SaveCommand { get; protected set; }
         public ICommand RunCommand { get; protected set; }
         public ICommand StopCommand { get; protected set; }
         public ICommand TickCommand { get; protected set; }
@@ -66,6 +67,7 @@ namespace ARM_Simulator.ViewModel
             MemoryVm = new MemoryViewModel(ArmSimulator.Memory);
             CoreVm = new CoreViewModel(ArmSimulator.ArmCore);
 
+            SaveCommand = new DelegateCommand(SaveFile);
             StopCommand = new DelegateCommand(Stop);
             RunCommand = new DelegateCommand(Run);
             TickCommand = new DelegateCommand(Tick);
@@ -75,9 +77,31 @@ namespace ARM_Simulator.ViewModel
             SyntaxCommand = new DelegateCommand(SyntaxCheck);
         }
 
+        public void SaveFile(object parameter)
+        {
+            var document = parameter as FlowDocument;
+            if (document == null) return;
+
+            if (string.IsNullOrEmpty(File))
+            {
+                var saveFile = new SaveFileDialog
+                {
+                    Filter = "Assembly files (*.S)|*.S|All files (*.*)|*.*"
+                };
+
+                if (saveFile.ShowDialog() != true)
+                    return;
+
+                File = saveFile.FileName;
+            }
+
+            var content = new TextRange(document.ContentStart, document.ContentEnd).Text
+                    .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
+            System.IO.File.WriteAllLines(File, content);
+        }
+
         private void Run(object parameter)
         {
-
             try
             {
                 var cmdlist = ArmSimulator.LoadFile(_file);
