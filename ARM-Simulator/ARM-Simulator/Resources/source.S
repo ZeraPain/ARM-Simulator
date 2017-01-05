@@ -5,7 +5,7 @@ xptr:
 	.word X
 	mov r0, #4
 main:
-	mov r1, 
+	mov r1, #2
 	mov r2, #1
 	mov r3, #3
 	mov r4, #100

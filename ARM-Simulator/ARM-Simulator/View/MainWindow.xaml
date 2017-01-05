@@ -38,9 +38,9 @@
                     <RibbonButton   Label="Save" LargeImageSource="/Resources/Images/save.png" Width="auto" Height="auto" Command="{Binding Path=SaveFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                 </RibbonGroup>
                 <RibbonGroup Header="Extras">
-                    <RibbonButton Label="Check" LargeImageSource="/Resources/Images/check.png" Width="auto" Height="auto" Command="{Binding SyntaxCommand}"/>
+                    <RibbonButton Label="Syntax" LargeImageSource="/Resources/Images/check.png" Width="auto" Height="auto" Command="{Binding SyntaxCommand}"/>
                     <Separator></Separator>
-                    <RibbonCheckBox Label="Allow Unsafe Code" Height="18"  IsChecked="{Binding ArmSimulator.Memory.AllowUnsafeCode}" />
+                    <CheckBox Content="Allow Unsafe Code" Height="18"  IsChecked="{Binding ArmSimulator.Memory.AllowUnsafeCode}" />
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>
@@ -63,9 +63,21 @@
                 </RibbonGroup>
                 <RibbonGroup Header="Pipelining View">
                     <StackPanel Orientation="Vertical">
-                        <RibbonCheckBox HorizontalAlignment="Left" Label="Fetch" Height="18" Background="LawnGreen" IsChecked="{Binding Path=CoreVm.DisplayFetch}"/>
-                        <RibbonCheckBox HorizontalAlignment="Left" Label="Decode" Height="18" Background="Yellow" IsChecked="{Binding Path=CoreVm.DisplayDecode}"/>
-                        <RibbonCheckBox HorizontalAlignment="Left" Label="Excecute" Height="18" Background="OrangeRed" IsChecked="{Binding Path=CoreVm.DisplayExecute}"/>
+                        <CheckBox HorizontalAlignment="Left" Height="18" Width="auto" IsChecked="{Binding Path=CoreVm.DisplayFetch}">
+                            <CheckBox.Content>
+                                <TextBlock Text="Fetch     " Foreground="Black"  FontWeight="Bold" Background="LawnGreen" />
+                            </CheckBox.Content>
+                        </CheckBox>
+                       <CheckBox HorizontalAlignment="Left"  Height="18"  IsChecked="{Binding Path=CoreVm.DisplayDecode}">
+                            <CheckBox.Content>
+                                <TextBlock Text="Decode " Foreground="Black"  FontWeight="Bold" Background="Yellow" />
+                            </CheckBox.Content>
+                            </CheckBox>
+                            <CheckBox HorizontalAlignment="Left" Height="18" IsChecked="{Binding Path=CoreVm.DisplayExecute}">
+                            <CheckBox.Content>
+                                <TextBlock Text="Execute " Foreground="Black"  FontWeight="Bold" Background="OrangeRed" />
+                            </CheckBox.Content>
+                            </CheckBox>
                     </StackPanel>
                 </RibbonGroup>
                 <RibbonGroup x:Name="OptionGrouppoints" Header="Breakpoints">

@@ -32,9 +32,9 @@ namespace ARM_Simulator.ViewModel
             CommandList = new ObservableCollection<ObservableCommand>();
             BreakpointCommandList = new ObservableCollection<ObservableCommand>();
 
-            DisplayFetch = true;
-            DisplayDecode = true;
-            DisplayExecute = true;
+            DisplayFetch = false;
+            DisplayDecode = false;
+            DisplayExecute = false;
 
             ContextMenuUpdate = UpdateRegisterList;
 
