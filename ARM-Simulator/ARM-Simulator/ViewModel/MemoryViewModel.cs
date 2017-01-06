@@ -47,25 +47,13 @@ namespace ARM_Simulator.ViewModel
                 for (var k = 0; k < 32 / 4; k++)
                 {
                     var memoryDataBytes = new byte[4];
-                    Array.Copy(data, baseAddr + k*4, memoryDataBytes, 0, 4);
-                    
-                 if(ShowAsHexadecimal)  memoryOffset[k] = "0x" + BitConverter.ToUInt32(memoryDataBytes, 0).ToString("X8");
-                if(!ShowAsHexadecimal) memoryOffset[k] = BitConverter.ToUInt32(memoryDataBytes,0).ToString();
-                    if (ShowAsAscii)
-                    {/*
-                        //byteweise
-                        var convert = BitConverter.ToInt32(memoryDataBytes, 0).ToString();
-                        int ascii;
-                        if (Int32.TryParse(convert, out ascii))
-                        {
-                            if (ascii >= 0 && ascii < 128)
-                            {
-                                memoryOffset[k] = ((char) ascii).ToString();
-                               
-                            }
-                        }
-                        */
-                    }
+                    Array.Copy(data, baseAddr + k * 4, memoryDataBytes, 0, 4);
+
+                    var valueString =  BitConverter.ToUInt32(memoryDataBytes, 0).ToString();
+                    if (ShowAsHexadecimal) valueString = "0x" + BitConverter.ToUInt32(memoryDataBytes, 0).ToString("X8");
+                    if (ShowAsAscii) valueString = Encoding.ASCII.GetString(memoryDataBytes);
+
+                    memoryOffset[k] = valueString;
                 }
 
                 if (MemoryView.Count <= i)
