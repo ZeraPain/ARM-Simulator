@@ -252,7 +252,7 @@ namespace ARM_Simulator.Model.Commands
         public void Execute(Core armCore)
         {
             if (!Decoded) throw new InvalidOperationException();
-            if (!Helper.CheckConditions(Condition, armCore.GetCpsr())) return;
+            if (!Helper.CheckConditions(Condition, armCore.Cpsr)) return;
 
             var value = 0;
             var carry = false;

@@ -176,6 +176,7 @@ namespace ARM_Simulator.Model
                 var command = new ObservableCommand
                 {
                     Status = i == CommandTable["main"] ? EPipeline.Fetch : EPipeline.None,
+                    Address = "0x" + (i*4).ToString("X4"),
                     Breakpoint = false,
                     Commandline = CommandList[i]
                 };

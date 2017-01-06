@@ -7,13 +7,11 @@ namespace ARM_Simulator.ViewModel.Observables
 {
     public class ObservableRegister : INotifyPropertyChanged
     {
-        private ERegister _name;
-        public ERegister Name
+        private string _name;
+
+        public string Name
         {
-            get
-            {
-                return _name;
-            }
+            get { return _name; }
             set
             {
                 if (_name == value) return;
@@ -23,12 +21,10 @@ namespace ARM_Simulator.ViewModel.Observables
         }
 
         private string _value;
+
         public string Value
         {
-            get
-            {
-                return _value;
-            }
+            get { return _value; }
             set
             {
                 if (_value == value) return;

@@ -24,7 +24,7 @@ namespace ARM_Simulator.ViewModel
         private Thread _runThread;
         private ShowBreakpoints _subWindow;
 
-        public ObservableCollection<string> ErrorMessages { get; } = new ObservableCollection<string>();
+        public ObservableCollection<string> ErrorMessages { get; protected set; }
 
         private string _file;
         public string File
@@ -86,6 +86,8 @@ namespace ARM_Simulator.ViewModel
             ExitCommand = new DelegateCommand(Exit);
             SyntaxCommand = new DelegateCommand(SyntaxCheck);
             ShowBreakpointsCommand = new DelegateCommand(ShowBreakpoints);
+
+            ErrorMessages = new ObservableCollection<string>();
         }
 
         private void NewFile(object parameter)
@@ -149,7 +151,7 @@ namespace ARM_Simulator.ViewModel
 
         private void Run(object parameter)
         {
-            
+
             if (ErrorMessages.Any()) ErrorMessages.Clear();
             try
             {
@@ -159,7 +161,7 @@ namespace ARM_Simulator.ViewModel
             }
             catch (Exception ex)
             {
-                ErrorMessages.Add(ex.Message);   
+                ErrorMessages.Add(ex.Message);
             }
         }
 
@@ -193,7 +195,7 @@ namespace ARM_Simulator.ViewModel
             _running = false;
         }
 
-        private static void Exit(object parameter) => Application.Current.Shutdown();  
+        private static void Exit(object parameter) => Application.Current.Shutdown();
 
         private void SyntaxCheck(object parameter)
         {
@@ -205,7 +207,6 @@ namespace ARM_Simulator.ViewModel
                 {
                     Parser.ParseLine(commandLine);
                 }
-                
             }
             catch (Exception ex)
             {
@@ -215,13 +216,14 @@ namespace ARM_Simulator.ViewModel
 
         private void RunThread()
         {
-            while (_running)
+            var success = true;
+            while (_running && success)
             {
                 Application.Current.Dispatcher.Invoke(
                     DispatcherPriority.Background,
                     (Action)(() =>
                     {
-                        _running = CoreVm.ArmCore.Tick();
+                        success = CoreVm.ArmCore.Tick();
                         if (IsBreakPoint()) _running = false;
                     }));
             }

@@ -32,15 +32,15 @@ namespace ARM_Simulator.ViewModel
             CommandList = new ObservableCollection<ObservableCommand>();
             BreakpointCommandList = new ObservableCollection<ObservableCommand>();
 
-            DisplayFetch = false;
-            DisplayDecode = false;
-            DisplayExecute = false;
+            DisplayFetch = true;
+            DisplayDecode = true;
+            DisplayExecute = true;
 
             ContextMenuUpdate = UpdateRegisterList;
 
             RemoveBreakpointsCommand = new DelegateCommand(RemoveBreakpoints);
 
-            UpdateRegisterList();
+            InitRegisterList();
         }
 
         private void Update(object sender, [NotNull] PropertyChangedEventArgs e)
@@ -54,17 +54,23 @@ namespace ARM_Simulator.ViewModel
         public void UpdateShowBreakpoints()
         {
             if (BreakpointCommandList.Any())
-            {
-               BreakpointCommandList.Clear();
-            }
+                BreakpointCommandList.Clear();
+
             if (CommandList == null) return;
-            foreach (var command in CommandList)
+
+            foreach (var command in CommandList.Where(command => command.Breakpoint))
+                BreakpointCommandList.Add(command);
+        }
+
+        private void InitRegisterList()
+        {
+            for (var i = 0; i < ArmCore.Registers.Count; i++)
             {
-                if (command.Breakpoint)
-                {
-                    BreakpointCommandList.Add(command);
-                }
+                var register = ArmCore.Registers.ElementAt(i);
+                RegisterList.Add(new ObservableRegister { Name = register.Key.ToString(), Value = register.Value.ToString() });
             }
+
+            RegisterList.Add(new ObservableRegister() { Name = "CPSR", Value = ArmCore.Cpsr.ToString()});
         }
 
         private void UpdateRegisterList()
@@ -79,10 +85,25 @@ namespace ARM_Simulator.ViewModel
                 if (ShowAsUnsigned) valueString = ((uint)value).ToString();
                 if (ShowAsHexadecimal) valueString = "0x" + value.ToString("X");
 
-                if (RegisterList.Any(reg => reg.Name == register.Key))
+                if (RegisterList.Any(reg => reg.Name == register.Key.ToString()))
                     RegisterList[i].Value = valueString;
                 else
-                    RegisterList.Add(new ObservableRegister { Name = register.Key, Value = valueString });
+                    RegisterList.Add(new ObservableRegister { Name = register.Key.ToString(), Value = valueString });
+            }
+
+            foreach (var register in RegisterList)
+            {
+                if (register.Name == "CPSR")
+                {
+                    var value = ArmCore.Cpsr;
+                    if (ShowAsByte) value = (byte)value;
+
+                    var valueString = value.ToString();
+                    if (ShowAsUnsigned) valueString = ((uint)value).ToString();
+                    if (ShowAsHexadecimal) valueString = "0x" + value.ToString("X");
+
+                    register.Value = valueString;
+                }
             }
         }
 

@@ -16,6 +16,7 @@ namespace ARM_Simulator.ViewModel
         {
             _memory = memory;
             _memory.PropertyChanged += Update;
+            _memory.AllowUnsafeCode = true;
 
             MemoryView = new ObservableCollection<ObservableMemoryStream>();
         }
@@ -37,20 +38,24 @@ namespace ARM_Simulator.ViewModel
             for (var i = 0; i < data.Length/32; i++)
             {
                 var baseAddr = i*32;
-                var memoryDataBytes = new byte[32];
-                Array.Copy(data, baseAddr, memoryDataBytes, 0, 32);
-
                 var baseAddress = "0x" + baseAddr.ToString("X8");
-                var memoryString = BitConverter.ToString(memoryDataBytes).Replace("-", " ");
+                var memoryOffset = new string[8];
+
+                for (var k = 0; k < 32 / 4; k++)
+                {
+                    var memoryDataBytes = new byte[4];
+                    Array.Copy(data, baseAddr + k*4, memoryDataBytes, 0, 4);
+                    memoryOffset[k] = "0x" + BitConverter.ToUInt32(memoryDataBytes, 0).ToString("X8");
+                }
 
                 if (MemoryView.Count <= i)
                 {
-                    MemoryView.Add(new ObservableMemoryStream {BaseAddress = baseAddress, MemoryString = memoryString});
+                    MemoryView.Add(new ObservableMemoryStream() { BaseAddress = baseAddress, MemoryOffset = memoryOffset});
                 }
                 else
                 {
                     MemoryView[i].BaseAddress = baseAddress;
-                    MemoryView[i].MemoryString = memoryString;
+                    MemoryView[i].MemoryOffset = memoryOffset;
                 }
             }
         }

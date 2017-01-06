@@ -13,14 +13,13 @@ namespace ARM_Simulator.Model.Components
     {
         public Dictionary<EPipeline, int> PipelineStatus { get; protected set; }
         public Dictionary<ERegister, int> Registers { get; protected set; }
+        public int Cpsr { get; protected set; }
 
         internal Memory Ram { get; }
 
         private int? _fetch;
         private bool _jump;
         private ICommand _decode;
-
-        private int _cpsr;
         private readonly Decoder _decoder;
 
         public Core(Memory ram)
@@ -35,7 +34,7 @@ namespace ARM_Simulator.Model.Components
             _fetch = null;
             _decode = null;
             _jump = false;
-            _cpsr = 0x13;
+            Cpsr = 0x13;
 
             Registers = new Dictionary<ERegister, int>
             {
@@ -109,11 +108,9 @@ namespace ARM_Simulator.Model.Components
 
         public void SetNzcvFlags(Flags mask, Flags flags)
         {
-            _cpsr &= ~(mask.Value << 28); // Clear affected status bits
-            _cpsr |= flags.Value << 28; // Set affected status bits
+            Cpsr &= ~(mask.Value << 28); // Clear affected status bits
+            Cpsr |= flags.Value << 28; // Set affected status bits
         }
-
-        public int GetCpsr() => _cpsr;
 
         public bool Tick()
         {
@@ -157,8 +154,7 @@ namespace ARM_Simulator.Model.Components
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
         [NotifyPropertyChangedInvocator]
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        protected void OnPropertyChanged([CanBeNull] [CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

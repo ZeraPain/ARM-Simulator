@@ -179,8 +179,9 @@
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="BP" Width="20" DisplayMemberBinding="{Binding Breakpoint, Converter={StaticResource BreakpointConverter}}"/>
-                        <GridViewColumn Header="Label" Width="100" DisplayMemberBinding="{Binding Label}"/>
-                        <GridViewColumn Header="Code" Width="300" DisplayMemberBinding="{Binding Commandline}" />
+                        <GridViewColumn Header="Address" Width="50" DisplayMemberBinding="{Binding Address}"/>
+                        <GridViewColumn Header="Label" Width="70" DisplayMemberBinding="{Binding Label}"/>
+                        <GridViewColumn Header="Code" Width="auto" DisplayMemberBinding="{Binding Commandline}" />
                     </GridView>
                 </ListView.View>
             </ListView>
@@ -224,7 +225,14 @@
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Address" Width="80" DisplayMemberBinding="{Binding BaseAddress}"/>
-                        <GridViewColumn Header="Memory Data" Width="Auto" DisplayMemberBinding="{Binding MemoryString}"/>
+                        <GridViewColumn Header="0x00" Width="78" DisplayMemberBinding="{Binding MemoryOffset[0]}"/>
+                        <GridViewColumn Header="0x04" Width="78" DisplayMemberBinding="{Binding MemoryOffset[1]}"/>
+                        <GridViewColumn Header="0x08" Width="78" DisplayMemberBinding="{Binding MemoryOffset[2]}"/>
+                        <GridViewColumn Header="0x0C" Width="78" DisplayMemberBinding="{Binding MemoryOffset[3]}"/>
+                        <GridViewColumn Header="0x10" Width="78" DisplayMemberBinding="{Binding MemoryOffset[4]}"/>
+                        <GridViewColumn Header="0x14" Width="78" DisplayMemberBinding="{Binding MemoryOffset[5]}"/>
+                        <GridViewColumn Header="0x18" Width="78" DisplayMemberBinding="{Binding MemoryOffset[6]}"/>
+                        <GridViewColumn Header="0x1C" Width="78" DisplayMemberBinding="{Binding MemoryOffset[7]}"/>
                     </GridView>
                 </ListView.View>
             </ListView>

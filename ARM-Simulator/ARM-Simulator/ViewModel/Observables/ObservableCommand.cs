@@ -10,10 +10,7 @@ namespace ARM_Simulator.ViewModel.Observables
         private EPipeline _status;
         public EPipeline Status
         {
-            get
-            {
-                return _status;
-            }
+            get { return _status; }
             set
             {
                 if (_status == value) return;
@@ -25,10 +22,7 @@ namespace ARM_Simulator.ViewModel.Observables
         private bool _breakpoint;
         public bool Breakpoint
         {
-            get
-            {
-                return _breakpoint;
-            }
+            get { return _breakpoint; }
             set
             {
                 if (_breakpoint == value) return;
@@ -37,13 +31,22 @@ namespace ARM_Simulator.ViewModel.Observables
             }
         }
 
+        private string _address;
+        public string Address
+        {
+            get { return _address; }
+            set
+            {
+                if (_address == value) return;
+                _address = value;
+                OnPropertyChanged(nameof(Address));
+            }
+        }
+
         private string _label;
         public string Label
         {
-            get
-            {
-                return _label;
-            }
+            get { return _label; }
             set
             {
                 if (_label == value) return;
@@ -55,10 +58,7 @@ namespace ARM_Simulator.ViewModel.Observables
         private string _commandline;
         public string Commandline
         {
-            get
-            {
-                return _commandline;
-            }
+            get { return _commandline; }
             set
             {
                 if (_commandline == value) return;
@@ -68,7 +68,6 @@ namespace ARM_Simulator.ViewModel.Observables
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
         [NotifyPropertyChangedInvocator]
         protected void OnPropertyChanged([CanBeNull] [CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
