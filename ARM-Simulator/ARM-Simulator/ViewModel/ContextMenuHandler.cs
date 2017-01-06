@@ -17,6 +17,18 @@
             }
         }
 
+        private bool _showAsAscii;
+        public bool ShowAsAscii
+        {
+            get { return _showAsAscii;}
+            set
+            {
+                if (_showAsAscii == value) return;
+                _showAsAscii = value;
+                ContextMenuUpdate?.Invoke();
+            }
+        }
+
         private bool _showAsUnsigned;
         public bool ShowAsUnsigned
         {

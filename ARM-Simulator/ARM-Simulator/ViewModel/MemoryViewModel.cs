@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Text;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.ViewModel
 {
-    internal class MemoryViewModel
+    internal class MemoryViewModel : ContextMenuHandler
     {
         public ObservableCollection<ObservableMemoryStream> MemoryView { get; protected set; }
         private readonly Memory _memory;
@@ -17,6 +18,8 @@ namespace ARM_Simulator.ViewModel
             _memory = memory;
             _memory.PropertyChanged += Update;
             _memory.AllowUnsafeCode = true;
+
+            ContextMenuUpdate = UpdateMemoryView;
 
             MemoryView = new ObservableCollection<ObservableMemoryStream>();
         }
@@ -45,7 +48,24 @@ namespace ARM_Simulator.ViewModel
                 {
                     var memoryDataBytes = new byte[4];
                     Array.Copy(data, baseAddr + k*4, memoryDataBytes, 0, 4);
-                    memoryOffset[k] = "0x" + BitConverter.ToUInt32(memoryDataBytes, 0).ToString("X8");
+                    
+                 if(ShowAsHexadecimal)  memoryOffset[k] = "0x" + BitConverter.ToUInt32(memoryDataBytes, 0).ToString("X8");
+                if(!ShowAsHexadecimal) memoryOffset[k] = BitConverter.ToUInt32(memoryDataBytes,0).ToString();
+                    if (ShowAsAscii)
+                    {/*
+                        //byteweise
+                        var convert = BitConverter.ToInt32(memoryDataBytes, 0).ToString();
+                        int ascii;
+                        if (Int32.TryParse(convert, out ascii))
+                        {
+                            if (ascii >= 0 && ascii < 128)
+                            {
+                                memoryOffset[k] = ((char) ascii).ToString();
+                               
+                            }
+                        }
+                        */
+                    }
                 }
 
                 if (MemoryView.Count <= i)

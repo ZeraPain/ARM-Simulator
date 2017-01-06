@@ -222,6 +222,24 @@
 
             <!-- Memory view -->
             <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Path=MemoryVm.MemoryView}">
+                <ListView.Resources>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="Height" Value="20" />
+                    </Style>
+                </ListView.Resources>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <Separator/>
+                        <TextBlock Text="Number System"/>
+                        <Separator/>
+                        <RadioButton GroupName="Number System" Content="decimal" IsChecked="{Binding Path=MemoryVm.ShowAsHexadecimal, Converter={StaticResource BoolInverter}}" />
+                        <RadioButton GroupName="Number System" Content="hexadecimal" IsChecked="{Binding Path=MemoryVm.ShowAsHexadecimal}"  />
+                        <RadioButton GroupName="Number System" Content="ascii" IsChecked="{Binding Path=MemoryVm.ShowAsAscii, Converter={StaticResource BoolInverter}}"  />
+                        <TextBlock Text="Data Type"/>
+                        <Separator/>
+                        <RadioButton GroupName="Data Type" Content="word" IsChecked="{Binding Path=MemoryVm.ShowAsByte, Converter={StaticResource BoolInverter}}"/>
+                    </ContextMenu>
+                </ListView.ContextMenu>
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Address" Width="80" DisplayMemberBinding="{Binding BaseAddress}"/>
