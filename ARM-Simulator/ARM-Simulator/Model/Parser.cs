@@ -58,6 +58,9 @@ namespace ARM_Simulator.Model
                 var commentIndex = line.IndexOf("@", StringComparison.Ordinal);
                 if (commentIndex > -1) line = line.Substring(0, commentIndex);
 
+                commentIndex = line.IndexOf("//", StringComparison.Ordinal);
+                if (commentIndex > -1) line = line.Substring(0, commentIndex);
+
                 // Remove leading, ending spaces, tabs
                 line = line.Trim(' ', '\t');
                 if (string.IsNullOrEmpty(line))
