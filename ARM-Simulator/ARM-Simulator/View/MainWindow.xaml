@@ -94,9 +94,6 @@
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="4*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -151,8 +148,8 @@
         <Grid Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Debugger'}">
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="150" />
+                <RowDefinition Height="*"/> 
+               <RowDefinition Height="150" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -221,7 +218,7 @@
             </ListView>
 
             <!-- Memory view -->
-            <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Path=MemoryVm.MemoryView}">
+            <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=MemoryVm.MemoryView}">
                 <ListView.Resources>
                     <Style TargetType="{x:Type ListViewItem}">
                         <Setter Property="Height" Value="20" />
@@ -233,11 +230,11 @@
                         <TextBlock Text="Number System"/>
                         <Separator/>
                         <RadioButton GroupName="Number System" Content="decimal" IsChecked="{Binding Path=MemoryVm.ShowAsHexadecimal, Converter={StaticResource BoolInverter}}" />
-                        <RadioButton GroupName="Number System" Content="hexadecimal" IsChecked="{Binding Path=MemoryVm.ShowAsHexadecimal}"  />
-                        <RadioButton GroupName="Number System" Content="ascii" IsChecked="{Binding Path=MemoryVm.ShowAsAscii, Converter={StaticResource BoolInverter}}"  />
+                        <RadioButton GroupName="Number System" Content="hexadecimal" IsChecked="{Binding Path=MemoryVm.ShowAsHexadecimal}"/>
                         <TextBlock Text="Data Type"/>
                         <Separator/>
                         <RadioButton GroupName="Data Type" Content="word" IsChecked="{Binding Path=MemoryVm.ShowAsByte, Converter={StaticResource BoolInverter}}"/>
+                        <RadioButton GroupName="Data Type" Content="byte" IsChecked="{Binding Path=MemoryVm.ShowAsByte}"/>
                     </ContextMenu>
                 </ListView.ContextMenu>
                 <ListView.View>
@@ -251,16 +248,7 @@
                         <GridViewColumn Header="0x14" Width="78" DisplayMemberBinding="{Binding MemoryOffset[5]}"/>
                         <GridViewColumn Header="0x18" Width="78" DisplayMemberBinding="{Binding MemoryOffset[6]}"/>
                         <GridViewColumn Header="0x1C" Width="78" DisplayMemberBinding="{Binding MemoryOffset[7]}"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-
-            <!-- Stack view  DataBinding Stack Data and Address-->
-            <ListView x:Name="ListViewStack" Grid.Row="1" Grid.Column="1" >
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Address" Width="60" />
-                        <GridViewColumn Header="Stack Data" Width="80" />
+                        <GridViewColumn Header="ASCII" Width="auto" DisplayMemberBinding="{Binding Ascii}" />
                     </GridView>
                 </ListView.View>
             </ListView>

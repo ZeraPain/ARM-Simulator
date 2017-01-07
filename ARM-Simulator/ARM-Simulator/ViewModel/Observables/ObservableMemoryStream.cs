@@ -35,6 +35,19 @@ namespace ARM_Simulator.ViewModel.Observables
             }
         }
 
+        private string _ascii;
+
+        public string Ascii
+        {
+            get { return _ascii; }
+            set
+            {
+                if (_ascii == value) return;
+                _ascii = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableMemoryStream()
         {
             _memoryOffset = new string[8];

@@ -17,18 +17,6 @@
             }
         }
 
-        private bool _showAsAscii;
-        public bool ShowAsAscii
-        {
-            get { return _showAsAscii;}
-            set
-            {
-                if (_showAsAscii == value) return;
-                _showAsAscii = value;
-                ContextMenuUpdate?.Invoke();
-            }
-        }
-
         private bool _showAsUnsigned;
         public bool ShowAsUnsigned
         {
@@ -55,8 +43,8 @@
 
         protected ContextMenuHandler()
         {
-            _showAsHexadecimal = false;
-            _showAsUnsigned = false;
+            _showAsHexadecimal = true;
+            _showAsUnsigned = true;
             _showAsByte = false;
         }
     }
