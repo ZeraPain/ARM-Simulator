@@ -95,12 +95,12 @@ namespace ARM_Simulator.Model.Commands
 
                     for (var i = 2; i < 32; i += 2)
                     {
-                        var tryValue = (value >> i) | (value << (32 - i));
+                        var tryValue = (value << i) | (value >> (32 - i)); // rotate left and check if it fits into 8 bit
                         if (tryValue >= 256)
                             continue;
 
                         Immediate = (byte)tryValue;
-                        Rotate = (byte)((32 - i) / 2);
+                        Rotate = (byte)(i / 2);
                         return EOperand2.RotateImmediate;
                     }
 
