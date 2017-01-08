@@ -136,21 +136,9 @@ namespace ARM_Simulator.Model
             if (lineSplit.Length != 2)
                 throw new ArgumentException("Invalid Syntax (parameter count)");
 
-            switch (lineSplit[0])
-            {
-                case ".byte":
-                    DataList.Add(lineSplit[1].StartsWith("0x", StringComparison.Ordinal)
-                        ? BitConverter.GetBytes(byte.Parse(lineSplit[1].Substring(2),
-                            System.Globalization.NumberStyles.HexNumber))
-                        : BitConverter.GetBytes(byte.Parse(lineSplit[1])));
-                    break;
-                case ".word":
-                    DataList.Add(lineSplit[1].StartsWith("0x", StringComparison.Ordinal)
-                        ? BitConverter.GetBytes(int.Parse(lineSplit[1].Substring(2),
-                            System.Globalization.NumberStyles.HexNumber))
-                        : BitConverter.GetBytes(int.Parse(lineSplit[1])));
-                    break;
-            }
+            var data = ParseDataDefinition(lineSplit[0], lineSplit[1]);
+            if (data != null)
+                DataList.Add(data.Encode());
         }
 
         [CanBeNull]
