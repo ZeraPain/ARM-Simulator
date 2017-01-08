@@ -79,5 +79,13 @@ namespace ARM_Simulator.Model.Commands
             Value = BitConverter.GetBytes(dataTable[Label]);
             Linked = true;
         }
+
+        public int GetCommandSize()
+        {
+            if (Value.Length % 4 == 0)
+                return Value.Length;
+
+            return Value.Length + (4 - Value.Length % 4);
+        }
     }
 }

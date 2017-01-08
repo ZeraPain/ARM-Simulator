@@ -321,5 +321,7 @@ namespace ARM_Simulator.Model.Commands
 
             return new Flags(n, z, c, v);
         }
+
+        public int GetCommandSize() => 4;
     }
 }

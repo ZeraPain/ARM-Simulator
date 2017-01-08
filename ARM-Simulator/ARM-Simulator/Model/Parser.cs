@@ -7,7 +7,6 @@ using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Commands;
 using ARM_Simulator.Resources;
-using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.Model
 {
@@ -168,33 +167,6 @@ namespace ARM_Simulator.Model
         }
 
         [NotNull]
-        public List<ObservableCommand> GetCommandList()
-        {
-            if (!CommandTable.ContainsKey("main"))
-                throw new Exception("Cannot find entry point");
-
-            var commandList = new List<ObservableCommand>();
-            for (var i = 0; i < CommandList.Count; i++)
-            {
-                var command = new ObservableCommand
-                {
-                    Status = i == CommandTable["main"] ? EPipeline.Fetch : EPipeline.None,
-                    Address = "0x" + (i*4).ToString("X4"),
-                    Breakpoint = false,
-                    Commandline = CommandList[i]
-                };
-
-                var index = i;
-                foreach (var label in CommandTable.Where(label => label.Value == index))
-                    command.Label = label.Key;
-
-                commandList.Add(command);
-            }
-
-            return commandList;
-        }
-
-        [NotNull]
         public static ICommand ParseLine([NotNull] string commandLine)
         {
             var indexS = commandLine.IndexOf(' ');
@@ -261,14 +233,6 @@ namespace ARM_Simulator.Model
             {
                 throw new Exception(ex.Message + ": " + commandLine);
             }
-        }
-
-        public int GetEntryPoint()
-        {
-            if (!CommandTable.ContainsKey("main"))
-                throw new Exception("Cannot find entry point");
-
-            return CommandTable["main"] * 0x4;
         }
 
         [CanBeNull]

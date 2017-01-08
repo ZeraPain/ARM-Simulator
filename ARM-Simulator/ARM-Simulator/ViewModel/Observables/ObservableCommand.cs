@@ -31,8 +31,8 @@ namespace ARM_Simulator.ViewModel.Observables
             }
         }
 
-        private string _address;
-        public string Address
+        private int _address;
+        public int Address
         {
             get { return _address; }
             set

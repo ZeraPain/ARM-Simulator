@@ -286,7 +286,7 @@ namespace ARM_Simulator.Model.Components
             if (cmd != null)
                 return cmd;
 
-            throw new ArgumentOutOfRangeException();
+            throw new ArgumentException("Undefined Instruction: 0x" + command.ToString("X8"));
         }
     }
 }

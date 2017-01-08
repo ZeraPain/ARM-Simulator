@@ -107,8 +107,10 @@ namespace ARM_Simulator.Model.Commands
             if (Linked)  return;
             if (!commandTable.ContainsKey(Label)) throw new Exception("Unknown Label: " + Label);
 
-            Offset = commandTable[Label] - commandOffset - 2;
+            Offset = (commandTable[Label] - commandOffset - 0x8) / 0x4; // Pipelining!!
             Linked = true;
         }
+
+        public int GetCommandSize() => 4;
     }
 }

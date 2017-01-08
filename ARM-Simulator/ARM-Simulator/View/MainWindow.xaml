@@ -176,7 +176,7 @@
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="BP" Width="20" DisplayMemberBinding="{Binding Breakpoint, Converter={StaticResource BreakpointConverter}}"/>
-                        <GridViewColumn Header="Address" Width="50" DisplayMemberBinding="{Binding Address}"/>
+                        <GridViewColumn Header="Address" Width="50" DisplayMemberBinding="{Binding Address, Converter={StaticResource AddressConverter}}"/>
                         <GridViewColumn Header="Label" Width="70" DisplayMemberBinding="{Binding Label}"/>
                         <GridViewColumn Header="Code" Width="auto" DisplayMemberBinding="{Binding Commandline}" />
                     </GridView>

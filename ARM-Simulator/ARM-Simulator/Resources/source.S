@@ -3,6 +3,7 @@
 .text
 xptr:
 	.word X
+	.asciiz "Hello, World!"
 	mov r0, #4
 main:
 	mov r1, #2
@@ -22,8 +23,6 @@ L1:	add r2, r2, r1
 	cmp r2, #5
 	beq main
 	b L1
-
-	.asciiz "Hello, World!"
 yptr:
 	.word Y
 zptr:

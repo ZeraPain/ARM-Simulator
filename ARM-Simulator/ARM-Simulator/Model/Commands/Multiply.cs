@@ -209,5 +209,7 @@ namespace ARM_Simulator.Model.Commands
                     new Flags((long)result < 0, result == 0, false, false));
             }
         }
+
+        public int GetCommandSize() => 4;
     }
 }

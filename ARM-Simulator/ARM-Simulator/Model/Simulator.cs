@@ -23,12 +23,12 @@ namespace ARM_Simulator.Model
             Memory.Initialise();
 
             var parser = new Parser(path);
-            ArmCore.SetEntryPoint(parser.GetEntryPoint());
-
             var linker = new Linker(Memory, parser.CommandList, parser.CommandTable, parser.DataList, parser.DataTable);
-            linker.CompileAndLink();
 
-            return parser.GetCommandList();
+            var commandList = linker.CompileAndLink();
+            ArmCore.SetEntryPoint(linker.EntryPoint);
+
+            return commandList;
         }
 
         public void TestCommand([NotNull] string commandLine)

@@ -5,6 +5,8 @@ using System.Linq;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
+using ARM_Simulator.Resources;
+using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.Model
 {
@@ -15,20 +17,18 @@ namespace ARM_Simulator.Model
         protected List<string> CommandList;
         protected Dictionary<string, int> DataTable;
         protected List<byte[]> DataList;
+        public int EntryPoint { get; protected set; }
 
         public Linker(Memory ram, List<string> commandList, Dictionary<string, int> commandTable, List<byte[]> dataList, Dictionary<string, int> dataTable)
         {
+            EntryPoint = -1;
             Ram = ram;
             CommandList = commandList;
             CommandTable = commandTable;
             DataTable = dataTable;
             DataList = dataList;
+            UpdateCommandTable();
             UpdateDataTable();
-        }
-
-        public Linker(List<string> commandList)
-        {
-            CommandList = commandList;
         }
 
         private void UpdateDataTable()
@@ -40,39 +40,75 @@ namespace ARM_Simulator.Model
                 DataTable[key] += offset;
         }
 
-        public void CompileAndLink()
+        private void UpdateCommandTable()
         {
-            CompileAndLinkTextSection();
-            CompileAndLinkDataSection();
+            var offset = 0;
+
+            for (var i = 0; i < CommandList.Count; i++)
+            {
+                var label = CommandTable.FirstOrDefault(x => x.Value == i).Key;
+                if (label != null)
+                {
+                    CommandTable[label] = offset;
+                    if (label == "main") EntryPoint = offset;
+                }
+                offset += Parser.ParseLine(CommandList[i]).GetCommandSize();
+            }
         }
 
-        private void CompileAndLinkTextSection()
+        [NotNull]
+        public List<ObservableCommand> CompileAndLink()
         {
+            var commandList = CompileAndLinkTextSection();
+            CompileAndLinkDataSection();
+
+            return commandList;
+        }
+
+        [NotNull]
+        private List<ObservableCommand> CompileAndLinkTextSection()
+        {
+            var commandList = new List<ObservableCommand>();
+
             using (var memoryStream = new MemoryStream())
             {
                 using (var binaryWriter = new BinaryWriter(memoryStream))
                 {
-                    for (var i = 0; i < CommandList.Count; i++)
+                    var offset = 0;
+                    foreach (var t in CommandList)
                     {
-                        var commandLine = CommandList[i];
-                        var command = Parser.ParseLine(commandLine);
-                        command.Link(CommandTable, DataTable, i);
+                        var observableCommand = new ObservableCommand
+                        {
+                            Status = EntryPoint == offset ? EPipeline.Fetch : EPipeline.None,
+                            Address = offset,
+                            Breakpoint = false,
+                            Commandline = t
+                        };
+
+                        foreach (var label in CommandTable.Where(label => label.Value == offset))
+                            observableCommand.Label = label.Key;
+
+                        commandList.Add(observableCommand);
+
+                        var command = Parser.ParseLine(t);
+                        command.Link(CommandTable, DataTable, offset);
+                        offset += command.GetCommandSize();
                         binaryWriter.Write(GenerateBytes(command));
                     }
 
                     Ram.WriteTextSection(memoryStream.ToArray());
                 }
             }
+
+            return commandList;
         }
 
         [NotNull]
         private static byte[] GenerateBytes([NotNull] ICommand command)
         {
+            var size = command.GetCommandSize();
             var encCommand = command.Encode();
-            if (encCommand.Length % 4 == 0)
-                return encCommand;
-
-            var retEncCommand = new byte[encCommand.Length + (4 - encCommand.Length % 4)]; // make sure that we write words (align 2)
+            var retEncCommand = new byte[size];
             Array.Copy(encCommand, 0, retEncCommand, 0, encCommand.Length);
             return retEncCommand;
         }

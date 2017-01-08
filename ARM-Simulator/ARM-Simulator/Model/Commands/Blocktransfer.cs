@@ -140,5 +140,7 @@ namespace ARM_Simulator.Model.Commands
 
             if (WriteBack) armCore.SetRegValue(Rn, baseAddress);
         }
+
+        public int GetCommandSize() => 4;
     }
 }

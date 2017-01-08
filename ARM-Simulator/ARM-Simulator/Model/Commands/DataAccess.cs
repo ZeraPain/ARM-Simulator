@@ -220,7 +220,7 @@ namespace ARM_Simulator.Model.Commands
             if (Linked) return;
             if (!commandTable.ContainsKey(Label)) throw new Exception("Unknown Label: " + Label);
 
-            var offset = (commandTable[Label] - commandOffset - 2) * 0x4;
+            var offset = commandTable[Label] - commandOffset - 0x8; // Pipelining!!
             Immediate = (short) offset;
             if (Immediate < 0)
             {
@@ -286,5 +286,7 @@ namespace ARM_Simulator.Model.Commands
 
             if (WriteBack) armCore.SetRegValue(Rn, Up ? armCore.GetRegValue(Rn) + value : armCore.GetRegValue(Rn) - value);
         }
+
+        public int GetCommandSize() => 4;
     }
 }

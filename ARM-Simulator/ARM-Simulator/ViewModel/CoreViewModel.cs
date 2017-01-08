@@ -113,19 +113,27 @@ namespace ARM_Simulator.ViewModel
                 t.Status = EPipeline.None;
 
             var status = ArmCore.PipelineStatus;
-            foreach (var x in status)
+            foreach (var x in status.Where(x => x.Value >= 0))
             {
-                if (x.Value < 0)
-                    continue;
-
-                var index = x.Value / 4;
-                if (index >= CommandList.Count)
-                    continue;
-
-                if ((x.Key == EPipeline.Fetch) && DisplayFetch) CommandList[index].Status = EPipeline.Fetch;
-                if ((x.Key == EPipeline.Decode) && DisplayDecode) CommandList[index].Status = EPipeline.Decode;
-                if ((x.Key == EPipeline.Execute) && DisplayExecute) CommandList[index].Status = EPipeline.Execute;
+                switch (x.Key)
+                {
+                    case EPipeline.Fetch:
+                        if (DisplayFetch) SetPipelineStatus(x.Key, x.Value);
+                        break;
+                    case EPipeline.Decode:
+                        if (DisplayDecode) SetPipelineStatus(x.Key, x.Value);
+                        break;
+                    case EPipeline.Execute:
+                        if (DisplayExecute) SetPipelineStatus(x.Key, x.Value);
+                        break;
+                }
             }
+        }
+
+        private void SetPipelineStatus(EPipeline status, int address)
+        {
+            foreach (var command in CommandList.Where(command => command.Address == address))
+                command.Status = status;
         }
 
         public void UpdateList([NotNull] List<ObservableCommand> cmdList)
