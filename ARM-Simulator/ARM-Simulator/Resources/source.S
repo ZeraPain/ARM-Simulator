@@ -1,6 +1,9 @@
 @@testfile	
-
 .text
+
+.align 2
+.global main
+
 xptr:
 	.word X
 	.byte 0x04

@@ -18,16 +18,18 @@ namespace ARM_Simulator.Model
         protected Dictionary<string, int> DataTable;
         protected List<byte[]> DataList;
         public int EntryPoint { get; protected set; }
+        private readonly int _align;
 
-        public Linker(Memory ram, List<string> commandList, Dictionary<string, int> commandTable, List<byte[]> dataList, Dictionary<string, int> dataTable)
+        public Linker(Memory ram, [NotNull] Parser parser)
         {
             EntryPoint = -1;
             Ram = ram;
-            CommandList = commandList;
-            CommandTable = commandTable;
-            DataTable = dataTable;
-            DataList = dataList;
-            UpdateCommandTable();
+            _align = parser.Align;
+            CommandList = parser.CommandList;
+            CommandTable = parser.CommandTable;
+            DataTable = parser.DataTable;
+            DataList = parser.DataList;
+            UpdateCommandTable(parser.EntryFunction);
             UpdateDataTable();
         }
 
@@ -40,7 +42,7 @@ namespace ARM_Simulator.Model
                 DataTable[key] += offset;
         }
 
-        private void UpdateCommandTable()
+        private void UpdateCommandTable(string entryFunction)
         {
             var offset = 0;
 
@@ -50,9 +52,9 @@ namespace ARM_Simulator.Model
                 if (label != null)
                 {
                     CommandTable[label] = offset;
-                    if (label == "main") EntryPoint = offset;
+                    if (label == entryFunction) EntryPoint = offset;
                 }
-                offset += Parser.ParseLine(CommandList[i]).GetCommandSize();
+                offset += Parser.ParseLine(CommandList[i]).GetCommandSize(_align);
             }
         }
 
@@ -92,8 +94,8 @@ namespace ARM_Simulator.Model
 
                         var command = Parser.ParseLine(t);
                         command.Link(CommandTable, DataTable, offset);
-                        offset += command.GetCommandSize();
-                        binaryWriter.Write(GenerateBytes(command));
+                        offset += command.GetCommandSize(_align);
+                        binaryWriter.Write(GenerateBytes(command, _align));
                     }
 
                     Ram.WriteTextSection(memoryStream.ToArray());
@@ -104,9 +106,9 @@ namespace ARM_Simulator.Model
         }
 
         [NotNull]
-        private static byte[] GenerateBytes([NotNull] ICommand command)
+        private static byte[] GenerateBytes([NotNull] ICommand command, int align)
         {
-            var size = command.GetCommandSize();
+            var size = command.GetCommandSize(align);
             var encCommand = command.Encode();
             var retEncCommand = new byte[size];
             Array.Copy(encCommand, 0, retEncCommand, 0, encCommand.Length);

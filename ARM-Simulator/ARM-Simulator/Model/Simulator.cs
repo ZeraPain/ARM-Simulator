@@ -23,7 +23,7 @@ namespace ARM_Simulator.Model
             Memory.Initialise();
 
             var parser = new Parser(path);
-            var linker = new Linker(Memory, parser.CommandList, parser.CommandTable, parser.DataList, parser.DataTable);
+            var linker = new Linker(Memory, parser);
 
             var commandList = linker.CompileAndLink();
             ArmCore.SetEntryPoint(linker.EntryPoint);

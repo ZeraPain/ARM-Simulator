@@ -18,6 +18,9 @@ namespace ARM_Simulator.Model
         public Dictionary<string, int> DataTable { get; protected set; } // Labelname, Offset
         public List<byte[]> DataList { get; protected set; }
 
+        public string EntryFunction { get; protected set; }
+        public int Align { get; protected set; }
+
         private enum EFileSection
         {
             Undefined,
@@ -28,6 +31,9 @@ namespace ARM_Simulator.Model
 
         public Parser(string path)
         {
+            Align = 2;
+            EntryFunction = null;
+
             CommandTable = new Dictionary<string, int>();
             CommandList = new List<string>();
 
@@ -76,6 +82,24 @@ namespace ARM_Simulator.Model
                         case "data":
                             currentSection = EFileSection.Data;
                             continue;
+                    }
+
+                    if (line.StartsWith(".global", StringComparison.Ordinal) || line.StartsWith(".globl", StringComparison.Ordinal))
+                    {
+                        var split = line.Split(' ');
+                        if (split.Length != 2) throw new ArgumentException();
+
+                        EntryFunction = split[1];
+                        continue;
+                    }
+
+                    if (line.StartsWith(".align", StringComparison.Ordinal))
+                    {
+                        var split = line.Split(' ');
+                        if (split.Length != 2) throw new ArgumentException();
+
+                        Align = int.Parse(split[1]);
+                        continue;
                     }
                 }
 

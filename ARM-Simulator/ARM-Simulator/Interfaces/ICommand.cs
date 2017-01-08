@@ -8,7 +8,7 @@ namespace ARM_Simulator.Interfaces
         void Parse(string parameterString);
         void Execute(Core armCore);
         byte[] Encode();
-        int GetCommandSize();
+        int GetCommandSize(int align);
         void Link(Dictionary<string, int> commandTable, Dictionary<string, int> dataTable, int commandOffset);
     }
 }

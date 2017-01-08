@@ -81,12 +81,12 @@ namespace ARM_Simulator.Model.Commands
             Linked = true;
         }
 
-        public int GetCommandSize()
+        public int GetCommandSize(int align)
         {
-            if (Value.Length % 4 == 0)
+            if (Value.Length % (2 * align) == 0)
                 return Value.Length;
 
-            return Value.Length + (4 - Value.Length % 4);
+            return Value.Length + ((2 * align) - Value.Length % (2 * align));
         }
     }
 }

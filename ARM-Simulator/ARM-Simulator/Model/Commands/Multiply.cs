@@ -210,6 +210,6 @@ namespace ARM_Simulator.Model.Commands
             }
         }
 
-        public int GetCommandSize() => 4;
+        public int GetCommandSize(int align) => 2 * align;
     }
 }
