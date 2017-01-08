@@ -48,12 +48,16 @@ namespace ARM_Simulator.Model
 
             for (var i = 0; i < CommandList.Count; i++)
             {
-                var label = CommandTable.FirstOrDefault(x => x.Value == i).Key;
-                if (label != null)
+                for (var k = 0; k < CommandTable.Count; k++)
                 {
-                    CommandTable[label] = offset;
-                    if (label == entryFunction) EntryPoint = offset;
+                    var label = CommandTable.ElementAt(k);
+                    if (label.Value == i)
+                    {
+                        CommandTable[label.Key] = offset;
+                        if (label.Key == entryFunction) EntryPoint = offset;
+                    }
                 }
+
                 offset += Parser.ParseLine(CommandList[i]).GetCommandSize(_align);
             }
         }

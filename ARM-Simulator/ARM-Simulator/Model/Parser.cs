@@ -72,21 +72,23 @@ namespace ARM_Simulator.Model
                     continue;
 
                 // Check for sections
-                if (line.StartsWith(".", StringComparison.Ordinal) && line.Length > 4)
+                if (line.StartsWith(".", StringComparison.Ordinal))
                 {
-                    switch (line.Substring(1, 4))
+                    if (line.StartsWith(".text", StringComparison.Ordinal))
                     {
-                        case "text":
-                            currentSection = EFileSection.Text;
-                            continue;
-                        case "data":
-                            currentSection = EFileSection.Data;
-                            continue;
+                        currentSection = EFileSection.Text;
+                        continue;
+                    }
+
+                    if (line.StartsWith(".data", StringComparison.Ordinal))
+                    {
+                        currentSection = EFileSection.Data;
+                        continue;
                     }
 
                     if (line.StartsWith(".global", StringComparison.Ordinal) || line.StartsWith(".globl", StringComparison.Ordinal))
                     {
-                        var split = line.Split(' ');
+                        var split = line.Split(new []{ ' ', '\t'}, StringSplitOptions.RemoveEmptyEntries);
                         if (split.Length != 2) throw new ArgumentException();
 
                         EntryFunction = split[1];
@@ -95,11 +97,35 @@ namespace ARM_Simulator.Model
 
                     if (line.StartsWith(".align", StringComparison.Ordinal))
                     {
-                        var split = line.Split(' ');
+                        var split = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                         if (split.Length != 2) throw new ArgumentException();
 
                         Align = int.Parse(split[1]);
                         continue;
+                    }
+
+                    if (line.StartsWith(".type", StringComparison.Ordinal))
+                    {
+                        // TODO: Implement missing member
+                        continue;
+                    }
+
+                    if (line.StartsWith(".Lfe1", StringComparison.Ordinal))
+                    {
+                        // TODO: Implement missing member
+                        continue;
+                    }
+
+                    if (line.StartsWith(".size", StringComparison.Ordinal))
+                    {
+                        // TODO: Implement missing member
+                        continue;
+                    }
+
+                    if (line.Equals(".end", StringComparison.Ordinal))
+                    {
+                        // End of file
+                        return;
                     }
                 }
 
@@ -158,7 +184,7 @@ namespace ARM_Simulator.Model
 
             var lineSplit = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
             if (lineSplit.Length != 2)
-                throw new ArgumentException("Invalid Syntax (parameter count)");
+                throw new ArgumentException("Invalid Syntax (parameter count): " + line);
 
             var data = ParseDataDefinition(lineSplit[0], lineSplit[1]);
             if (data != null)
@@ -315,6 +341,18 @@ namespace ARM_Simulator.Model
         {
             if (cmdString.Length <= 2)
                 return null;
+
+            switch (cmdString.ToLower())
+            {
+                case "push":
+                    cmdString = "stm";
+                    parameterString = "sp!, " + parameterString;
+                    break;
+                case "pop":
+                    cmdString = "ldm";
+                    parameterString = "sp!, " + parameterString;
+                    break;
+            }
 
             var args = cmdString.Substring(3, cmdString.Length - 3).ToLower();
             cmdString = cmdString.Substring(0, 3).ToLower();
