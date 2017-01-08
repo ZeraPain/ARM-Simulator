@@ -24,8 +24,8 @@ namespace ARM_Simulator.UnitTests
         [TestMethod]
         public void TestCalculation()
         {
-            TestSimulator.TestCommand("mov r0, #0xFF, 8");
-            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R0), -16777216);
+            TestSimulator.TestCommand("mov r0, #0xFF, #0xc");
+            Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R0), 0xff00);
 
             TestSimulator.TestCommand("mov r0, #77");
             Assert.AreEqual(TestSimulator.ArmCore.GetRegValue(ERegister.R0), 77);
