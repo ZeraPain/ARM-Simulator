@@ -32,7 +32,7 @@ namespace ARM_Simulator.UnitTests
 
         protected byte GetConditionFlags()
         {
-            return (byte)((TestSimulator.ArmCore.GetCpsr() & 0xf0000000) >> 28);
+            return (byte)((TestSimulator.ArmCore.Cpsr & 0xf0000000) >> 28);
         }
     }
 }

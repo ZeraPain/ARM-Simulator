@@ -151,7 +151,8 @@ namespace ARM_Simulator.Model.Components
         // Used for Unit tests, skipped pipeline
         public void TestCommand([NotNull] ICommand command)
         {
-            var cmd = _decoder.Decode(Convert.ToInt32(command.Encode()));
+            var fetch = BitConverter.ToInt32(command.Encode(), 0);
+            var cmd = _decoder.Decode(fetch);
             cmd?.Execute(this);
         }
 
