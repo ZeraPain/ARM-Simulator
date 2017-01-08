@@ -231,7 +231,7 @@ namespace ARM_Simulator.Model
             }
             catch (ArgumentOutOfRangeException)
             {
-                throw new ArgumentOutOfRangeException("Invalid Parameter Size: " + commandLine);
+                throw new ArgumentOutOfRangeException("Parameter Size is out of Range: " + commandLine);
             }
             catch (ArgumentException)
             {

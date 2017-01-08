@@ -81,12 +81,32 @@ namespace ARM_Simulator.Model.Commands
             Decoded = true;
         }
 
-        private EOperand2 ParseOperand2(string operand2, string shiftValue)
+        private EOperand2 ParseOperand2([NotNull] string operand2, [CanBeNull] string shiftValue)
         {
             if (operand2.StartsWith("#", StringComparison.Ordinal)) // use immediate
             {
-                Immediate = Parser.ParseImmediate<byte>(operand2);
+                var value = Parser.ParseImmediate<uint>(operand2);
+                Immediate = (byte) value;
                 ShiftCount = 0;
+
+                if (value >= 256)
+                {
+                    if (!string.IsNullOrEmpty(shiftValue)) throw new ArgumentOutOfRangeException();
+
+                    for (var i = 2; i < 32; i += 2)
+                    {
+                        var tryValue = (value >> i) | (value << (32 - i));
+                        if (tryValue >= 256)
+                            continue;
+
+                        Immediate = (byte)tryValue;
+                        Rotate = (byte)((32 - i) / 2);
+                        return EOperand2.RotateImmediate;
+                    }
+
+                    throw new ArgumentOutOfRangeException();
+                }
+
                 if (string.IsNullOrEmpty(shiftValue)) return EOperand2.RotateImmediate;
 
                 Rotate = Parser.ParseImmediate<byte>(shiftValue);
@@ -249,7 +269,7 @@ namespace ARM_Simulator.Model.Commands
             return result;
         }
 
-        public void Execute(Core armCore)
+        public void Execute([NotNull] Core armCore)
         {
             if (!Decoded) throw new InvalidOperationException();
             if (!Helper.CheckConditions(Condition, armCore.Cpsr)) return;
@@ -261,7 +281,7 @@ namespace ARM_Simulator.Model.Commands
             {
                 case EOperand2.RotateImmediate:
                     value = Immediate;
-                    Helper.ShiftValue(ref value, EShiftInstruction.Ror, Rotate);
+                    Helper.ShiftValue(ref value, EShiftInstruction.Ror, (byte)(Rotate * 2));
                     break;
                 case EOperand2.ImmediateShiftRm:
                     value = armCore.GetRegValue(Rm);
