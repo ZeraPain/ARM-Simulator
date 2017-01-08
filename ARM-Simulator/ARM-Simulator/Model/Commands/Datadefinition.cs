@@ -15,7 +15,7 @@ namespace ARM_Simulator.Model.Commands
         protected int Value;
         protected bool Linked;
 
-        public Datadefinition(EDataSize dataSize, string parameterString)
+        public Datadefinition(EDataSize dataSize, [NotNull] string parameterString)
         {
             Linked = false;
             DataSize = dataSize;

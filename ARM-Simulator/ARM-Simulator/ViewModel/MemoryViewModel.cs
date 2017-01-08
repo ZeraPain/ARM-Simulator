@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Text;
-using System.Windows;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.ViewModel.Observables;
@@ -12,7 +10,7 @@ namespace ARM_Simulator.ViewModel
     internal class MemoryViewModel : ContextMenuHandler
     {
         public ObservableCollection<ObservableMemoryStream> MemoryView { get; protected set; }
-        
+
         private readonly Memory _memory;
 
         public MemoryViewModel(Memory memory)
@@ -24,7 +22,7 @@ namespace ARM_Simulator.ViewModel
             ContextMenuUpdate = UpdateMemoryView;
 
             MemoryView = new ObservableCollection<ObservableMemoryStream>();
-           
+
         }
 
         private void Update(object sender, [NotNull] PropertyChangedEventArgs e)
@@ -60,14 +58,20 @@ namespace ARM_Simulator.ViewModel
                     {
                         // Convert decimal number to ShowAsByte
                     }
- 
+
                     memoryOffset[k] = valueString;
 
                     //build string of Ascii symbols
-                    var asciiBytes = Encoding.ASCII.GetString(memoryDataBytes);
-                    ascii += asciiBytes+" ";
-                    
-                    
+                    foreach (var memoryDataByte in memoryDataBytes)
+                    {
+                        if (memoryDataByte > 31 && memoryDataByte < 127)
+                            ascii += (char) memoryDataByte;
+                        else
+                            ascii += ".";
+                    }
+                    /*var asciiBytes = Encoding.Default.GetString(memoryDataBytes);
+                    asciiBytes = Regex.Replace(asciiBytes, @"[^\u0000-\u007F]+", ".");
+                    ascii += asciiBytes+" ";*/
                 }
 
                 if (MemoryView.Count <= i)
@@ -78,6 +82,7 @@ namespace ARM_Simulator.ViewModel
                 {
                     MemoryView[i].BaseAddress = baseAddress;
                     MemoryView[i].MemoryOffset = memoryOffset;
+                    MemoryView[i].Ascii = ascii;
                 }
             }
         }

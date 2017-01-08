@@ -398,9 +398,9 @@ namespace ARM_Simulator.Model
             var multiplication = EMultiplication.None;
             if (cmdString.Length >= 3)
             {
-                if (!Enum.TryParse(cmdString.Substring(0, 3).ToLower(), true, out multiplication) && cmdString.Length >= 5)
+                if (!Enum.TryParse(cmdString.Substring(0, 3).ToLower(), true, out multiplication))
                 {
-                    if (!Enum.TryParse(cmdString.Substring(0, 5).ToLower(), true, out multiplication))
+                    if (cmdString.Length < 5 || !Enum.TryParse(cmdString.Substring(0, 5).ToLower(), true, out multiplication))
                         return null;
                 }
             }

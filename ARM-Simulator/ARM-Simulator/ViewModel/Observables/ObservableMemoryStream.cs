@@ -44,7 +44,7 @@ namespace ARM_Simulator.ViewModel.Observables
             {
                 if (_ascii == value) return;
                 _ascii = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(Ascii));
             }
         }
 

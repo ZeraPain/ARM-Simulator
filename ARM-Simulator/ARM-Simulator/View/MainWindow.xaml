@@ -218,7 +218,7 @@
             </ListView>
 
             <!-- Memory view -->
-            <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=MemoryVm.MemoryView}">
+            <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" ItemsSource="{Binding Path=MemoryVm.MemoryView}">
                 <ListView.Resources>
                     <Style TargetType="{x:Type ListViewItem}">
                         <Setter Property="Height" Value="20" />
