@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Model.Components;
 using ARM_Simulator.ViewModel.Observables;
@@ -56,7 +57,8 @@ namespace ARM_Simulator.ViewModel
                     if (ShowAsByte && ShowAsHexadecimal) valueString = BitConverter.ToString(memoryDataBytes).Replace("-"," ");
                     if (ShowAsByte && !ShowAsHexadecimal)
                     {
-                        // Convert decimal number to ShowAsByte
+                        //!?!
+                        valueString += memoryDataBytes[3]+" "+ memoryDataBytes[2]+" " + memoryDataBytes[1]+" " + memoryDataBytes[0];
                     }
 
                     memoryOffset[k] = valueString;
