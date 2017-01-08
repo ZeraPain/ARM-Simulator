@@ -17,12 +17,13 @@ namespace ARM_Simulator.Model
         }
 
         [NotNull]
-        public List<ObservableCommand> LoadFile(string path)
+        public List<ObservableCommand> LoadFile(string[] hLines)
         {
             ArmCore.Reset();
             Memory.Initialise();
 
-            var parser = new Parser(path);
+            var parser = new Parser();
+            parser.ParseFile(hLines);
             var linker = new Linker(Memory, parser);
 
             var commandList = linker.CompileAndLink();

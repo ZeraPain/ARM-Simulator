@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using ARM_Simulator.Annotations;
@@ -29,7 +28,7 @@ namespace ARM_Simulator.Model
             Comm
         }
 
-        public Parser(string path)
+        public Parser()
         {
             Align = 2;
             EntryFunction = null;
@@ -39,23 +38,20 @@ namespace ARM_Simulator.Model
 
             DataTable = new Dictionary<string, int>();
             DataList = new List<byte[]>();
-
-            ParseFile(path);
         }
 
-        private void ParseFile([CanBeNull] string path)
+        public void ParseFile([CanBeNull] string[] hLines)
         {
-            if (path == null) return;
+            if (hLines == null) return;
 
             CommandTable.Clear();
             CommandList.Clear();
             DataTable.Clear();
             DataList.Clear();
 
-            var hFile = File.ReadAllLines(path);
             var currentSection = EFileSection.Undefined;
 
-            foreach (var hLine in hFile)
+            foreach (var hLine in hLines)
             {
                 var line = hLine;
 

@@ -12,6 +12,7 @@ using System.Windows.Threading;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Commands;
 using ARM_Simulator.Model;
+using ARM_Simulator.Model.Components;
 using ARM_Simulator.Resources;
 using ARM_Simulator.View;
 using Microsoft.Win32;
@@ -151,10 +152,17 @@ namespace ARM_Simulator.ViewModel
 
         private void Run(object parameter)
         {
-            if (ErrorMessages.Any()) ErrorMessages.Clear();
+            var document = parameter as FlowDocument;
+            if (document == null) return;
+
+            ErrorMessages.Clear();
+
             try
             {
-                var cmdlist = ArmSimulator.LoadFile(_file);
+                var content = new TextRange(document.ContentStart, document.ContentEnd).Text
+                    .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
+
+                var cmdlist = ArmSimulator.LoadFile(content);
                 CoreVm.UpdateList(cmdlist);
                 DebugMode = true;
             }
@@ -198,15 +206,20 @@ namespace ARM_Simulator.ViewModel
 
         private void SyntaxCheck(object parameter)
         {
+            var document = parameter as FlowDocument;
+            if (document == null) return;
+
             ErrorMessages.Clear();
 
             try
             {
-                var parser = new Parser(_file);
-                foreach (var commandLine in parser.CommandList)
-                {
-                    Parser.ParseLine(commandLine);
-                }
+                var content = new TextRange(document.ContentStart, document.ContentEnd).Text
+                    .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
+
+                var parser = new Parser();
+                parser.ParseFile(content);
+                var linker = new Linker(new Memory(0x40000, 0x10000), parser);
+                linker.CompileAndLink();
 
                 MessageBox.Show("Everything seems to be correct!", "Syntax Check");
             }
