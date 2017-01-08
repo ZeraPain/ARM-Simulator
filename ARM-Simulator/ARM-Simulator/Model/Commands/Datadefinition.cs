@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
@@ -42,7 +43,7 @@ namespace ARM_Simulator.Model.Commands
                 case EDataSize.Ascii:
                     if (!parameterString.StartsWith("\"") || !parameterString.EndsWith("\"")) throw new ArgumentException();
 
-                    Value = Encoding.ASCII.GetBytes(parameterString.Substring(1, parameterString.Length - 2));
+                    Value = Encoding.UTF8.GetBytes(Regex.Unescape(parameterString.Substring(1, parameterString.Length - 2)));
                     Linked = true;
                     break;
                 case EDataSize.Asciiz:

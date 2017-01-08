@@ -3,19 +3,23 @@
 .text
 xptr:
 	.word X
+	.byte 0x04
 	.asciiz "Hello, World!"
 	mov r0, #4
 main:
 	mov r1, #2
 	mov r2, #1
 	mov r3, #3
-	mov r4, #100
+	mov r4, #0x80
 	str r2, [r4]
 	ldr r7, main
 	ldr r5, xptr
 	ldr r6, [r5]
+	ldr r8, zptr
+	ldr r9, [r8]
 	sub r6, r6, #1
 	str r6, [r5]
+	.ascii "\0"
 
 L1:	add r2, r2, r1
 	sub r3, r3, r1

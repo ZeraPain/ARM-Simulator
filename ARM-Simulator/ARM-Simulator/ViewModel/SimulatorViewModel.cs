@@ -151,7 +151,6 @@ namespace ARM_Simulator.ViewModel
 
         private void Run(object parameter)
         {
-
             if (ErrorMessages.Any()) ErrorMessages.Clear();
             try
             {
