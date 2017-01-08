@@ -180,7 +180,7 @@ namespace ARM_Simulator.Model.Commands
             Linked = true;
         }
 
-        public int Encode()
+        public byte[] Encode()
         {
             if (!Decoded || !Linked) throw new InvalidOperationException();
 

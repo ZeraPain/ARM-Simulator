@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ARM_Simulator.Annotations;
+using ARM_Simulator.Interfaces;
 using ARM_Simulator.Model.Components;
 
 namespace ARM_Simulator.Model
@@ -54,12 +57,24 @@ namespace ARM_Simulator.Model
                         var commandLine = CommandList[i];
                         var command = Parser.ParseLine(commandLine);
                         command.Link(CommandTable, DataTable, i);
-                        binaryWriter.Write(command.Encode());
+                        binaryWriter.Write(GenerateBytes(command));
                     }
 
                     Ram.WriteTextSection(memoryStream.ToArray());
                 }
             }
+        }
+
+        [NotNull]
+        private static byte[] GenerateBytes([NotNull] ICommand command)
+        {
+            var encCommand = command.Encode();
+            if (encCommand.Length % 4 == 0)
+                return encCommand;
+
+            var retEncCommand = new byte[encCommand.Length + (4 - encCommand.Length % 4)]; // make sure that we write words (align 2)
+            Array.Copy(encCommand, 0, retEncCommand, 0, encCommand.Length);
+            return retEncCommand;
         }
 
         private void CompileAndLinkDataSection()

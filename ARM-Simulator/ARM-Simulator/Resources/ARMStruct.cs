@@ -39,8 +39,10 @@
 
     public enum EDataSize
     {
-        Word = 0,
-        Byte = 1
+        Word,
+        Byte,
+        Ascii,
+        Asciiz
     }
 
     public enum EJump

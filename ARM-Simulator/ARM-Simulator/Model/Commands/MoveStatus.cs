@@ -17,7 +17,7 @@ namespace ARM_Simulator.Model.Commands
             throw new NotImplementedException();
         }
 
-        public int Encode()
+        public byte[] Encode()
         {
             throw new NotImplementedException();
         }

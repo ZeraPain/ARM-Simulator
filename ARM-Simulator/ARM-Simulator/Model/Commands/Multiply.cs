@@ -108,7 +108,7 @@ namespace ARM_Simulator.Model.Commands
             Decoded = true;
         }
 
-        public int Encode()
+        public byte[] Encode()
         {
             if (!Decoded) throw new InvalidOperationException();
 

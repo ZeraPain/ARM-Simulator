@@ -23,6 +23,7 @@ L1:	add r2, r2, r1
 	beq main
 	b L1
 
+	.asciiz "Hello, World!"
 yptr:
 	.word Y
 zptr:

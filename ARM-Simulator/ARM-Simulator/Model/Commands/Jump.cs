@@ -46,7 +46,7 @@ namespace ARM_Simulator.Model.Commands
 
         public void Parse(string parameterString)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public void Execute([NotNull] Core armCore)
@@ -71,7 +71,7 @@ namespace ARM_Simulator.Model.Commands
             }
         }
 
-        public int Encode()
+        public byte[] Encode()
         {
             if (!Linked) throw new InvalidOperationException();
 

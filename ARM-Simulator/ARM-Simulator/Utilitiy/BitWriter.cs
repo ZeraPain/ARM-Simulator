@@ -1,4 +1,6 @@
-﻿namespace ARM_Simulator.Utilitiy
+﻿using System;
+
+namespace ARM_Simulator.Utilitiy
 {
     internal class BitWriter
     {
@@ -19,9 +21,6 @@
             }
         }
 
-        public int GetValue()
-        {
-            return _bitValue;
-        }
+        public byte[] GetValue() => BitConverter.GetBytes(_bitValue);
     }
 }

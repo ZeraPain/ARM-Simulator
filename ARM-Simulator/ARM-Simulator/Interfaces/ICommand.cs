@@ -7,7 +7,7 @@ namespace ARM_Simulator.Interfaces
     {
         void Parse(string parameterString);
         void Execute(Core armCore);
-        int Encode();
+        byte[] Encode();
         void Link(Dictionary<string, int> commandTable, Dictionary<string, int> dataTable, int commandOffset);
     }
 }
