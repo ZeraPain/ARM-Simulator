@@ -199,7 +199,8 @@ namespace ARM_Simulator.ViewModel
 
         private void SyntaxCheck(object parameter)
         {
-            if(ErrorMessages.Any()) ErrorMessages.Clear();
+            ErrorMessages.Clear();
+
             try
             {
                 var parser = new Parser(_file);
@@ -207,6 +208,8 @@ namespace ARM_Simulator.ViewModel
                 {
                     Parser.ParseLine(commandLine);
                 }
+
+                MessageBox.Show("Everything seems to be correct!", "Syntax Check");
             }
             catch (Exception ex)
             {

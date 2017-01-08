@@ -79,8 +79,8 @@ namespace ARM_Simulator.Model.Components
         {
             if (address < 0) throw new ArgumentException("Cannot find entry point (main function)");
 
-            Registers[ERegister.Pc] = address;
-            SetPipelineStatus(EPipeline.Fetch, Registers[ERegister.Pc]);
+            SetRegValue(ERegister.Pc, address);
+            SetPipelineStatus(EPipeline.Fetch, address);
         }
 
         private void SetPipelineStatus(EPipeline status, int value)
