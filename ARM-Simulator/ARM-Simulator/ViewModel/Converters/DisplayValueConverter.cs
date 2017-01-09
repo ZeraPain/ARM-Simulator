@@ -22,10 +22,29 @@ namespace ARM_Simulator.ViewModel.Converters
             var memoryDataBytes = new byte[4];
             Array.Copy(memStream, index * 4, memoryDataBytes, 0, 4);
 
-            var valueString = BitConverter.ToUInt32(memoryDataBytes, 0).ToString();
-            if (MemoryViewModel.StaticShowAsHexadecimal) valueString = "0x" + BitConverter.ToUInt32(memoryDataBytes, 0).ToString("X8");
-            if (MemoryViewModel.StaticShowAsByte && MemoryViewModel.StaticShowAsHexadecimal) valueString = BitConverter.ToString(memoryDataBytes).Replace("-", " ");
-            if (MemoryViewModel.StaticShowAsByte && !MemoryViewModel.StaticShowAsHexadecimal) valueString = memoryDataBytes.Aggregate("", (current, memoryDataByte) => current + memoryDataByte.ToString() + " ");
+            string valueString;
+
+            if (MemoryViewModel.StaticShowAsHexadecimal)
+            {
+                valueString = MemoryViewModel.StaticShowAsByte
+                    ? BitConverter.ToString(memoryDataBytes).Replace("-", " ")
+                    : "0x" + BitConverter.ToUInt32(memoryDataBytes, 0).ToString("X8");
+            }
+            else
+            {
+                if (MemoryViewModel.StaticShowAsByte)
+                {
+                    valueString = MemoryViewModel.StaticShowAsSigned
+                        ? memoryDataBytes.Aggregate("", (current, memoryDataByte) => current + ((sbyte) memoryDataByte).ToString() + " ")
+                        : memoryDataBytes.Aggregate("", (current, memoryDataByte) => current + memoryDataByte.ToString() + " ");
+                }
+                else
+                {
+                    valueString = MemoryViewModel.StaticShowAsSigned
+                        ? BitConverter.ToInt32(memoryDataBytes, 0).ToString()
+                        : BitConverter.ToUInt32(memoryDataBytes, 0).ToString();
+                }
+            }
 
             return valueString;
         }

@@ -11,6 +11,7 @@ namespace ARM_Simulator.ViewModel
     {
         public static bool StaticShowAsHexadecimal;
         public static bool StaticShowAsByte;
+        public static bool StaticShowAsSigned;
 
         public ObservableCollection<ObservableMemoryStream> MemoryView { get; protected set; }
         private readonly Memory _memory;
@@ -35,6 +36,16 @@ namespace ARM_Simulator.ViewModel
             }
         }
 
+        public bool ShowAsSigned
+        {
+            get { return StaticShowAsSigned; }
+            set
+            {
+                StaticShowAsSigned = value;
+                UpdateMemoryView();
+            }
+        }
+
         public MemoryViewModel(Memory memory)
         {
             _memory = memory;
@@ -44,6 +55,7 @@ namespace ARM_Simulator.ViewModel
             MemoryView = new ObservableCollection<ObservableMemoryStream>();
 
             ShowAsHexadecimal = true;
+            ShowAsSigned = false;
             ShowAsByte = false;
         }
 

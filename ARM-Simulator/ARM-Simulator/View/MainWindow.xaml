@@ -86,15 +86,22 @@
                         <RibbonButton Label="Remove" LargeImageSource="/Resources/Images/removeBP.png" Width="auto" Height="auto" Command="{Binding Path=CoreVm.RemoveBreakpointsCommand}" />
                     </StackPanel>
                 </RibbonGroup>
-                <RibbonGroup Header="Memory View Style">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Orientation="Vertical">
-                            <RadioButton GroupName="NumberStyleMemory" Content="Dec  " IsChecked="{Binding MemoryVm.ShowAsHexadecimal, Converter={StaticResource BoolInverter}}" />
-                            <RadioButton GroupName="NumberStyleMemory" Content="Hex  " IsChecked="{Binding MemoryVm.ShowAsHexadecimal}" />
-                        </StackPanel>
-                        <StackPanel Orientation="Vertical">
-                            <RadioButton GroupName="DataTypeMemory" Content="Word" IsChecked="{Binding Path=MemoryVm.ShowAsByte, Converter={StaticResource BoolInverter}}" />
-                            <RadioButton GroupName="DataTypeMemory" Content="Byte" IsChecked="{Binding Path=MemoryVm.ShowAsByte}" />
+                <RibbonGroup Header="Memory View">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="Display Numberic Type" Margin="0,5,0,5"/>
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Vertical" Margin="0,0,5,0">
+                                <RadioButton GroupName="NumberStyleMemory" Content="Dec" IsChecked="{Binding MemoryVm.ShowAsHexadecimal, Converter={StaticResource BoolInverter}}" />
+                                <RadioButton GroupName="NumberStyleMemory" Content="Hex" IsChecked="{Binding MemoryVm.ShowAsHexadecimal}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="0,0,5,0">
+                                <RadioButton GroupName="DataTypeMemory" Content="Word " IsChecked="{Binding Path=MemoryVm.ShowAsByte, Converter={StaticResource BoolInverter}}" />
+                                <RadioButton GroupName="DataTypeMemory" Content="Byte " IsChecked="{Binding Path=MemoryVm.ShowAsByte}" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <RadioButton GroupName="SignedMemory" Content="Unsigned" IsChecked="{Binding Path=MemoryVm.ShowAsSigned, Converter={StaticResource BoolInverter}}" />
+                                <RadioButton GroupName="SignedMemory" Content="Signed" IsChecked="{Binding Path=MemoryVm.ShowAsSigned}" />
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </RibbonGroup>
@@ -240,7 +247,7 @@
                     <DataGridTextColumn Header="0x14" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='5'}"/>
                     <DataGridTextColumn Header="0x18" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='6'}"/>
                     <DataGridTextColumn Header="0x1C" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='7'}"/>
-                    <DataGridTextColumn Header="ASCII" Width="auto" Binding="{Binding MemoryBytes, Converter={StaticResource ByteArrayToAsciiConverter}}" IsReadOnly="True" />
+                    <DataGridTextColumn Header="ASCII" Width="80*" Binding="{Binding MemoryBytes, Converter={StaticResource ByteArrayToAsciiConverter}}" IsReadOnly="True" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
