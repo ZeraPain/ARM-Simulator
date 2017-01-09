@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:ARM_Simulator.ViewModel"
         mc:Ignorable="d"
         x:Class="ARM_Simulator.View.MainWindow"
-        Closing="OnClosing"
         Title="{Binding File, Converter={StaticResource TitleConverter}}" 
         Width="900"
         Height="700"

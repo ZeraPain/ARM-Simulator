@@ -26,13 +26,7 @@ namespace ARM_Simulator.View
             InitializeComponent();
             _viewModel = DataContext as SimulatorViewModel;
             _viewModel?.LoadFile("../../Resources/source.S", RichTextBoxEditor.Document);
-        }
-
-        private void OnClosing(object sender, CancelEventArgs e)
-        {
-            SavingDialog();
-            _viewModel?.Stop(null);
-            Application.Current.Shutdown();
+            if (_viewModel != null) Closing += _viewModel.OnClosing;
         }
 
         private void ListViewCode_MouseDoubleClick(object sender, MouseButtonEventArgs e)

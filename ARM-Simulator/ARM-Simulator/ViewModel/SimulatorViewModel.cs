@@ -218,7 +218,14 @@ namespace ARM_Simulator.ViewModel
             _running = false;
         }
 
-        private static void Exit(object parameter) => Application.Current.Shutdown();
+        public void Exit(object parameter) => OnClosing(null, null);
+
+        public void OnClosing(object sender, CancelEventArgs e)
+        {
+            //SavingDialog();
+            Stop(null);
+            Application.Current.Shutdown();
+        }
 
         private void SyntaxCheck(object parameter)
         {
