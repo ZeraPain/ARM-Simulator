@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using ARM_Simulator.Annotations;
 
@@ -7,50 +6,31 @@ namespace ARM_Simulator.ViewModel.Observables
 {
     public class ObservableMemoryStream : INotifyPropertyChanged
     {
-        private string _baseAddress;
-        public string BaseAddress
+        private uint _baseAddress;
+        public uint BaseAddress
         {
-            get
-            {
-                return _baseAddress;
-            }
+            get { return _baseAddress; }
             set
             {
-                if (_baseAddress == value) return;
                 _baseAddress = value;
                 OnPropertyChanged(nameof(BaseAddress));
             }
         }
 
-        private string[] _memoryOffset;
-
-        public string[] MemoryOffset
+        private byte[] _memoryBytes;
+        public byte[] MemoryBytes
         {
-            get { return _memoryOffset; }
+            get { return _memoryBytes; }
             set
             {
-                if (_memoryOffset.SequenceEqual(value)) return;
-                _memoryOffset = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _ascii;
-
-        public string Ascii
-        {
-            get { return _ascii; }
-            set
-            {
-                if (_ascii == value) return;
-                _ascii = value;
-                OnPropertyChanged(nameof(Ascii));
+                _memoryBytes = value;
+                OnPropertyChanged(nameof(MemoryBytes));
             }
         }
 
         public ObservableMemoryStream()
         {
-            _memoryOffset = new string[8];
+            _memoryBytes = new byte[32];
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

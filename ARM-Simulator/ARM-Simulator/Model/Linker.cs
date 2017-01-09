@@ -86,7 +86,7 @@ namespace ARM_Simulator.Model
                         var observableCommand = new ObservableCommand
                         {
                             Status = EntryPoint == offset ? EPipeline.Fetch : EPipeline.None,
-                            Address = offset,
+                            Address = (uint)offset,
                             Breakpoint = false,
                             Commandline = t
                         };

@@ -4,15 +4,25 @@ using System.Windows.Data;
 
 namespace ARM_Simulator.ViewModel.Converters
 {
-    internal class AddressConverter : IValueConverter
+    internal class ByteArrayToAsciiConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var address = value as int?;
-            if (address == null)
+            var memBytes = value as byte[];
+            if (memBytes == null)
                 return null;
 
-            return "0x" + ((int)address).ToString("X4");
+            var ascii = "";
+
+            foreach (var memByte in memBytes)
+            {
+                if (memByte > 31 && memByte < 127)
+                    ascii += (char)memByte;
+                else
+                    ascii += ".";
+            }
+
+            return ascii;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

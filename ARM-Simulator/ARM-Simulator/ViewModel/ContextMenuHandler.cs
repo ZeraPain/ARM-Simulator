@@ -11,7 +11,6 @@
             get { return _showAsHexadecimal; }
             set
             {
-                if (_showAsHexadecimal == value) return;
                 _showAsHexadecimal = value;
                 ContextMenuUpdate?.Invoke();
             }
@@ -23,7 +22,6 @@
             get { return _showAsUnsigned; }
             set
             {
-                if (_showAsUnsigned == value) return;
                 _showAsUnsigned = value;
                 ContextMenuUpdate?.Invoke();
             }
@@ -35,7 +33,7 @@
             get { return _showAsByte; }
             set
             {
-                if (_showAsByte == value) return;
+ 
                 _showAsByte = value;
                 ContextMenuUpdate?.Invoke();
             }
@@ -43,9 +41,9 @@
 
         protected ContextMenuHandler()
         {
-            _showAsHexadecimal = true;
-            _showAsUnsigned = true;
-            _showAsByte = false;
+            ShowAsHexadecimal = true;
+            ShowAsUnsigned = true;
+            ShowAsByte = false;
         }
     }
 }

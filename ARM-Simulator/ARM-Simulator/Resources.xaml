@@ -8,7 +8,9 @@
     <converters:StatusTextConverter x:Key="StatusTextConverter" />
     <converters:TitleConverter x:Key="TitleConverter" />
     <converters:BoolInverter x:Key="BoolInverter" />
-    <converters:AddressConverter x:Key="AddressConverter" />
-    
-    
+    <converters:UintToHexConverter x:Key="UintToHexConverter" />
+    <converters:ByteArrayToAsciiConverter x:Key="ByteArrayToAsciiConverter" />
+    <converters:DisplayValueConverter x:Key="DisplayValueConverter" />
+
+
 </ResourceDictionary>

@@ -60,7 +60,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ViewModel\Converters\AddressConverter.cs" />
+    <Compile Include="ViewModel\Converters\DisplayValueConverter.cs" />
+    <Compile Include="ViewModel\Converters\UintToHexConverter.cs" />
+    <Compile Include="ViewModel\Converters\ByteArrayToAsciiConverter.cs" />
     <Compile Include="View\ShowBreakpoints.xaml.cs">
       <DependentUpon>ShowBreakpoints.xaml</DependentUpon>
     </Compile>
@@ -99,7 +101,6 @@
     <Compile Include="ViewModel\ContextMenuHandler.cs" />
     <Compile Include="ViewModel\Converters\BoolInverter.cs" />
     <Compile Include="ViewModel\Converters\BreakpointConverter.cs" />
-    <Compile Include="ViewModel\Converters\MemoryStringConverter.cs" />
     <Compile Include="ViewModel\Converters\StatusConverter.cs" />
     <Compile Include="ViewModel\Converters\StatusTextConverter.cs" />
     <Compile Include="ViewModel\Converters\TitleConverter.cs" />

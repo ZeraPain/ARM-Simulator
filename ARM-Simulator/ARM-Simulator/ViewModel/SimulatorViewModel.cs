@@ -24,6 +24,7 @@ namespace ARM_Simulator.ViewModel
         private bool _running;
         private Thread _runThread;
         private ShowBreakpoints _subWindow;
+        private string[] _programCode;
 
         public ObservableCollection<string> ErrorMessages { get; protected set; }
 
@@ -60,6 +61,7 @@ namespace ARM_Simulator.ViewModel
         public ICommand LoadFileCommand { get; protected set; }
 
         public ICommand RunCommand { get; protected set; }
+        public ICommand RestartCommand { get; protected set; }
         public ICommand StopCommand { get; protected set; }
         public ICommand TickCommand { get; protected set; }
         public ICommand ContinueCommand { get; protected set; }
@@ -81,6 +83,7 @@ namespace ARM_Simulator.ViewModel
             LoadFileCommand = new DelegateCommand(LoadFileDialog);
             StopCommand = new DelegateCommand(Stop);
             RunCommand = new DelegateCommand(Run);
+            RestartCommand = new DelegateCommand(Restart);
             TickCommand = new DelegateCommand(Tick);
             ContinueCommand = new DelegateCommand(Continue);
             PauseCommand = new DelegateCommand(Pause);
@@ -150,19 +153,19 @@ namespace ARM_Simulator.ViewModel
             System.IO.File.WriteAllLines(File, content);
         }
 
-        private void Run(object parameter)
+        private void Start()
         {
-            var document = parameter as FlowDocument;
-            if (document == null) return;
-
             ErrorMessages.Clear();
+
+            if (_programCode == null)
+            {
+                ErrorMessages.Add("No program was loaded!");
+                return;
+            }
 
             try
             {
-                var content = new TextRange(document.ContentStart, document.ContentEnd).Text
-                    .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
-
-                var cmdlist = ArmSimulator.LoadFile(content);
+                var cmdlist = ArmSimulator.LoadFile(_programCode);
                 CoreVm.UpdateList(cmdlist);
                 DebugMode = true;
             }
@@ -171,6 +174,17 @@ namespace ARM_Simulator.ViewModel
                 ErrorMessages.Add(ex.Message);
             }
         }
+
+        private void Run(object parameter)
+        {
+            var document = parameter as FlowDocument;
+            if (document == null) return;
+
+            _programCode = new TextRange(document.ContentStart, document.ContentEnd).Text.TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
+            Start();
+        }
+
+        private void Restart(object parameter) => Start();
 
         private void Stop(object parameter)
         {

@@ -1,10 +1,15 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using ARM_Simulator.Annotations;
+using ARM_Simulator.Model;
 using ARM_Simulator.ViewModel;
+using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.View
 {
@@ -64,6 +69,28 @@ namespace ARM_Simulator.View
             if ((e.Key == Key.S) && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
                 _viewModel.SaveFile(RichTextBoxEditor.Document);
+            }
+        }
+
+        private void DataGrid_OnCellEditEnding(object sender, [NotNull] DataGridCellEditEndingEventArgs e)
+        {
+            var cell = e.EditingElement as TextBox;
+            var row = cell?.DataContext as ObservableMemoryStream;
+            if (row == null)
+                return;
+
+            try
+            {
+                var index = e.Column.DisplayIndex;
+
+                var address = (uint) (row.BaseAddress + (index - 1) * 4);
+                var newValue = Parser.ParseImmediate<uint>(cell.Text);
+
+                _viewModel.ArmSimulator.Memory.WriteUint(address, newValue);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, ex.Source);
             }
         }
     }

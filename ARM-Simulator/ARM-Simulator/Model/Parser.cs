@@ -549,6 +549,12 @@ namespace ARM_Simulator.Model
                 return (T)Convert.ChangeType(value, typeof(T));
             }
 
+            if (parameter.StartsWith("0x", StringComparison.Ordinal))
+            {
+                var value = long.Parse(parameter.Substring(2), System.Globalization.NumberStyles.HexNumber);
+                return (T)Convert.ChangeType(value, typeof(T));
+            }
+
             if (parameter.StartsWith("#", StringComparison.Ordinal))
                 parameter = parameter.Substring(1);
 

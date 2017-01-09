@@ -32,10 +32,10 @@
 
             <RibbonTab Header="Editor" Margin="0,0,0,8">
                 <RibbonGroup >
-                    <RibbonButton  Label="Run" LargeImageSource="/Resources/Images/run.png" Width="auto" Height="auto" Command="{Binding Path=RunCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
+                    <RibbonButton Label="Run" LargeImageSource="/Resources/Images/run.png" Width="auto" Height="auto" Command="{Binding Path=RunCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                 </RibbonGroup>
                 <RibbonGroup >
-                    <RibbonButton   Label="Save" LargeImageSource="/Resources/Images/save.png" Width="auto" Height="auto" Command="{Binding Path=SaveFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
+                    <RibbonButton Label="Save" LargeImageSource="/Resources/Images/save.png" Width="auto" Height="auto" Command="{Binding Path=SaveFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                 </RibbonGroup>
                 <RibbonGroup Header="Extras">
                     <RibbonButton Label="Syntax" LargeImageSource="/Resources/Images/check.png" Width="auto" Height="auto" Command="{Binding SyntaxCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}"/>
@@ -55,7 +55,7 @@
             </Ribbon.ApplicationMenu>
             <RibbonTab Header="Debug" Margin="0,0,0,8"  >
                 <RibbonGroup Header="Runtime">
-                    <RibbonButton  Label="Restart"  LargeImageSource="/Resources/Images/restart.png" Width="auto" Height="auto" Command="{Binding Path=RunCommand}" />
+                    <RibbonButton Label="Restart"  LargeImageSource="/Resources/Images/restart.png" Width="auto" Height="auto" Command="{Binding Path=RestartCommand}" />
                     <RibbonButton Label="Stop" LargeImageSource="/Resources/Images/stop.png" Width="auto" Height="auto" Command="{Binding Path=StopCommand}" />
                     <RibbonButton Label="Tick" LargeImageSource="/Resources/Images/tick.png" Width="auto" Height="auto" Command="{Binding Path=TickCommand}" />
                     <RibbonButton Label="Continue" LargeImageSource="/Resources/Images/continue.png" Width="auto" Height="auto" Command="{Binding Path=ContinueCommand}" />
@@ -68,22 +68,34 @@
                                 <TextBlock Text="Fetch     " Foreground="Black"  FontWeight="Bold" Background="LawnGreen" />
                             </CheckBox.Content>
                         </CheckBox>
-                       <CheckBox HorizontalAlignment="Left"  Height="18"  IsChecked="{Binding Path=CoreVm.DisplayDecode}">
+                        <CheckBox HorizontalAlignment="Left"  Height="18"  IsChecked="{Binding Path=CoreVm.DisplayDecode}">
                             <CheckBox.Content>
                                 <TextBlock Text="Decode " Foreground="Black"  FontWeight="Bold" Background="Yellow" />
                             </CheckBox.Content>
-                            </CheckBox>
-                            <CheckBox HorizontalAlignment="Left" Height="18" IsChecked="{Binding Path=CoreVm.DisplayExecute}">
+                        </CheckBox>
+                        <CheckBox HorizontalAlignment="Left" Height="18" IsChecked="{Binding Path=CoreVm.DisplayExecute}">
                             <CheckBox.Content>
                                 <TextBlock Text="Execute " Foreground="Black"  FontWeight="Bold" Background="OrangeRed" />
                             </CheckBox.Content>
-                            </CheckBox>
+                        </CheckBox>
                     </StackPanel>
                 </RibbonGroup>
                 <RibbonGroup x:Name="OptionGrouppoints" Header="Breakpoints">
                     <StackPanel Orientation="Horizontal">
-                        <RibbonButton  Label="Show"  LargeImageSource="/Resources/Images/showBP.png"  Width="auto" Height="auto" Command="{Binding Path=ShowBreakpointsCommand}" />
-                        <RibbonButton  Label="Remove" LargeImageSource="/Resources/Images/removeBP.png" Width="auto" Height="auto" Command="{Binding Path=CoreVm.RemoveBreakpointsCommand}" />
+                        <RibbonButton Label="Show"  LargeImageSource="/Resources/Images/showBP.png"  Width="auto" Height="auto" Command="{Binding Path=ShowBreakpointsCommand}" />
+                        <RibbonButton Label="Remove" LargeImageSource="/Resources/Images/removeBP.png" Width="auto" Height="auto" Command="{Binding Path=CoreVm.RemoveBreakpointsCommand}" />
+                    </StackPanel>
+                </RibbonGroup>
+                <RibbonGroup Header="Memory View Style">
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Vertical">
+                            <RadioButton GroupName="NumberStyleMemory" Content="Dec  " IsChecked="{Binding MemoryVm.ShowAsHexadecimal, Converter={StaticResource BoolInverter}}" />
+                            <RadioButton GroupName="NumberStyleMemory" Content="Hex  " IsChecked="{Binding MemoryVm.ShowAsHexadecimal}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <RadioButton GroupName="DataTypeMemory" Content="Word" IsChecked="{Binding Path=MemoryVm.ShowAsByte, Converter={StaticResource BoolInverter}}" />
+                            <RadioButton GroupName="DataTypeMemory" Content="Byte" IsChecked="{Binding Path=MemoryVm.ShowAsByte}" />
+                        </StackPanel>
                     </StackPanel>
                 </RibbonGroup>
             </RibbonTab>
@@ -125,7 +137,7 @@
                     </Style>
                 </RichTextBox.Resources>
             </RichTextBox>
-            
+
             <!-- Output Window for Error Message -->
             <ListView x:Name="ListViewLog" Grid.Row="1" ItemsSource="{Binding ErrorMessages}">
                 <ListView.Resources>
@@ -146,10 +158,9 @@
 
         <!-- This is only visible while debugging a file -->
         <Grid Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Debugger'}">
-
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/> 
-               <RowDefinition Height="150" />
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="150" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -176,7 +187,7 @@
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="BP" Width="20" DisplayMemberBinding="{Binding Breakpoint, Converter={StaticResource BreakpointConverter}}"/>
-                        <GridViewColumn Header="Address" Width="50" DisplayMemberBinding="{Binding Address, Converter={StaticResource AddressConverter}}"/>
+                        <GridViewColumn Header="Address" Width="50" DisplayMemberBinding="{Binding Address, Converter={StaticResource UintToHexConverter}, ConverterParameter='X4'}"/>
                         <GridViewColumn Header="Label" Width="70" DisplayMemberBinding="{Binding Label}"/>
                         <GridViewColumn Header="Code" Width="auto" DisplayMemberBinding="{Binding Commandline}" />
                     </GridView>
@@ -218,296 +229,20 @@
             </ListView>
 
             <!-- Memory view -->
-            <ListView x:Name="ListViewMemory" Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" ItemsSource="{Binding Path=MemoryVm.MemoryView}">
-                <ListView.Resources>
-                    <Style TargetType="{x:Type ListViewItem}">
-                        <Setter Property="Height" Value="20" />
-                    </Style>
-                </ListView.Resources>
-                <ListView.ContextMenu>
-                    <ContextMenu>
-                        <Separator/>
-                        <TextBlock Text="Number System"/>
-                        <Separator/>
-                        <RadioButton GroupName="Number System" Content="decimal" IsChecked="{Binding Path=MemoryVm.ShowAsHexadecimal, Converter={StaticResource BoolInverter}}" />
-                        <RadioButton GroupName="Number System" Content="hexadecimal" IsChecked="{Binding Path=MemoryVm.ShowAsHexadecimal}"/>
-                        <TextBlock Text="Data Type"/>
-                        <Separator/>
-                        <RadioButton GroupName="Data Type" Content="word" IsChecked="{Binding Path=MemoryVm.ShowAsByte, Converter={StaticResource BoolInverter}}"/>
-                        <RadioButton GroupName="Data Type" Content="byte" IsChecked="{Binding Path=MemoryVm.ShowAsByte}"/>
-                    </ContextMenu>
-                </ListView.ContextMenu>
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Address" Width="80" DisplayMemberBinding="{Binding BaseAddress}"/>
-                        <GridViewColumn Header="0x00" Width="78" DisplayMemberBinding="{Binding MemoryOffset[0]}"/>
-                        <GridViewColumn Header="0x04" Width="78" DisplayMemberBinding="{Binding MemoryOffset[1]}"/>
-                        <GridViewColumn Header="0x08" Width="78" DisplayMemberBinding="{Binding MemoryOffset[2]}"/>
-                        <GridViewColumn Header="0x0C" Width="78" DisplayMemberBinding="{Binding MemoryOffset[3]}"/>
-                        <GridViewColumn Header="0x10" Width="78" DisplayMemberBinding="{Binding MemoryOffset[4]}"/>
-                        <GridViewColumn Header="0x14" Width="78" DisplayMemberBinding="{Binding MemoryOffset[5]}"/>
-                        <GridViewColumn Header="0x18" Width="78" DisplayMemberBinding="{Binding MemoryOffset[6]}"/>
-                        <GridViewColumn Header="0x1C" Width="78" DisplayMemberBinding="{Binding MemoryOffset[7]}"/>
-                        <GridViewColumn Header="ASCII" Width="auto" DisplayMemberBinding="{Binding Ascii}" />
-                    </GridView>
-                </ListView.View>
-            </ListView>
-
+            <DataGrid Grid.Row="1" CellEditEnding="DataGrid_OnCellEditEnding" Grid.ColumnSpan="2" Grid.Column="0" ItemsSource="{Binding Path=MemoryVm.MemoryView}" AutoGenerateColumns="False" CanUserReorderColumns="False" SelectionUnit="Cell">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Address" Width="80" Binding="{Binding BaseAddress, Converter={StaticResource UintToHexConverter}}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="0x00" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='0'}"/>
+                    <DataGridTextColumn Header="0x04" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='1'}"/>
+                    <DataGridTextColumn Header="0x08" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='2'}"/>
+                    <DataGridTextColumn Header="0x0C" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='3'}"/>
+                    <DataGridTextColumn Header="0x10" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='4'}"/>
+                    <DataGridTextColumn Header="0x14" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='5'}"/>
+                    <DataGridTextColumn Header="0x18" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='6'}"/>
+                    <DataGridTextColumn Header="0x1C" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='7'}"/>
+                    <DataGridTextColumn Header="ASCII" Width="auto" Binding="{Binding MemoryBytes, Converter={StaticResource ByteArrayToAsciiConverter}}" IsReadOnly="True" />
+                </DataGrid.Columns>
+            </DataGrid>
         </Grid>
     </DockPanel>
 </RibbonWindow>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

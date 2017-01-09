@@ -45,6 +45,7 @@ namespace ARM_Simulator.Model.Components
         public void WriteDataSection(byte[] data) => Write(DataSectionStart, data);
 
         public void WriteInt(uint address, int data) => Write(address, BitConverter.GetBytes(data));
+        public void WriteUint(uint address, uint data) => Write(address, BitConverter.GetBytes(data));
 
         public void WriteByte(uint address, byte data) => Write(address, BitConverter.GetBytes(data));
 
