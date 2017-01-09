@@ -39,7 +39,7 @@
                 </RibbonGroup>
                 <RibbonGroup Header="Extras">
                     <RibbonButton Label="Syntax" LargeImageSource="/Resources/Images/check.png" Width="auto" Height="auto" Command="{Binding SyntaxCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}"/>
-                    <Separator></Separator>
+                    <Separator/>
                     <CheckBox Content="Allow Unsafe Code" Height="18"  IsChecked="{Binding ArmSimulator.Memory.AllowUnsafeCode}" />
                 </RibbonGroup>
             </RibbonTab>
@@ -88,19 +88,20 @@
                 </RibbonGroup>
                 <RibbonGroup Header="Memory View">
                     <StackPanel Orientation="Vertical">
-                        <TextBlock Text="Display Numberic Type" Margin="0,5,0,5"/>
+                        <TextBlock Text="Display Numeric Type" Margin="0,5,0,5" HorizontalAlignment="Center"/>
+                        <Separator/>
                         <StackPanel Orientation="Horizontal">
                             <StackPanel Orientation="Vertical" Margin="0,0,5,0">
-                                <RadioButton GroupName="NumberStyleMemory" Content="Dec" IsChecked="{Binding MemoryVm.ShowAsHexadecimal, Converter={StaticResource BoolInverter}}" />
-                                <RadioButton GroupName="NumberStyleMemory" Content="Hex" IsChecked="{Binding MemoryVm.ShowAsHexadecimal}" />
+                                <RadioButton GroupName="NumberStyleMemory" Content="Dec     " FontSize="11"  IsChecked="{Binding MemoryVm.ShowAsHexadecimal, Converter={StaticResource BoolInverter}}"/>
+                                <RadioButton GroupName="NumberStyleMemory" Content="Hex     "  FontSize="11"  IsChecked="{Binding MemoryVm.ShowAsHexadecimal}" />
                             </StackPanel>
                             <StackPanel Orientation="Vertical" Margin="0,0,5,0">
-                                <RadioButton GroupName="DataTypeMemory" Content="Word " IsChecked="{Binding Path=MemoryVm.ShowAsByte, Converter={StaticResource BoolInverter}}" />
-                                <RadioButton GroupName="DataTypeMemory" Content="Byte " IsChecked="{Binding Path=MemoryVm.ShowAsByte}" />
+                                <RadioButton GroupName="DataTypeMemory" Content="Word    "  FontSize="11" IsChecked="{Binding Path=MemoryVm.ShowAsByte, Converter={StaticResource BoolInverter}}" />
+                                <RadioButton GroupName="DataTypeMemory" Content="Byte    " FontSize="11" IsChecked="{Binding Path=MemoryVm.ShowAsByte}" />
                             </StackPanel>
                             <StackPanel Orientation="Vertical">
-                                <RadioButton GroupName="SignedMemory" Content="Unsigned" IsChecked="{Binding Path=MemoryVm.ShowAsSigned, Converter={StaticResource BoolInverter}}" />
-                                <RadioButton GroupName="SignedMemory" Content="Signed" IsChecked="{Binding Path=MemoryVm.ShowAsSigned}" />
+                                <RadioButton GroupName="SignedMemory" Content="Unsigned" FontSize="11"  IsChecked="{Binding Path=MemoryVm.ShowAsSigned, Converter={StaticResource BoolInverter}}" />
+                                <RadioButton GroupName="SignedMemory" Content="Signed  " FontSize="11" IsChecked="{Binding Path=MemoryVm.ShowAsSigned}" />
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -134,7 +135,7 @@
         <Grid Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
-                <RowDefinition Height="120" />
+                <RowDefinition Height="60" />
             </Grid.RowDefinitions>
 
             <RichTextBox AcceptsReturn="True" x:Name="RichTextBoxEditor" Grid.Row="0" AcceptsTab="True" KeyDown="RichTextBoxEditor_OnKeyDown">
@@ -230,7 +231,7 @@
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Register" Width="Auto" DisplayMemberBinding="{Binding Name}"/>
-                        <GridViewColumn Header="Value" Width="76" DisplayMemberBinding="{Binding Value}"/>
+                        <GridViewColumn Header="Value" Width="85" DisplayMemberBinding="{Binding Value}"/>
                     </GridView>
                 </ListView.View>
             </ListView>
