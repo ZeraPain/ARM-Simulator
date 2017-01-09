@@ -29,7 +29,7 @@
             </ListView.Resources>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Command" Width="auto" DisplayMemberBinding="{Binding  Commandline}"/>
+                    <GridViewColumn Header="Command" Width="150" DisplayMemberBinding="{Binding  Commandline}"/>
                 </GridView>
             </ListView.View>
         </ListView>
