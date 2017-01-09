@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -82,11 +83,47 @@ namespace ARM_Simulator.View
             try
             {
                 var index = e.Column.DisplayIndex;
-
                 var address = (uint) (row.BaseAddress + (index - 1) * 4);
-                var newValue = Parser.ParseImmediate<uint>(cell.Text);
 
-                _viewModel.ArmSimulator.Memory.WriteUint(address, newValue);
+                if (_viewModel.MemoryVm.ShowAsByte)
+                {
+                    var newValue = new byte[4];
+                    var split = cell.Text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (split.Length > 4) throw new ArgumentException();
+
+                    for (var i = split.Length - 1; i >= 0; i--)
+                    {
+                        if (_viewModel.MemoryVm.ShowAsSigned)
+                        {
+                            if (_viewModel.MemoryVm.ShowAsHexadecimal)
+                                newValue[i] = (byte) sbyte.Parse(split[i], NumberStyles.HexNumber);
+                            else
+                                newValue[i] = (byte) sbyte.Parse(split[i]);
+                        }
+                        else
+                        {
+                            if (_viewModel.MemoryVm.ShowAsHexadecimal)
+                                newValue[i] = byte.Parse(split[i], NumberStyles.HexNumber);
+                            else
+                                newValue[i] = byte.Parse(split[i]);
+                        }
+                    }
+
+                    _viewModel.ArmSimulator.Memory.Write(address, newValue);
+                }
+                else
+                {
+                    if (_viewModel.MemoryVm.ShowAsSigned)
+                    {
+                        var newValue = Parser.ParseImmediate<int>(cell.Text);
+                        _viewModel.ArmSimulator.Memory.WriteInt(address, newValue);
+                    }
+                    else
+                    {
+                        var newValue = Parser.ParseImmediate<uint>(cell.Text);
+                        _viewModel.ArmSimulator.Memory.WriteUint(address, newValue);
+                    }
+                }
             }
             catch (Exception ex)
             {
