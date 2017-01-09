@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -220,9 +221,31 @@ namespace ARM_Simulator.ViewModel
 
         private void Exit(object parameter)
         {
-            //SavingDialog();
+            SavingDialog(parameter);
             Stop(null);
             Application.Current.Shutdown();
+        }
+
+        private void SavingDialog(object parameter)
+        {
+            var document = parameter as FlowDocument;
+            if (document == null) return;
+
+            var content = new TextRange(document.ContentStart, document.ContentEnd).Text
+                    .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
+
+            if (!System.IO.File.ReadAllLines(File).SequenceEqual(content))
+            {
+                var result = MessageBox.Show("Do you want to save your changes?", "Save File", MessageBoxButton.YesNo);
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        SaveFile(document);
+                        break;
+                    case MessageBoxResult.No:
+                        break;
+                }
+            }
         }
 
         private void SyntaxCheck(object parameter)

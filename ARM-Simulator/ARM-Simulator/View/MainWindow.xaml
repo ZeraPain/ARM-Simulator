@@ -16,7 +16,7 @@
     
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
-            <i:InvokeCommandAction Command="{Binding Path=ExitCommand}" />
+            <i:InvokeCommandAction Command="{Binding Path=ExitCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
     
@@ -57,7 +57,7 @@
             <!-- Application Menu -->
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
-                    <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}"/>
+                    <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
             <RibbonTab Header="Debugger" Margin="0,0,0,8"  >

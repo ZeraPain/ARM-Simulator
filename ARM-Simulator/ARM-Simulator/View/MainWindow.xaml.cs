@@ -1,11 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Model;
@@ -40,25 +36,6 @@ namespace ARM_Simulator.View
                 return;
 
             _viewModel.CoreVm.ToggleBreakPoint(observableCommand.Address);
-        }
-
-        private void SavingDialog()
-        {
-            var content = new TextRange(RichTextBoxEditor.Document.ContentStart, RichTextBoxEditor.Document.ContentEnd).Text
-                    .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
-
-            if (_viewModel.File == null || !File.ReadAllLines(_viewModel.File).SequenceEqual(content))
-            {
-                var result = MessageBox.Show("Do you want to save your changes?", "Save File", MessageBoxButton.YesNo);
-                switch (result)
-                {
-                    case MessageBoxResult.Yes:
-                        _viewModel.SaveFile(RichTextBoxEditor.Document);
-                        break;
-                    case MessageBoxResult.No:
-                        break;
-                }
-            }
         }
 
         private void RichTextBoxEditor_OnKeyDown(object sender, [NotNull] KeyEventArgs e)
