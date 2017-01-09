@@ -219,7 +219,30 @@ namespace ARM_Simulator.ViewModel
             _running = false;
         }
 
-        private static void Exit(object parameter) => Application.Current.Shutdown();
+        private  void Exit(object parameter)
+        {
+            var document = parameter as FlowDocument;
+            if (document == null) return;
+
+            var content = new TextRange(document.ContentStart, document.ContentEnd).Text
+                       .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
+
+            if (File == null || !System.IO.File.ReadAllLines(File).SequenceEqual(content))
+            {
+                var result = MessageBox.Show("Do you want to save your changes?", "Save File", MessageBoxButton.YesNo);
+
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        SaveFile(document);
+                        
+                        break;
+                    case MessageBoxResult.No:
+                        break;
+                }
+            }
+            Application.Current.Shutdown();
+        } 
 
         private void SyntaxCheck(object parameter)
         {
