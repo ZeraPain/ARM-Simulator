@@ -186,10 +186,13 @@ namespace ARM_Simulator.ViewModel
 
         private void Restart(object parameter) => Start();
 
-        private void Stop(object parameter)
+        public void Stop(object parameter)
         {
             if (!DebugMode) return;
             _running = false;
+
+            if (_runThread?.IsAlive == true)
+                _runThread.Abort();
 
             DebugMode = false;
         }

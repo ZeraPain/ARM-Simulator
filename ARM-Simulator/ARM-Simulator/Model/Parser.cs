@@ -106,7 +106,7 @@ namespace ARM_Simulator.Model
                         continue;
                     }
 
-                    if (line.StartsWith(".Lfe1", StringComparison.Ordinal))
+                    if (line.StartsWith(".Lfe", StringComparison.Ordinal))
                     {
                         // TODO: Implement missing member
                         continue;
@@ -561,6 +561,7 @@ namespace ARM_Simulator.Model
             return (T)Convert.ChangeType(long.Parse(parameter), typeof(T));
         }
 
+
         public static bool ParseShiftInstruction(string parameter, ref EShiftInstruction shiftInst, ref byte shiftCount, ref ERegister rs)
         {
             if (parameter.Length < 4)
@@ -570,15 +571,14 @@ namespace ARM_Simulator.Model
                 throw new ArgumentException("Invalid Shiftinstruction");
 
             parameter = parameter.Substring(3, parameter.Length - 3);
-            if (!Enum.TryParse(parameter, true, out rs))
-            {
-                shiftCount = ParseImmediate<byte>(parameter);
-                if (shiftCount > 64) throw new ArgumentOutOfRangeException();
 
-                return false;
-            }
+            if (Enum.TryParse(parameter, true, out rs))
+                return true;
 
-            return true;
+            shiftCount = ParseImmediate<byte>(parameter);
+            if (shiftCount > 64) throw new ArgumentOutOfRangeException();
+
+            return false;
         }
 
         public static void ParseShiftInstruction(string parameter, ref EShiftInstruction shiftInst, ref byte shiftCount)

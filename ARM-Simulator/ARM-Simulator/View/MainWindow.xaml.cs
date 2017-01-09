@@ -31,7 +31,7 @@ namespace ARM_Simulator.View
         private void OnClosing(object sender, CancelEventArgs e)
         {
             SavingDialog();
-            //this closes all Windows of the Application
+            _viewModel?.Stop(null);
             Application.Current.Shutdown();
         }
 
