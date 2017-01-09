@@ -218,9 +218,7 @@ namespace ARM_Simulator.ViewModel
             _running = false;
         }
 
-        public void Exit(object parameter) => OnClosing(null, null);
-
-        public void OnClosing(object sender, CancelEventArgs e)
+        private void Exit(object parameter)
         {
             //SavingDialog();
             Stop(null);

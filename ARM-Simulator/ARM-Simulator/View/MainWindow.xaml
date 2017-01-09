@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ARM_Simulator.ViewModel"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         mc:Ignorable="d"
         x:Class="ARM_Simulator.View.MainWindow"
         Title="{Binding File, Converter={StaticResource TitleConverter}}" 
@@ -12,11 +13,18 @@
         ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen"
         Icon="/Resources/Images/Icon.png">
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding Path=ExitCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
     <RibbonWindow.DataContext>
         <local:SimulatorViewModel/>
     </RibbonWindow.DataContext>
+    
     <DockPanel LastChildFill="True">
-
         <!-- This Ribbon Editor Menu is only visible while editing a file -->
         <Ribbon DockPanel.Dock="Top" Height="130" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">
             <!-- Application Menu -->
