@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -13,7 +12,6 @@ using ARM_Simulator.Annotations;
 using ARM_Simulator.Commands;
 using ARM_Simulator.Model;
 using ARM_Simulator.Model.Components;
-using ARM_Simulator.Resources;
 using ARM_Simulator.View;
 using Microsoft.Win32;
 
@@ -194,6 +192,7 @@ namespace ARM_Simulator.ViewModel
             if (_runThread?.IsAlive == true)
                 _runThread.Abort();
 
+            _programCode = null;
             DebugMode = false;
         }
 
@@ -219,30 +218,14 @@ namespace ARM_Simulator.ViewModel
             _running = false;
         }
 
-        private  void Exit(object parameter)
+        public void Exit(object parameter) => OnClosing(null, null);
+
+        public void OnClosing(object sender, CancelEventArgs e)
         {
-            var document = parameter as FlowDocument;
-            if (document == null) return;
-
-            var content = new TextRange(document.ContentStart, document.ContentEnd).Text
-                       .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
-
-            if (File == null || !System.IO.File.ReadAllLines(File).SequenceEqual(content))
-            {
-                var result = MessageBox.Show("Do you want to save your changes?", "Save File", MessageBoxButton.YesNo);
-
-                switch (result)
-                {
-                    case MessageBoxResult.Yes:
-                        SaveFile(document);
-                        
-                        break;
-                    case MessageBoxResult.No:
-                        break;
-                }
-            }
+            //SavingDialog();
+            Stop(null);
             Application.Current.Shutdown();
-        } 
+        }
 
         private void SyntaxCheck(object parameter)
         {
@@ -279,15 +262,9 @@ namespace ARM_Simulator.ViewModel
                     (Action)(() =>
                     {
                         success = CoreVm.ArmCore.Tick();
-                        if (IsBreakPoint()) _running = false;
+                        if (CoreVm.IsBreakPoint()) _running = false;
                     }));
             }
-        }
-
-        private bool IsBreakPoint()
-        {
-            var pogramCounter = CoreVm.ArmCore.PipelineStatus[EPipeline.Execute];
-            return CoreVm.CommandList.Where((cmd, index) => cmd.Breakpoint && index*4 == pogramCounter).Any();
         }
 
         private void ShowBreakpoints(object parameter)

@@ -26,24 +26,21 @@ namespace ARM_Simulator.View
             InitializeComponent();
             _viewModel = DataContext as SimulatorViewModel;
             _viewModel?.LoadFile("../../Resources/source.S", RichTextBoxEditor.Document);
-        }
-
-        private void OnClosing(object sender, CancelEventArgs e)
-        {
-            SavingDialog();
-            _viewModel?.Stop(null);
-            Application.Current.Shutdown();
+            if (_viewModel != null) Closing += _viewModel.OnClosing;
         }
 
         private void ListViewCode_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (_viewModel == null) return;
+            var listView = sender as ListView;
 
-            var index = ListViewCode.SelectedIndex;
-            if ((index < 0) || (index >= ListViewCode.Items.Count))
+            if (_viewModel == null || listView == null)
                 return;
 
-            _viewModel.CoreVm.ToggleBreakPoint(index);
+            var observableCommand = listView.SelectedItem as ObservableCommand;
+            if (observableCommand == null)
+                return;
+
+            _viewModel.CoreVm.ToggleBreakPoint(observableCommand.Address);
         }
 
         private void SavingDialog()
@@ -65,7 +62,7 @@ namespace ARM_Simulator.View
             }
         }
 
-        private void RichTextBoxEditor_OnKeyDown(object sender, KeyEventArgs e)
+        private void RichTextBoxEditor_OnKeyDown(object sender, [NotNull] KeyEventArgs e)
         {
             if ((e.Key == Key.S) && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
@@ -95,17 +92,15 @@ namespace ARM_Simulator.View
                     {
                         if (_viewModel.MemoryVm.ShowAsSigned)
                         {
-                            if (_viewModel.MemoryVm.ShowAsHexadecimal)
-                                newValue[i] = (byte) sbyte.Parse(split[i], NumberStyles.HexNumber);
-                            else
-                                newValue[i] = (byte) sbyte.Parse(split[i]);
+                            newValue[i] = _viewModel.MemoryVm.ShowAsHexadecimal
+                                ? (byte)sbyte.Parse(split[i], NumberStyles.HexNumber)
+                                : (byte)sbyte.Parse(split[i]);
                         }
                         else
                         {
-                            if (_viewModel.MemoryVm.ShowAsHexadecimal)
-                                newValue[i] = byte.Parse(split[i], NumberStyles.HexNumber);
-                            else
-                                newValue[i] = byte.Parse(split[i]);
+                            newValue[i] = _viewModel.MemoryVm.ShowAsHexadecimal
+                                ? byte.Parse(split[i], NumberStyles.HexNumber)
+                                : byte.Parse(split[i]);
                         }
                     }
 
