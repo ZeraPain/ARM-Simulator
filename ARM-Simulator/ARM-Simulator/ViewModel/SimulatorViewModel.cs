@@ -192,6 +192,7 @@ namespace ARM_Simulator.ViewModel
             if (_runThread?.IsAlive == true)
                 _runThread.Abort();
 
+            _programCode = null;
             DebugMode = false;
         }
 

@@ -68,7 +68,7 @@ namespace ARM_Simulator.View
             }
         }
 
-        private void RichTextBoxEditor_OnKeyDown(object sender, KeyEventArgs e)
+        private void RichTextBoxEditor_OnKeyDown(object sender, [NotNull] KeyEventArgs e)
         {
             if ((e.Key == Key.S) && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
@@ -98,17 +98,15 @@ namespace ARM_Simulator.View
                     {
                         if (_viewModel.MemoryVm.ShowAsSigned)
                         {
-                            if (_viewModel.MemoryVm.ShowAsHexadecimal)
-                                newValue[i] = (byte) sbyte.Parse(split[i], NumberStyles.HexNumber);
-                            else
-                                newValue[i] = (byte) sbyte.Parse(split[i]);
+                            newValue[i] = _viewModel.MemoryVm.ShowAsHexadecimal
+                                ? (byte)sbyte.Parse(split[i], NumberStyles.HexNumber)
+                                : (byte)sbyte.Parse(split[i]);
                         }
                         else
                         {
-                            if (_viewModel.MemoryVm.ShowAsHexadecimal)
-                                newValue[i] = byte.Parse(split[i], NumberStyles.HexNumber);
-                            else
-                                newValue[i] = byte.Parse(split[i]);
+                            newValue[i] = _viewModel.MemoryVm.ShowAsHexadecimal
+                                ? byte.Parse(split[i], NumberStyles.HexNumber)
+                                : byte.Parse(split[i]);
                         }
                     }
 
