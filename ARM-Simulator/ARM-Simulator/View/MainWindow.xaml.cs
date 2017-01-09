@@ -37,13 +37,16 @@ namespace ARM_Simulator.View
 
         private void ListViewCode_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (_viewModel == null) return;
+            var listView = sender as ListView;
 
-            var index = ListViewCode.SelectedIndex;
-            if ((index < 0) || (index >= ListViewCode.Items.Count))
+            if (_viewModel == null || listView == null)
                 return;
 
-            _viewModel.CoreVm.ToggleBreakPoint(index);
+            var observableCommand = listView.SelectedItem as ObservableCommand;
+            if (observableCommand == null)
+                return;
+
+            _viewModel.CoreVm.ToggleBreakPoint(observableCommand.Address);
         }
 
         private void SavingDialog()

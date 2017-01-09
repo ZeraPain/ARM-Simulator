@@ -143,15 +143,15 @@ namespace ARM_Simulator.ViewModel
                 CommandList.Add(x);
         }
 
-        public void ToggleBreakPoint(object parameter)
+        public void ToggleBreakPoint(uint address)
         {
-            var index = parameter as int?;
+            foreach (var command in CommandList.Where(command => command.Address == address))
+                command.Breakpoint = !command.Breakpoint;
 
-            if ((index >= 0) && (index < CommandList.Count))
-                CommandList[(int)index].Breakpoint = !CommandList[(int)index].Breakpoint;
- 
             UpdateShowBreakpoints();
         }
+
+        public bool IsBreakPoint() => CommandList.Any(command => command.Address == ArmCore.PipelineStatus[EPipeline.Execute] && command.Breakpoint);
 
         private void RemoveBreakpoints(object parameter)
         {

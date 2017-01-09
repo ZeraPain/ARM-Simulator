@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
@@ -13,7 +12,6 @@ using ARM_Simulator.Annotations;
 using ARM_Simulator.Commands;
 using ARM_Simulator.Model;
 using ARM_Simulator.Model.Components;
-using ARM_Simulator.Resources;
 using ARM_Simulator.View;
 using Microsoft.Win32;
 
@@ -256,15 +254,9 @@ namespace ARM_Simulator.ViewModel
                     (Action)(() =>
                     {
                         success = CoreVm.ArmCore.Tick();
-                        if (IsBreakPoint()) _running = false;
+                        if (CoreVm.IsBreakPoint()) _running = false;
                     }));
             }
-        }
-
-        private bool IsBreakPoint()
-        {
-            var pogramCounter = CoreVm.ArmCore.PipelineStatus[EPipeline.Execute];
-            return CoreVm.CommandList.Where((cmd, index) => cmd.Breakpoint && index*4 == pogramCounter).Any();
         }
 
         private void ShowBreakpoints(object parameter)
