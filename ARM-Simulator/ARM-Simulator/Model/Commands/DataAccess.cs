@@ -234,7 +234,7 @@ namespace ARM_Simulator.Model.Commands
         public void Execute([NotNull] Core armCore)
         {
             if (!Decoded || !Linked) throw new InvalidOperationException();
-            if (!Helper.CheckConditions(Condition, armCore.Cpsr)) return;
+            if (!Helper.CheckConditions(Condition, armCore.GetRegValue(ERegister.Cpsr))) return;
 
             int value;
 

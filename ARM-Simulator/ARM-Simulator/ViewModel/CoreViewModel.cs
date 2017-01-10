@@ -11,12 +11,11 @@ using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.ViewModel
 {
-    public class CoreViewModel : ContextMenuHandler
+    public class CoreViewModel
     {
         public ObservableCollection<ObservableCommand> CommandList { get; set; }
-        public ObservableCollection<ObservableRegister> RegisterList { get; set; }
 
-        public Core ArmCore { get; set; }
+        public Core Core { get; protected set; }
 
         public bool DisplayFetch { get; set; }
         public bool DisplayDecode { get; set; }
@@ -26,73 +25,40 @@ namespace ARM_Simulator.ViewModel
 
         public CoreViewModel(Core core)
         {
-            ArmCore = core;
-            ArmCore.PropertyChanged += Update;
-            RegisterList = new ObservableCollection<ObservableRegister>();
+            Core = core;
+            Core.PropertyChanged += Update;
             CommandList = new ObservableCollection<ObservableCommand>();
 
             DisplayFetch = true;
             DisplayDecode = true;
             DisplayExecute = true;
 
-            ContextMenuUpdate = UpdateRegisterList;
-
             RemoveBreakpointsCommand = new DelegateCommand(RemoveBreakpoints);
-
-            InitRegisterList();
         }
 
-        private void Update(object sender, [NotNull] PropertyChangedEventArgs e)
+        public void Update(object sender, [CanBeNull] PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Registers")
-                UpdateRegisterList();
-            else if (e.PropertyName == "PipelineStatus")
-                UpdatePipelineStatus();
-        }
+            var property = e?.PropertyName;
 
-        private void InitRegisterList()
-        {
-            for (var i = 0; i < ArmCore.Registers.Count; i++)
+            switch (property)
             {
-                var register = ArmCore.Registers.ElementAt(i);
-                RegisterList.Add(new ObservableRegister { Name = register.Key.ToString(), Value = register.Value.ToString() });
+                case nameof(Core.PipelineStatus):
+                    UpdatePipelineStatus();
+                    break;
+                case nameof(Core.RegisterList):
+                    //UpdateRegisterList();
+                    break;
+                default:
+                    UpdatePipelineStatus();
+                    UpdateRegisterList();
+                    break;
             }
-
-            RegisterList.Add(new ObservableRegister() { Name = "CPSR", Value = ArmCore.Cpsr.ToString()});
         }
 
         private void UpdateRegisterList()
         {
-            for (var i = 0; i < ArmCore.Registers.Count; i++)
-            {
-                var register = ArmCore.Registers.ElementAt(i);
-                var value = register.Value;
-                if (ShowAsByte) value = (byte) value;
-
-                var valueString = value.ToString();
-                if (ShowAsUnsigned) valueString = ((uint)value).ToString();
-                if (ShowAsHexadecimal) valueString = "0x" + value.ToString("X");
-
-                if (RegisterList.Any(reg => reg.Name == register.Key.ToString()))
-                    RegisterList[i].Value = valueString;
-                else
-                    RegisterList.Add(new ObservableRegister { Name = register.Key.ToString(), Value = valueString });
-            }
-
-            foreach (var register in RegisterList)
-            {
-                if (register.Name == "CPSR")
-                {
-                    var value = ArmCore.Cpsr;
-                    if (ShowAsByte) value = (byte)value;
-
-                    var valueString = value.ToString();
-                    if (ShowAsUnsigned) valueString = ((uint)value).ToString();
-                    if (ShowAsHexadecimal) valueString = "0x" + value.ToString("X");
-
-                    register.Value = valueString;
-                }
-            }
+            foreach (var register in Core.RegisterList)
+                register.Value = register.Value;
         }
 
         private void UpdatePipelineStatus()
@@ -100,7 +66,7 @@ namespace ARM_Simulator.ViewModel
             foreach (var t in CommandList)
                 t.Status = EPipeline.None;
 
-            var status = ArmCore.PipelineStatus;
+            var status = Core.PipelineStatus;
             foreach (var x in status.Where(x => x.Value >= 0))
             {
                 switch (x.Key)
@@ -137,7 +103,7 @@ namespace ARM_Simulator.ViewModel
                 command.Breakpoint = !command.Breakpoint;
         }
 
-        public bool IsBreakPoint() => CommandList.Any(command => command.Address == ArmCore.PipelineStatus[EPipeline.Execute] && command.Breakpoint);
+        public bool IsBreakPoint() => CommandList.Any(command => command.Address == Core.PipelineStatus[EPipeline.Execute] && command.Breakpoint);
 
         private void RemoveBreakpoints(object parameter)
         {

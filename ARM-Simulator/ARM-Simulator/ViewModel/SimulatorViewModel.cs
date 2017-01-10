@@ -20,6 +20,10 @@ namespace ARM_Simulator.ViewModel
 {
     internal class SimulatorViewModel : INotifyPropertyChanged
     {
+        public static bool StaticShowAsHexadecimal;
+        public static bool StaticShowAsByte;
+        public static bool StaticShowAsSigned;
+
         private bool _running;
         private Thread _runThread;
         private ShowBreakpoints _subWindow;
@@ -48,6 +52,39 @@ namespace ARM_Simulator.ViewModel
                 if (_debugmode == value) return;
                 _debugmode = value;
                 OnPropertyChanged();
+            }
+        }
+
+        public bool ShowAsHexadecimal
+        {
+            get { return StaticShowAsHexadecimal; }
+            set
+            {
+                StaticShowAsHexadecimal = value;
+                MemoryVm.Update(this, null);
+                CoreVm.Update(this, null);
+            }
+        }
+
+        public bool ShowAsByte
+        {
+            get { return StaticShowAsByte; }
+            set
+            {
+                StaticShowAsByte = value;
+                MemoryVm.Update(this, null);
+                CoreVm.Update(this, null);
+            }
+        }
+
+        public bool ShowAsSigned
+        {
+            get { return StaticShowAsSigned; }
+            set
+            {
+                StaticShowAsSigned = value;
+                MemoryVm.Update(this, null);
+                CoreVm.Update(this, null);
             }
         }
 
@@ -91,6 +128,10 @@ namespace ARM_Simulator.ViewModel
             ShowBreakpointsCommand = new DelegateCommand(ShowBreakpoints);
 
             ErrorMessages = new ObservableCollection<string>();
+
+            ShowAsHexadecimal = true;
+            ShowAsSigned = false;
+            ShowAsByte = false;
         }
 
         private void NewFile(object parameter)
@@ -201,7 +242,7 @@ namespace ARM_Simulator.ViewModel
         {
             if (!DebugMode) return;
 
-            CoreVm.ArmCore.Tick();
+            CoreVm.Core.Tick();
         }
 
         private void Continue(object paramter)
@@ -278,11 +319,9 @@ namespace ARM_Simulator.ViewModel
             var success = true;
             while (_running && success)
             {
-                Application.Current.Dispatcher.Invoke(
-                    DispatcherPriority.Background,
-                    (Action)(() =>
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, (Action)(() =>
                     {
-                        success = CoreVm.ArmCore.Tick();
+                        success = CoreVm.Core.Tick();
                         if (CoreVm.IsBreakPoint()) _running = false;
                     }));
             }

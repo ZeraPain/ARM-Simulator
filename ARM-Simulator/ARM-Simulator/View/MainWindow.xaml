@@ -111,22 +111,20 @@
                         <RibbonButton Label="Remove" LargeImageSource="/Resources/Images/removeBP.png" Width="auto" Height="auto" Command="{Binding Path=CoreVm.RemoveBreakpointsCommand}" />
                     </StackPanel>
                 </RibbonGroup>
-                <RibbonGroup Header="Memory View">
+                <RibbonGroup Header="Display Numeric Type">
                     <StackPanel Orientation="Vertical">
-                        <TextBlock Text="Display Numeric Type" Margin="0,5,0,5" HorizontalAlignment="Center"/>
-                        <Separator/>
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
                             <StackPanel Orientation="Vertical" Margin="0,0,5,0" Width="50">
-                                <RadioButton GroupName="NumberStyleMemory" Content="Dec" FontSize="11"  IsChecked="{Binding MemoryVm.ShowAsHexadecimal, Converter={StaticResource BoolInverter}}"/>
-                                <RadioButton GroupName="NumberStyleMemory" Content="Hex"  FontSize="11"  IsChecked="{Binding MemoryVm.ShowAsHexadecimal}" />
+                                <RadioButton GroupName="NumberStyleMemory" Content="Dec" FontSize="11"  IsChecked="{Binding Path=ShowAsHexadecimal, Converter={StaticResource BoolInverter}}"/>
+                                <RadioButton GroupName="NumberStyleMemory" Content="Hex"  FontSize="11"  IsChecked="{Binding Path=ShowAsHexadecimal}" />
                             </StackPanel>
                             <StackPanel Orientation="Vertical" Margin="0,0,5,0" Width="60">
-                                <RadioButton GroupName="DataTypeMemory" Content="Word"  FontSize="11" IsChecked="{Binding Path=MemoryVm.ShowAsByte, Converter={StaticResource BoolInverter}}" />
-                                <RadioButton GroupName="DataTypeMemory" Content="Byte" FontSize="11" IsChecked="{Binding Path=MemoryVm.ShowAsByte}" />
+                                <RadioButton GroupName="DataTypeMemory" Content="Word"  FontSize="11" IsChecked="{Binding Path=ShowAsByte, Converter={StaticResource BoolInverter}}" />
+                                <RadioButton GroupName="DataTypeMemory" Content="Byte" FontSize="11" IsChecked="{Binding Path=ShowAsByte}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical" Width="80">
-                                <RadioButton GroupName="SignedMemory" Content="Unsigned" FontSize="11"  IsChecked="{Binding Path=MemoryVm.ShowAsSigned, Converter={StaticResource BoolInverter}}" />
-                                <RadioButton GroupName="SignedMemory" Content="Signed" FontSize="11" IsChecked="{Binding Path=MemoryVm.ShowAsSigned}" />
+                            <StackPanel Orientation="Vertical" Width="70">
+                                <RadioButton GroupName="SignedMemory" Content="Unsigned" FontSize="11"  IsChecked="{Binding Path=ShowAsSigned, Converter={StaticResource BoolInverter}}" />
+                                <RadioButton GroupName="SignedMemory" Content="Signed" FontSize="11" IsChecked="{Binding Path=ShowAsSigned}" />
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -228,51 +226,25 @@
             </ListView>
 
             <!-- Register view -->
-            <ListView Grid.Row="0" Grid.Column="1" x:Name="ListViewRegister" ItemsSource="{Binding Path=CoreVm.RegisterList}">
-                <ListView.Resources>
-                    <Style TargetType="{x:Type ListViewItem}">
-                        <Setter Property="Height" Value="20" />
-                    </Style>
-                </ListView.Resources>
-                <ListView.ContextMenu>
-                    <ContextMenu>
-                        <Separator/>
-                        <TextBlock Text="Number System"/>
-                        <Separator/>
-                        <RadioButton GroupName="Number System" Content="decimal" IsChecked="{Binding Path=CoreVm.ShowAsHexadecimal, Converter={StaticResource BoolInverter}}" />
-                        <RadioButton GroupName="Number System" Content="hexadecimal" IsChecked="{Binding Path=CoreVm.ShowAsHexadecimal}" />
-                        <Separator/>
-                        <TextBlock Text="Signedness"/>
-                        <Separator/>
-                        <RadioButton GroupName="Signedness" Content="signed" IsChecked="{Binding Path=CoreVm.ShowAsUnsigned, Converter={StaticResource BoolInverter}}" />
-                        <RadioButton GroupName="Signedness" Content="unsigned" IsChecked="{Binding Path=CoreVm.ShowAsUnsigned}" />
-                        <Separator/>
-                        <TextBlock Text="Data Type"/>
-                        <Separator/>
-                        <RadioButton GroupName="Data Type" Content="word" IsChecked="{Binding Path=CoreVm.ShowAsByte, Converter={StaticResource BoolInverter}}" />
-                        <RadioButton GroupName="Data Type" Content="byte" IsChecked="{Binding Path=CoreVm.ShowAsByte}" />
-                    </ContextMenu>
-                </ListView.ContextMenu>
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Register" Width="Auto" DisplayMemberBinding="{Binding Name}"/>
-                        <GridViewColumn Header="Value" Width="85" DisplayMemberBinding="{Binding Value}"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
-
+            <DataGrid Grid.Row="0" Grid.Column="1" ItemsSource="{Binding Path=ArmSimulator.ArmCore.RegisterList}" AutoGenerateColumns="False" CanUserReorderColumns="False" SelectionUnit="Cell" CanUserAddRows="False" GridLinesVisibility="None" RowHeight="20">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Register" Width="auto" Binding="{Binding Register}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Value" Width="80*" Binding="{Binding Value, Converter={StaticResource RegisterValueConverter}, Mode=TwoWay}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            
             <!-- Memory view -->
-            <DataGrid Grid.Row="1" CellEditEnding="DataGrid_OnCellEditEnding" Grid.ColumnSpan="2" Grid.Column="0" ItemsSource="{Binding Path=MemoryVm.MemoryView}" AutoGenerateColumns="False" CanUserReorderColumns="False" SelectionUnit="Cell">
+            <DataGrid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" CellEditEnding="DataGridMemory_OnCellEditEnding" ItemsSource="{Binding Path=MemoryVm.MemoryView}" AutoGenerateColumns="False" CanUserReorderColumns="False" SelectionUnit="Cell" CanUserAddRows="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Address" Width="80" Binding="{Binding BaseAddress, Converter={StaticResource UintToHexConverter}}" IsReadOnly="True"/>
-                    <DataGridTextColumn Header="0x00" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='0'}"/>
-                    <DataGridTextColumn Header="0x04" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='1'}"/>
-                    <DataGridTextColumn Header="0x08" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='2'}"/>
-                    <DataGridTextColumn Header="0x0C" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='3'}"/>
-                    <DataGridTextColumn Header="0x10" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='4'}"/>
-                    <DataGridTextColumn Header="0x14" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='5'}"/>
-                    <DataGridTextColumn Header="0x18" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='6'}"/>
-                    <DataGridTextColumn Header="0x1C" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource DisplayValueConverter}, ConverterParameter='7'}"/>
+                    <DataGridTextColumn Header="0x00" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource MemoryValueConverter}, ConverterParameter='0'}"/>
+                    <DataGridTextColumn Header="0x04" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource MemoryValueConverter}, ConverterParameter='1'}"/>
+                    <DataGridTextColumn Header="0x08" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource MemoryValueConverter}, ConverterParameter='2'}"/>
+                    <DataGridTextColumn Header="0x0C" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource MemoryValueConverter}, ConverterParameter='3'}"/>
+                    <DataGridTextColumn Header="0x10" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource MemoryValueConverter}, ConverterParameter='4'}"/>
+                    <DataGridTextColumn Header="0x14" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource MemoryValueConverter}, ConverterParameter='5'}"/>
+                    <DataGridTextColumn Header="0x18" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource MemoryValueConverter}, ConverterParameter='6'}"/>
+                    <DataGridTextColumn Header="0x1C" Width="80" Binding="{Binding MemoryBytes, Converter={StaticResource MemoryValueConverter}, ConverterParameter='7'}"/>
                     <DataGridTextColumn Header="ASCII" Width="80*" Binding="{Binding MemoryBytes, Converter={StaticResource ByteArrayToAsciiConverter}}" IsReadOnly="True" />
                 </DataGrid.Columns>
             </DataGrid>

@@ -46,7 +46,7 @@ namespace ARM_Simulator.View
             }
         }
 
-        private void DataGrid_OnCellEditEnding(object sender, [NotNull] DataGridCellEditEndingEventArgs e)
+        private void DataGridMemory_OnCellEditEnding(object sender, [NotNull] DataGridCellEditEndingEventArgs e)
         {
             var cell = e.EditingElement as TextBox;
             var row = cell?.DataContext as ObservableMemoryStream;
@@ -58,7 +58,7 @@ namespace ARM_Simulator.View
                 var index = e.Column.DisplayIndex;
                 var address = (uint) (row.BaseAddress + (index - 1) * 4);
 
-                if (_viewModel.MemoryVm.ShowAsByte)
+                if (_viewModel.ShowAsByte)
                 {
                     var newValue = new byte[4];
                     var split = cell.Text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -66,15 +66,15 @@ namespace ARM_Simulator.View
 
                     for (var i = split.Length - 1; i >= 0; i--)
                     {
-                        if (_viewModel.MemoryVm.ShowAsSigned)
+                        if (_viewModel.ShowAsSigned)
                         {
-                            newValue[i] = _viewModel.MemoryVm.ShowAsHexadecimal
+                            newValue[i] = _viewModel.ShowAsHexadecimal
                                 ? (byte)sbyte.Parse(split[i], NumberStyles.HexNumber)
                                 : (byte)sbyte.Parse(split[i]);
                         }
                         else
                         {
-                            newValue[i] = _viewModel.MemoryVm.ShowAsHexadecimal
+                            newValue[i] = _viewModel.ShowAsHexadecimal
                                 ? byte.Parse(split[i], NumberStyles.HexNumber)
                                 : byte.Parse(split[i]);
                         }
@@ -84,7 +84,7 @@ namespace ARM_Simulator.View
                 }
                 else
                 {
-                    if (_viewModel.MemoryVm.ShowAsSigned)
+                    if (_viewModel.ShowAsSigned)
                     {
                         var newValue = Parser.ParseImmediate<int>(cell.Text);
                         _viewModel.ArmSimulator.Memory.WriteInt(address, newValue);

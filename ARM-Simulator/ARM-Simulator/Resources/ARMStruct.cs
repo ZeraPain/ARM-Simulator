@@ -103,9 +103,10 @@
         R10 = 10,
         R11 = 11,
         R12 = 12,
-        Lr = 13,
-        Sp = 14,
-        Pc = 15
+        Sp = 13,
+        Lr = 14,
+        Pc = 15,
+        Cpsr = 16
     }
 
     public enum ECondition

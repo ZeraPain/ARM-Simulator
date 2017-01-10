@@ -10,7 +10,8 @@
     <converters:BoolInverter x:Key="BoolInverter" />
     <converters:UintToHexConverter x:Key="UintToHexConverter" />
     <converters:ByteArrayToAsciiConverter x:Key="ByteArrayToAsciiConverter" />
-    <converters:DisplayValueConverter x:Key="DisplayValueConverter" />
+    <converters:MemoryValueConverter x:Key="MemoryValueConverter" />
+    <converters:RegisterValueConverter x:Key="RegisterValueConverter" />
 
 
 </ResourceDictionary>

@@ -9,42 +9,8 @@ namespace ARM_Simulator.ViewModel
 {
     internal class MemoryViewModel
     {
-        public static bool StaticShowAsHexadecimal;
-        public static bool StaticShowAsByte;
-        public static bool StaticShowAsSigned;
-
         public ObservableCollection<ObservableMemoryStream> MemoryView { get; protected set; }
         private readonly Memory _memory;
-
-        public bool ShowAsHexadecimal
-        {
-            get { return StaticShowAsHexadecimal; }
-            set
-            {
-                StaticShowAsHexadecimal = value;
-                UpdateMemoryView();
-            }
-        }
-
-        public bool ShowAsByte
-        {
-            get { return StaticShowAsByte; }
-            set
-            {
-                StaticShowAsByte = value;
-                UpdateMemoryView();
-            }
-        }
-
-        public bool ShowAsSigned
-        {
-            get { return StaticShowAsSigned; }
-            set
-            {
-                StaticShowAsSigned = value;
-                UpdateMemoryView();
-            }
-        }
 
         public MemoryViewModel(Memory memory)
         {
@@ -53,23 +19,24 @@ namespace ARM_Simulator.ViewModel
             _memory.AllowUnsafeCode = true;
 
             MemoryView = new ObservableCollection<ObservableMemoryStream>();
-
-            ShowAsHexadecimal = true;
-            ShowAsSigned = false;
-            ShowAsByte = false;
         }
 
-        private void Update(object sender, [NotNull] PropertyChangedEventArgs e)
+        public void Update(object sender, [CanBeNull] PropertyChangedEventArgs e)
         {
-            switch (e.PropertyName)
+            var property = e?.PropertyName;
+
+            switch (property)
             {
-                case "Ram":
+                case nameof(_memory.Ram):
+                    UpdateMemoryView();
+                    break;
+                default:
                     UpdateMemoryView();
                     break;
             }
         }
 
-        private void UpdateMemoryView()
+        public void UpdateMemoryView()
         {
             var data = _memory.Ram;
 

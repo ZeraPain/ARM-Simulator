@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace ARM_Simulator.ViewModel.Converters
 {
-    internal class DisplayValueConverter : IValueConverter
+    internal class MemoryValueConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -24,23 +24,23 @@ namespace ARM_Simulator.ViewModel.Converters
 
             string valueString;
 
-            if (MemoryViewModel.StaticShowAsHexadecimal)
+            if (SimulatorViewModel.StaticShowAsHexadecimal)
             {
-                valueString = MemoryViewModel.StaticShowAsByte
+                valueString = SimulatorViewModel.StaticShowAsByte
                     ? BitConverter.ToString(memoryDataBytes).Replace("-", " ")
                     : "0x" + BitConverter.ToUInt32(memoryDataBytes, 0).ToString("X8");
             }
             else
             {
-                if (MemoryViewModel.StaticShowAsByte)
+                if (SimulatorViewModel.StaticShowAsByte)
                 {
-                    valueString = MemoryViewModel.StaticShowAsSigned
+                    valueString = SimulatorViewModel.StaticShowAsSigned
                         ? memoryDataBytes.Aggregate("", (current, memoryDataByte) => current + ((sbyte) memoryDataByte).ToString() + " ")
                         : memoryDataBytes.Aggregate("", (current, memoryDataByte) => current + memoryDataByte.ToString() + " ");
                 }
                 else
                 {
-                    valueString = MemoryViewModel.StaticShowAsSigned
+                    valueString = SimulatorViewModel.StaticShowAsSigned
                         ? BitConverter.ToInt32(memoryDataBytes, 0).ToString()
                         : BitConverter.ToUInt32(memoryDataBytes, 0).ToString();
                 }

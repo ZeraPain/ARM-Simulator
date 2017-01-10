@@ -7,30 +7,32 @@ namespace ARM_Simulator.ViewModel.Observables
 {
     public class ObservableRegister : INotifyPropertyChanged
     {
-        private string _name;
-
-        public string Name
+        private ERegister _register;
+        public ERegister Register
         {
-            get { return _name; }
+            get { return _register; }
             set
             {
-                if (_name == value) return;
-                _name = value;
-                OnPropertyChanged(nameof(Name));
+                _register = value;
+                OnPropertyChanged(nameof(Register));
             }
         }
 
-        private string _value;
-
-        public string Value
+        private int _value;
+        public int Value
         {
             get { return _value; }
             set
             {
-                if (_value == value) return;
                 _value = value;
                 OnPropertyChanged(nameof(Value));
             }
+        }
+
+        public ObservableRegister(ERegister register, int value)
+        {
+            Register = register;
+            Value = value;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

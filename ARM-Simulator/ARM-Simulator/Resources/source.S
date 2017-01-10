@@ -10,7 +10,7 @@ xptr:
 	.asciiz "Hello, World!"
 	mov r0, #4
 main:
-	mov r1, #0xaa0
+	mov r1, #0xFF00
 	mov r2, #12
 	mov r3, #3
 	mov r4, #0x80

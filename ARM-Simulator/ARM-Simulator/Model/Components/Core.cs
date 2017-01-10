@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using ARM_Simulator.Annotations;
 using ARM_Simulator.Interfaces;
 using ARM_Simulator.Resources;
+using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.Model.Components
 {
     public class Core : INotifyPropertyChanged
     {
         public Dictionary<EPipeline, int> PipelineStatus { get; protected set; }
-        public Dictionary<ERegister, int> Registers { get; protected set; }
-        public int Cpsr { get; protected set; }
+        public ObservableCollection<ObservableRegister> RegisterList { get; protected set; }
 
         internal Memory Ram { get; }
 
@@ -34,28 +35,27 @@ namespace ARM_Simulator.Model.Components
             _fetch = null;
             _decode = null;
             _jump = false;
-            Cpsr = 0x13;
 
-            Registers = new Dictionary<ERegister, int>
+            RegisterList = new ObservableCollection<ObservableRegister>()
             {
-                {ERegister.R0, 0},
-                {ERegister.R1, 0},
-                {ERegister.R2, 0},
-                {ERegister.R3, 0},
-                {ERegister.R4, 0},
-                {ERegister.R5, 0},
-                {ERegister.R6, 0},
-                {ERegister.R7, 0},
-                {ERegister.R8, 0},
-                {ERegister.R9, 0},
-                {ERegister.R10, 0},
-                {ERegister.R11, 0},
-                {ERegister.R12, 0},
-                {ERegister.Sp, Ram.GetRamSize()},
-                {ERegister.Lr, 0},
-                {ERegister.Pc, 0}
+                new ObservableRegister(ERegister.R0, 0),
+                new ObservableRegister(ERegister.R1, 0),
+                new ObservableRegister(ERegister.R2, 0),
+                new ObservableRegister(ERegister.R3, 0),
+                new ObservableRegister(ERegister.R4, 0),
+                new ObservableRegister(ERegister.R5, 0),
+                new ObservableRegister(ERegister.R6, 0),
+                new ObservableRegister(ERegister.R7, 0),
+                new ObservableRegister(ERegister.R8, 0),
+                new ObservableRegister(ERegister.R9, 0),
+                new ObservableRegister(ERegister.R10, 0),
+                new ObservableRegister(ERegister.R11, 0),
+                new ObservableRegister(ERegister.R12, 0),
+                new ObservableRegister(ERegister.Sp, Ram.GetRamSize()),
+                new ObservableRegister(ERegister.Lr, 0),
+                new ObservableRegister(ERegister.Pc, 0),
+                new ObservableRegister(ERegister.Cpsr, 0x13)
             };
-            OnPropertyChanged(nameof(Registers));
 
             PipelineStatus = new Dictionary<EPipeline, int>
             {
@@ -63,16 +63,12 @@ namespace ARM_Simulator.Model.Components
                 {EPipeline.Decode, -1},
                 {EPipeline.Execute, -1}
             };
-            OnPropertyChanged(nameof(PipelineStatus));
         }
 
         public void SetRegValue(ERegister reg, int value)
         {
-            if (!Registers.ContainsKey(reg))
-                throw new Exception("Invalid Register was requested");
-
-            Registers[reg] = value;
-            OnPropertyChanged(nameof(Registers));
+            RegisterList[(int) reg].Value = value;
+            OnPropertyChanged(nameof(RegisterList));
         }
 
         public void SetEntryPoint(int address)
@@ -102,16 +98,18 @@ namespace ARM_Simulator.Model.Components
 
         public int GetRegValue(ERegister? reg)
         {
-            if ((reg == null) || !Registers.ContainsKey((ERegister)reg))
+            if (reg == null)
                 throw new Exception("Invalid Register was requested");
 
-            return Registers[(ERegister)reg];
+            return RegisterList[(int) reg].Value;
         }
 
         public void SetNzcvFlags(Flags mask, Flags flags)
         {
-            Cpsr &= ~(mask.Value << 28); // Clear affected status bits
-            Cpsr |= flags.Value << 28; // Set affected status bits
+            var value = GetRegValue(ERegister.Cpsr);
+            value &= ~(mask.Value << 28); // Clear affected status bits
+            value |= flags.Value << 28; // Set affected status bits
+            SetRegValue(ERegister.Cpsr, value);
         }
 
         public bool Tick()
@@ -127,7 +125,7 @@ namespace ARM_Simulator.Model.Components
                 {
                     _fetch = fetch;
                     _decode = decode;
-                    SetRegValue(ERegister.Pc, Registers[ERegister.Pc] + 0x4);
+                    SetRegValue(ERegister.Pc, GetRegValue(ERegister.Pc) + 0x4);
                 }
                 else
                 {
@@ -138,7 +136,7 @@ namespace ARM_Simulator.Model.Components
 
                 SetPipelineStatus(EPipeline.Execute, PipelineStatus[EPipeline.Decode]);
                 SetPipelineStatus(EPipeline.Decode, PipelineStatus[EPipeline.Fetch]);
-                SetPipelineStatus(EPipeline.Fetch, Registers[ERegister.Pc]);
+                SetPipelineStatus(EPipeline.Fetch, GetRegValue(ERegister.Pc));
                 return true;
             }
             catch (Exception ex)
@@ -157,6 +155,7 @@ namespace ARM_Simulator.Model.Components
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
         [NotifyPropertyChangedInvocator]
         protected void OnPropertyChanged([CanBeNull] [CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
