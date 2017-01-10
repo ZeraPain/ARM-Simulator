@@ -287,6 +287,6 @@ namespace ARM_Simulator.Model.Commands
             if (WriteBack) armCore.SetRegValue(Rn, Up ? armCore.GetRegValue(Rn) + value : armCore.GetRegValue(Rn) - value);
         }
 
-        public int GetCommandSize(int align) => 2 * align;
+        public int GetCommandSize(int align) => (int) Math.Pow(2, align);
     }
 }

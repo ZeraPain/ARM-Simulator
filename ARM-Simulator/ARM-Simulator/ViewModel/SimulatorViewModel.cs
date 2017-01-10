@@ -234,17 +234,17 @@ namespace ARM_Simulator.ViewModel
             var content = new TextRange(document.ContentStart, document.ContentEnd).Text
                     .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
 
-            if (!System.IO.File.ReadAllLines(File).SequenceEqual(content))
+            if ((File != null && System.IO.File.ReadAllLines(File).SequenceEqual(content)) || content.Length < 2)
+                return;
+
+            var result = MessageBox.Show("Do you want to save your changes?", "Save File", MessageBoxButton.YesNo);
+            switch (result)
             {
-                var result = MessageBox.Show("Do you want to save your changes?", "Save File", MessageBoxButton.YesNo);
-                switch (result)
-                {
-                    case MessageBoxResult.Yes:
-                        SaveFile(document);
-                        break;
-                    case MessageBoxResult.No:
-                        break;
-                }
+                case MessageBoxResult.Yes:
+                    SaveFile(document);
+                    break;
+                case MessageBoxResult.No:
+                    break;
             }
         }
 
