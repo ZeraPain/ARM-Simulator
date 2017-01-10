@@ -290,15 +290,10 @@ namespace ARM_Simulator.ViewModel
 
         private void ShowBreakpoints(object parameter)
         {
-            if (_subWindow == null)
+            if (_subWindow == null || !_subWindow.IsVisible)
             {
                 _subWindow = new ShowBreakpoints { DataContext = this };
                 _subWindow.Show();
-            }
-            else
-            {
-                _subWindow.Close();
-                _subWindow = null;
             }
         }
 

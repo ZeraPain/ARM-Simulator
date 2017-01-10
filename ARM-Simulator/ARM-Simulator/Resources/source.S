@@ -11,7 +11,7 @@ xptr:
 	mov r0, #4
 main:
 	mov r1, #0xaa0
-	mov r2, #1
+	mov r2, #12
 	mov r3, #3
 	mov r4, #0x80
 	str r2, [r4]

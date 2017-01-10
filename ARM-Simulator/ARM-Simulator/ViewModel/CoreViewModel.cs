@@ -15,7 +15,7 @@ namespace ARM_Simulator.ViewModel
     {
         public ObservableCollection<ObservableCommand> CommandList { get; set; }
         public ObservableCollection<ObservableRegister> RegisterList { get; set; }
-        public ObservableCollection<ObservableCommand> BreakpointCommandList { get; set; }
+
         public Core ArmCore { get; set; }
 
         public bool DisplayFetch { get; set; }
@@ -30,7 +30,6 @@ namespace ARM_Simulator.ViewModel
             ArmCore.PropertyChanged += Update;
             RegisterList = new ObservableCollection<ObservableRegister>();
             CommandList = new ObservableCollection<ObservableCommand>();
-            BreakpointCommandList = new ObservableCollection<ObservableCommand>();
 
             DisplayFetch = true;
             DisplayDecode = true;
@@ -49,17 +48,6 @@ namespace ARM_Simulator.ViewModel
                 UpdateRegisterList();
             else if (e.PropertyName == "PipelineStatus")
                 UpdatePipelineStatus();
-        }
-
-        public void UpdateShowBreakpoints()
-        {
-            if (BreakpointCommandList.Any())
-                BreakpointCommandList.Clear();
-
-            if (CommandList == null) return;
-
-            foreach (var command in CommandList.Where(command => command.Breakpoint))
-                BreakpointCommandList.Add(command);
         }
 
         private void InitRegisterList()
@@ -147,15 +135,12 @@ namespace ARM_Simulator.ViewModel
         {
             foreach (var command in CommandList.Where(command => command.Address == address))
                 command.Breakpoint = !command.Breakpoint;
-
-            UpdateShowBreakpoints();
         }
 
         public bool IsBreakPoint() => CommandList.Any(command => command.Address == ArmCore.PipelineStatus[EPipeline.Execute] && command.Breakpoint);
 
         private void RemoveBreakpoints(object parameter)
         {
-           BreakpointCommandList.Clear();
             foreach (var t in CommandList)
                 t.Breakpoint = false;
         }
