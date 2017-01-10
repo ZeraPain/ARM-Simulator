@@ -6,8 +6,8 @@
         xmlns:viewModel="clr-namespace:ARM_Simulator.ViewModel"
         mc:Ignorable="d"
         x:Name="BpWindow"
-        Title="Show Breakpoints" Width="150"
-        SizeToContent="Height"
+        Title="Show Breakpoints"
+        SizeToContent="WidthAndHeight"
         Closing="ShowBreakpoints_OnClosing">
 
     <Window.DataContext>
@@ -15,26 +15,26 @@
     </Window.DataContext>
   
     <DockPanel LastChildFill="True">
-
-        <Grid VerticalAlignment="Top">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-
-            </Grid.RowDefinitions>
-            <ListView x:Name="ShowBp" ItemsSource="{Binding Path=CoreVm.BreakpointCommandList}">
-            <ListView.Resources>
-                <Style TargetType="{x:Type ListViewItem}">
-                    <Setter Property="Height" Value="20" />
-                </Style>
-            </ListView.Resources>
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Command" Width="150" DisplayMemberBinding="{Binding  Commandline}"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
-            
-      </Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
+            <Grid VerticalAlignment="Top">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <ListView x:Name="ShowBp" ItemsSource="{Binding Path=CoreVm.BreakpointCommandList}">
+                    <ListView.Resources>
+                        <Style TargetType="{x:Type ListViewItem}">
+                            <Setter Property="Height" Value="20" />
+                        </Style>
+                    </ListView.Resources>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Address" Width="50" DisplayMemberBinding="{Binding  Address, Converter={StaticResource UintToHexConverter}, ConverterParameter='X4'}"/>
+                            <GridViewColumn Header="Command" Width="auto" DisplayMemberBinding="{Binding  Commandline}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Grid>
+    </ScrollViewer>
     </DockPanel>
     
     

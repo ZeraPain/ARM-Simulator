@@ -11,6 +11,7 @@
         Width="900"
         Height="700"
         ResizeMode="CanResizeWithGrip"
+        WindowStartupLocation="CenterScreen"
         Icon="/Resources/Images/Icon.png">
     
     <i:Interaction.Triggers>
@@ -27,7 +28,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
 
         <!-- This Ribbon Editor Menu is only visible while editing a file -->
