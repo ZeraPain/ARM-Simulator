@@ -89,17 +89,17 @@
                     <StackPanel Orientation="Vertical">
                         <CheckBox HorizontalAlignment="Left" Height="18" Width="auto" IsChecked="{Binding Path=CoreVm.DisplayFetch}">
                             <CheckBox.Content>
-                                <TextBlock Text="Fetch     " Foreground="Black"  FontWeight="Bold" Background="LawnGreen" />
+                                <TextBlock Width="50" Height="18" Text="Fetch" Foreground="Black"  FontWeight="Bold" Background="LawnGreen" />
                             </CheckBox.Content>
                         </CheckBox>
                         <CheckBox HorizontalAlignment="Left"  Height="18"  IsChecked="{Binding Path=CoreVm.DisplayDecode}">
                             <CheckBox.Content>
-                                <TextBlock Text="Decode " Foreground="Black"  FontWeight="Bold" Background="Yellow" />
+                                <TextBlock Width="50" Height="18" Text="Decode" Foreground="Black"  FontWeight="Bold" Background="Yellow" />
                             </CheckBox.Content>
                         </CheckBox>
                         <CheckBox HorizontalAlignment="Left" Height="18" IsChecked="{Binding Path=CoreVm.DisplayExecute}">
                             <CheckBox.Content>
-                                <TextBlock Text="Execute " Foreground="Black"  FontWeight="Bold" Background="OrangeRed" />
+                                <TextBlock Width="50" Height="18" Text="Execute" Foreground="Black"  FontWeight="Bold" Background="OrangeRed" />
                             </CheckBox.Content>
                         </CheckBox>
                     </StackPanel>
@@ -115,17 +115,17 @@
                         <TextBlock Text="Display Numeric Type" Margin="0,5,0,5" HorizontalAlignment="Center"/>
                         <Separator/>
                         <StackPanel Orientation="Horizontal">
-                            <StackPanel Orientation="Vertical" Margin="0,0,5,0">
-                                <RadioButton GroupName="NumberStyleMemory" Content="Dec     " FontSize="11"  IsChecked="{Binding MemoryVm.ShowAsHexadecimal, Converter={StaticResource BoolInverter}}"/>
-                                <RadioButton GroupName="NumberStyleMemory" Content="Hex     "  FontSize="11"  IsChecked="{Binding MemoryVm.ShowAsHexadecimal}" />
+                            <StackPanel Orientation="Vertical" Margin="0,0,5,0" Width="50">
+                                <RadioButton GroupName="NumberStyleMemory" Content="Dec" FontSize="11"  IsChecked="{Binding MemoryVm.ShowAsHexadecimal, Converter={StaticResource BoolInverter}}"/>
+                                <RadioButton GroupName="NumberStyleMemory" Content="Hex"  FontSize="11"  IsChecked="{Binding MemoryVm.ShowAsHexadecimal}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical" Margin="0,0,5,0">
-                                <RadioButton GroupName="DataTypeMemory" Content="Word    "  FontSize="11" IsChecked="{Binding Path=MemoryVm.ShowAsByte, Converter={StaticResource BoolInverter}}" />
-                                <RadioButton GroupName="DataTypeMemory" Content="Byte    " FontSize="11" IsChecked="{Binding Path=MemoryVm.ShowAsByte}" />
+                            <StackPanel Orientation="Vertical" Margin="0,0,5,0" Width="60">
+                                <RadioButton GroupName="DataTypeMemory" Content="Word"  FontSize="11" IsChecked="{Binding Path=MemoryVm.ShowAsByte, Converter={StaticResource BoolInverter}}" />
+                                <RadioButton GroupName="DataTypeMemory" Content="Byte" FontSize="11" IsChecked="{Binding Path=MemoryVm.ShowAsByte}" />
                             </StackPanel>
-                            <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Vertical" Width="80">
                                 <RadioButton GroupName="SignedMemory" Content="Unsigned" FontSize="11"  IsChecked="{Binding Path=MemoryVm.ShowAsSigned, Converter={StaticResource BoolInverter}}" />
-                                <RadioButton GroupName="SignedMemory" Content="Signed  " FontSize="11" IsChecked="{Binding Path=MemoryVm.ShowAsSigned}" />
+                                <RadioButton GroupName="SignedMemory" Content="Signed" FontSize="11" IsChecked="{Binding Path=MemoryVm.ShowAsSigned}" />
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
