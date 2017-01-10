@@ -11,7 +11,6 @@
         Width="900"
         Height="700"
         ResizeMode="CanResizeWithGrip"
-        WindowStartupLocation="CenterScreen"
         Icon="/Resources/Images/Icon.png">
     
     <i:Interaction.Triggers>
@@ -23,13 +22,25 @@
     <RibbonWindow.DataContext>
         <local:SimulatorViewModel/>
     </RibbonWindow.DataContext>
-    
-    <DockPanel LastChildFill="True">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+
         <!-- This Ribbon Editor Menu is only visible while editing a file -->
-        <Ribbon DockPanel.Dock="Top" Height="130" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">
+        <Ribbon Grid.Row="0" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">
             <!-- Application Menu -->
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
+                    <RibbonApplicationMenu.Resources>
+                        <Style TargetType="Popup">
+                            <Setter Property="Placement" Value="Right" />
+                        </Style>
+                    </RibbonApplicationMenu.Resources>
+                    
                     <RibbonApplicationMenuItem Header="New File" ImageSource="/Resources/Images/new.png" Command="{Binding Path=NewFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                     <RibbonApplicationMenuItem Header="Open File" ImageSource="/Resources/Images/open.png" Command="{Binding Path=LoadFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                     <RibbonApplicationMenuItem Header="Save File" ImageSource="/Resources/Images/save.png" Command="{Binding Path=SaveFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
@@ -37,7 +48,7 @@
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
 
-            <RibbonTab Header="Editor" Margin="0,0,0,8">
+            <RibbonTab Header="Editor">
                 <RibbonGroup >
                     <RibbonButton Label="Run" LargeImageSource="/Resources/Images/run.png" Width="auto" Height="auto" Command="{Binding Path=RunCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                 </RibbonGroup>
@@ -53,14 +64,20 @@
         </Ribbon>
 
         <!-- This Ribbon Debug Menu is only visible while debugging a file -->
-        <Ribbon DockPanel.Dock="Top" Height="130" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Debugger'}">
+        <Ribbon Grid.Row="0" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Debugger'}">
             <!-- Application Menu -->
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
+                    <RibbonApplicationMenu.Resources>
+                        <Style TargetType="Popup">
+                            <Setter Property="Placement" Value="Right" />
+                        </Style>
+                    </RibbonApplicationMenu.Resources>
+
                     <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
-            <RibbonTab Header="Debugger" Margin="0,0,0,8"  >
+            <RibbonTab Header="Debugger">
                 <RibbonGroup Header="Runtime">
                     <RibbonButton Label="Restart"  LargeImageSource="/Resources/Images/restart.png" Width="auto" Height="auto" Command="{Binding Path=RestartCommand}" />
                     <RibbonButton Label="Stop" LargeImageSource="/Resources/Images/stop.png" Width="auto" Height="auto" Command="{Binding Path=StopCommand}" />
@@ -117,7 +134,7 @@
         </Ribbon>
 
         <!-- StatusBar Bottom -->
-        <StatusBar DockPanel.Dock="Bottom" MaxHeight="30">
+        <StatusBar Grid.Row="2">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid>
@@ -139,7 +156,7 @@
         </StatusBar>
 
         <!-- This is only visible while editing a file -->
-        <Grid Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">
+        <Grid Grid.Row="1" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="60" />
@@ -172,7 +189,7 @@
         </Grid>
 
         <!-- This is only visible while debugging a file -->
-        <Grid Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Debugger'}">
+        <Grid Grid.Row="1" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Debugger'}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="150" />
@@ -259,5 +276,5 @@
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
-    </DockPanel>
+    </Grid>
 </RibbonWindow>
