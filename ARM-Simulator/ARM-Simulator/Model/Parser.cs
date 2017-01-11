@@ -543,20 +543,14 @@ namespace ARM_Simulator.Model
 
         public static T ParseImmediate<T>(string parameter)
         {
-            if (parameter.StartsWith("#0x", StringComparison.Ordinal))
-            {
-                var value = long.Parse(parameter.Substring(3), System.Globalization.NumberStyles.HexNumber);
-                return (T)Convert.ChangeType(value, typeof(T));
-            }
+            if (parameter.StartsWith("#", StringComparison.Ordinal))
+                parameter = parameter.Substring(1);
 
             if (parameter.StartsWith("0x", StringComparison.Ordinal))
             {
                 var value = long.Parse(parameter.Substring(2), System.Globalization.NumberStyles.HexNumber);
                 return (T)Convert.ChangeType(value, typeof(T));
             }
-
-            if (parameter.StartsWith("#", StringComparison.Ordinal))
-                parameter = parameter.Substring(1);
 
             return (T)Convert.ChangeType(long.Parse(parameter), typeof(T));
         }

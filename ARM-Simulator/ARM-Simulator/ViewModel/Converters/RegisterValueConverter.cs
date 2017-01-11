@@ -47,38 +47,15 @@ namespace ARM_Simulator.ViewModel.Converters
             if (newValue == null)
                 return null;
 
-            int regValue = 0;
-
             try
             {
-                if (SimulatorViewModel.StaticShowAsByte)
-                {
-                    if (SimulatorViewModel.StaticShowAsSigned)
-                    {
-                        regValue = SimulatorViewModel.StaticShowAsHexadecimal
-                            ? sbyte.Parse(newValue, NumberStyles.HexNumber)
-                            : sbyte.Parse(newValue);
-                    }
-                    else
-                    {
-                        regValue = SimulatorViewModel.StaticShowAsHexadecimal
-                            ? byte.Parse(newValue, NumberStyles.HexNumber)
-                            : byte.Parse(newValue);
-                    }
-                }
-                else
-                {
-                    regValue = SimulatorViewModel.StaticShowAsSigned 
-                        ? Parser.ParseImmediate<int>(newValue) 
-                        : System.Convert.ToInt32(Parser.ParseImmediate<uint>(newValue));
-                }
+                return unchecked((int)Parser.ParseImmediate<long>(newValue));
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, ex.Source);
+                return newValue;
             }
-
-            return regValue;
         }
     }
 }
