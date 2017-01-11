@@ -1,4 +1,7 @@
-﻿using System.ComponentModel;
+﻿using System.Windows.Controls;
+using System.Windows.Input;
+using ARM_Simulator.ViewModel;
+using ARM_Simulator.ViewModel.Observables;
 
 namespace ARM_Simulator.View
 {
@@ -13,10 +16,19 @@ namespace ARM_Simulator.View
             InitializeComponent();
         }
 
-        private void ShowBreakpoints_OnClosing(object sender, CancelEventArgs e)
+        private void ListViewBreakpoint_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-           e.Cancel = true;
-           BpWindow.Hide();
+            var viewModel = DataContext as SimulatorViewModel;
+            var listView = sender as ListView;
+
+            if (viewModel == null || listView == null)
+                return;
+
+            var observableCommand = listView.SelectedItem as ObservableCommand;
+            if (observableCommand == null)
+                return;
+
+            viewModel.CoreVm.ToggleBreakPoint(observableCommand.Address);
         }
     }
 }
