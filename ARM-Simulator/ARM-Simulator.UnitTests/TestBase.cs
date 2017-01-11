@@ -1,5 +1,6 @@
 ﻿using System;
 using ARM_Simulator.Model;
+using ARM_Simulator.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ARM_Simulator.UnitTests
@@ -30,6 +31,6 @@ namespace ARM_Simulator.UnitTests
             }
         }
 
-        protected byte GetConditionFlags() => (byte)((TestSimulator.ArmCore.Cpsr & 0xf0000000) >> 28);
+        protected byte GetConditionFlags() => (byte)((TestSimulator.ArmCore.GetRegValue(ERegister.Cpsr) & 0xf0000000) >> 28);
     }
 }

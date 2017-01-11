@@ -32,7 +32,7 @@
         </Grid.RowDefinitions>
 
         <!-- This Ribbon Editor Menu is only visible while editing a file -->
-        <Ribbon Grid.Row="0" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">
+        <Ribbon Grid.Row="0" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='invert'}">
             <!-- Application Menu -->
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
@@ -65,7 +65,7 @@
         </Ribbon>
 
         <!-- This Ribbon Debug Menu is only visible while debugging a file -->
-        <Ribbon Grid.Row="0" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Debugger'}">
+        <Ribbon Grid.Row="0" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}}">
             <!-- Application Menu -->
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
@@ -155,7 +155,7 @@
         </StatusBar>
 
         <!-- This is only visible while editing a file -->
-        <Grid Grid.Row="1" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Editor'}">
+        <Grid Grid.Row="1" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='invert'}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="60" />
@@ -188,7 +188,7 @@
         </Grid>
 
         <!-- This is only visible while debugging a file -->
-        <Grid Grid.Row="1" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='Debugger'}">
+        <Grid Grid.Row="1" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="150" />

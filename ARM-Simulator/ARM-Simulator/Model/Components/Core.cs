@@ -9,6 +9,7 @@ using ARM_Simulator.Interfaces;
 using ARM_Simulator.Resources;
 using ARM_Simulator.ViewModel.Observables;
 
+
 namespace ARM_Simulator.Model.Components
 {
     public class Core : INotifyPropertyChanged

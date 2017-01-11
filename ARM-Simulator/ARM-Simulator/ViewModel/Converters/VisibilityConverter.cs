@@ -11,16 +11,20 @@ namespace ARM_Simulator.ViewModel.Converters
         [CanBeNull]
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var debugmode = value as bool?;
-            var grid = parameter as string;
-            if (debugmode == null || parameter == null) return null;
+            var bValue = value as bool?;
+            var command = parameter as string;
 
-            switch (grid)
+            if (bValue == null)
+                return null;
+
+            if (string.IsNullOrEmpty(command))
             {
-                case "Editor":
-                    return debugmode == true ? Visibility.Collapsed : Visibility.Visible;
-                case "Debugger":
-                    return debugmode == true ? Visibility.Visible : Visibility.Collapsed;
+                return bValue == true ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            if (command == "invert")
+            {
+                return bValue == true ? Visibility.Collapsed : Visibility.Visible;
             }
 
             return null;

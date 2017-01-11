@@ -20,6 +20,7 @@ namespace ARM_Simulator.ViewModel
 {
     internal class SimulatorViewModel : INotifyPropertyChanged
     {
+        // Using static variables so that they can be accessed by the memory and register converters
         public static bool StaticShowAsHexadecimal;
         public static bool StaticShowAsByte;
         public static bool StaticShowAsSigned;
@@ -31,28 +32,20 @@ namespace ARM_Simulator.ViewModel
 
         public ObservableCollection<string> ErrorMessages { get; protected set; }
 
+        // Variable holding the current file which is used 
         private string _file;
         public string File
         {
             get { return _file; }
-            set
-            {
-                if (_file == value) return;
-                _file = value;
-                OnPropertyChanged();
-            }
+            set { _file = value; OnPropertyChanged(); }
         }
 
+        // Variable holding the current state wether we are in edit mode or debug mode
         private bool _debugmode;
         public bool DebugMode
         {
             get { return _debugmode; }
-            protected set
-            {
-                if (_debugmode == value) return;
-                _debugmode = value;
-                OnPropertyChanged();
-            }
+            protected set { _debugmode = value; OnPropertyChanged(); }
         }
 
         public bool ShowAsHexadecimal
@@ -74,6 +67,7 @@ namespace ARM_Simulator.ViewModel
                 StaticShowAsByte = value;
                 MemoryVm.Update(this, null);
                 CoreVm.Update(this, null);
+                OnPropertyChanged();
             }
         }
 
@@ -138,7 +132,7 @@ namespace ARM_Simulator.ViewModel
         {
             var document = parameter as FlowDocument;
             if (document == null) return;
-
+            
             File = null;
             document.Blocks.Clear();
         }
@@ -205,7 +199,9 @@ namespace ARM_Simulator.ViewModel
 
             try
             {
+                // load the current program code to the arm core, also compile / link
                 var cmdlist = ArmSimulator.LoadFile(_programCode);
+                // set the commandlist to display it in the listview
                 CoreVm.UpdateList(cmdlist);
                 DebugMode = true;
             }
@@ -231,6 +227,7 @@ namespace ARM_Simulator.ViewModel
             if (!DebugMode) return;
             _running = false;
 
+            // kill the current thread if its still alive
             if (_runThread?.IsAlive == true)
                 _runThread.Abort();
 
@@ -301,6 +298,7 @@ namespace ARM_Simulator.ViewModel
                 var content = new TextRange(document.ContentStart, document.ContentEnd).Text
                     .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
 
+                // try to parse, compile and link the current program code within a virtual core (not the real core!)
                 var parser = new Parser();
                 parser.ParseFile(content);
                 var linker = new Linker(new Memory(0x40000, 0x10000), parser);
@@ -319,6 +317,7 @@ namespace ARM_Simulator.ViewModel
             var success = true;
             while (_running && success)
             {
+                // invoke so that our listviews will get updated
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, (Action)(() =>
                     {
                         success = CoreVm.Core.Tick();

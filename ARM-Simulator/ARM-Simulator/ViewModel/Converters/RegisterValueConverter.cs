@@ -19,7 +19,7 @@ namespace ARM_Simulator.ViewModel.Converters
             if (SimulatorViewModel.StaticShowAsHexadecimal)
             {
                 valueString = SimulatorViewModel.StaticShowAsByte
-                    ? ((byte)regValue).ToString("X")
+                    ? "0x" + ((byte)regValue).ToString("X")
                     : "0x" + ((int)regValue).ToString("X");
             }
             else

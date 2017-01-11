@@ -66,34 +66,19 @@ namespace ARM_Simulator.View
 
                     for (var i = split.Length - 1; i >= 0; i--)
                     {
-                        if (_viewModel.ShowAsSigned)
-                        {
-                            newValue[i] = _viewModel.ShowAsHexadecimal
-                                ? (byte)sbyte.Parse(split[i], NumberStyles.HexNumber)
-                                : (byte)sbyte.Parse(split[i]);
-                        }
+                        if (_viewModel.ShowAsHexadecimal)
+                            newValue[i] = unchecked((byte) long.Parse(split[i], NumberStyles.HexNumber));
                         else
-                        {
-                            newValue[i] = _viewModel.ShowAsHexadecimal
-                                ? byte.Parse(split[i], NumberStyles.HexNumber)
-                                : byte.Parse(split[i]);
-                        }
+                            newValue[i] = unchecked((byte) long.Parse(split[i]));
                     }
+                        
 
                     _viewModel.ArmSimulator.Memory.Write(address, newValue);
                 }
                 else
                 {
-                    if (_viewModel.ShowAsSigned)
-                    {
-                        var newValue = Parser.ParseImmediate<int>(cell.Text);
-                        _viewModel.ArmSimulator.Memory.WriteInt(address, newValue);
-                    }
-                    else
-                    {
-                        var newValue = Parser.ParseImmediate<uint>(cell.Text);
-                        _viewModel.ArmSimulator.Memory.WriteUint(address, newValue);
-                    }
+                    var newValue = unchecked((int)Parser.ParseImmediate<long>(cell.Text));
+                    _viewModel.ArmSimulator.Memory.WriteInt(address, newValue);
                 }
             }
             catch (Exception ex)

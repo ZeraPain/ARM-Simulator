@@ -100,7 +100,6 @@
     <Compile Include="Model\Parser.cs" />
     <Compile Include="Model\Components\Memory.cs" />
     <Compile Include="Utilitiy\Helper.cs" />
-    <Compile Include="ViewModel\ContextMenuHandler.cs" />
     <Compile Include="ViewModel\Converters\BoolInverter.cs" />
     <Compile Include="ViewModel\Converters\BreakpointConverter.cs" />
     <Compile Include="ViewModel\Converters\StatusConverter.cs" />
