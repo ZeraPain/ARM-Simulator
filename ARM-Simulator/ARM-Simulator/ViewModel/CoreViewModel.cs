@@ -36,6 +36,7 @@ namespace ARM_Simulator.ViewModel
             // Subscribe to the inotifyproperty changed to update the registers / pipeline status on changes made by the core
             Core.PropertyChanged += Update;        
 
+            // default values for visualize pipelining 
             DisplayFetch = true;
             DisplayDecode = true;
             DisplayExecute = true;

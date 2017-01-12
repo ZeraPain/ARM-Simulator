@@ -7,6 +7,7 @@ namespace ARM_Simulator.ViewModel.Observables
 {
     public class ObservableCommand : INotifyPropertyChanged
     {
+        // variable holding the pipelining status of a command
         private EPipeline _status;
         public EPipeline Status
         {
@@ -19,6 +20,7 @@ namespace ARM_Simulator.ViewModel.Observables
             }
         }
 
+        // variable holding a bool value, it the command is marked as breakpoint
         private bool _breakpoint;
         public bool Breakpoint
         {
@@ -31,6 +33,7 @@ namespace ARM_Simulator.ViewModel.Observables
             }
         }
 
+        // variable holding the address of the command in the programm section
         private uint _address;
         public uint Address
         {
@@ -43,6 +46,7 @@ namespace ARM_Simulator.ViewModel.Observables
             }
         }
 
+        // varibale holding a  label for the command
         private string _label;
         public string Label
         {
@@ -54,7 +58,8 @@ namespace ARM_Simulator.ViewModel.Observables
                 OnPropertyChanged(nameof(Label));
             }
         }
-
+        
+        // string representing the command
         private string _commandline;
         public string Commandline
         {

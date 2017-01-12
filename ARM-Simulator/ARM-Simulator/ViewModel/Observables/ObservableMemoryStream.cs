@@ -5,7 +5,8 @@ using ARM_Simulator.Annotations;
 namespace ARM_Simulator.ViewModel.Observables
 {
     public class ObservableMemoryStream : INotifyPropertyChanged
-    {
+    {   
+        // variable holding the base address of a memory stream
         private uint _baseAddress;
         public uint BaseAddress
         {
@@ -17,6 +18,7 @@ namespace ARM_Simulator.ViewModel.Observables
             }
         }
 
+        // variable holding a set of bytes
         private byte[] _memoryBytes;
         public byte[] MemoryBytes
         {

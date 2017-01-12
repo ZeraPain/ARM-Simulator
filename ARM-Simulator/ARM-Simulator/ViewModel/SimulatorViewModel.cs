@@ -89,18 +89,20 @@ namespace ARM_Simulator.ViewModel
         public MemoryViewModel MemoryVm { get; protected set; }
         public CoreViewModel CoreVm { get; protected set; }
 
+        // ICommands for edtior and exit
         public ICommand NewFileCommand { get; protected set; }
         public ICommand SaveFileCommand { get; protected set; }
         public ICommand SaveFileAsCommand { get; protected set; }
         public ICommand LoadFileCommand { get; protected set; }
+        public ICommand ExitCommand { get; protected set; }
 
+        // special ICommands used for ARM simualtion
         public ICommand RunCommand { get; protected set; }
         public ICommand RestartCommand { get; protected set; }
         public ICommand StopCommand { get; protected set; }
         public ICommand TickCommand { get; protected set; }
         public ICommand ContinueCommand { get; protected set; }
         public ICommand PauseCommand { get; protected set; }
-        public ICommand ExitCommand { get; protected set; }
         public ICommand SyntaxCommand { get; protected set; }
         public ICommand ShowBreakpointsCommand { get; protected set; }
 
@@ -128,6 +130,7 @@ namespace ARM_Simulator.ViewModel
 
             ErrorMessages = new ObservableCollection<string>();
 
+            // default values for display numeric type
             ShowAsHexadecimal = true;
             ShowAsSigned = false;
             ShowAsByte = false;
@@ -143,6 +146,7 @@ namespace ARM_Simulator.ViewModel
             document.Blocks.Clear();
         }
 
+        // open a file loading dialog to set the path and load the content of a document
         private void LoadFileDialog(object parameter)
         {
             var document = parameter as FlowDocument;
@@ -159,6 +163,7 @@ namespace ARM_Simulator.ViewModel
             LoadFile(openFile.FileName, document);
         }
 
+        // loading a file with a given path
         public void LoadFile(string path, FlowDocument document)
         {
             if (!System.IO.File.Exists(path)) return;
@@ -265,6 +270,7 @@ namespace ARM_Simulator.ViewModel
             CoreVm.Core.Tick();
         }
 
+        // execute the whole program 
         private void Continue(object paramter)
         {
             if (!DebugMode || _running || (_runThread?.IsAlive == true)) return;

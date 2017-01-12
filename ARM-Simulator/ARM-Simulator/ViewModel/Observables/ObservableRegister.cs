@@ -7,6 +7,7 @@ namespace ARM_Simulator.ViewModel.Observables
 {
     public class ObservableRegister : INotifyPropertyChanged
     {
+        // variable holding one of the declared registers
         private ERegister _register;
         public ERegister Register
         {
@@ -18,6 +19,7 @@ namespace ARM_Simulator.ViewModel.Observables
             }
         }
 
+        // varibale holding the value of the register
         private int _value;
         public int Value
         {

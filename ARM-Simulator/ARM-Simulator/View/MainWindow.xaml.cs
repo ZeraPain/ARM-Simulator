@@ -49,6 +49,7 @@ namespace ARM_Simulator.View
             }
         }
 
+        //editing the memory cells
         private void DataGridMemory_OnCellEditEnding(object sender, [NotNull] DataGridCellEditEndingEventArgs e)
         {
             var cell = e.EditingElement as TextBox;
