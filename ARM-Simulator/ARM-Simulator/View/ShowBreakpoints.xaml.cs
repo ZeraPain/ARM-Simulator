@@ -6,16 +6,17 @@ using ARM_Simulator.ViewModel.Observables;
 namespace ARM_Simulator.View
 {
     /// <summary>
-    /// Interaction logic for Window1.xaml
+    /// Interaction logic for ShowBreakpoints.xaml
     /// </summary>
     public partial class ShowBreakpoints
     {
-        
+        // initalize ShowBreakpoint Window
         public ShowBreakpoints()
         {
             InitializeComponent();
         }
 
+        // Breakpoints can be removed on double click
         private void ListViewBreakpoint_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var viewModel = DataContext as SimulatorViewModel;
@@ -27,7 +28,7 @@ namespace ARM_Simulator.View
             var observableCommand = listView.SelectedItem as ObservableCommand;
             if (observableCommand == null)
                 return;
-
+           
             viewModel.CoreVm.ToggleBreakPoint(observableCommand.Address);
         }
     }

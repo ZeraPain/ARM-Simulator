@@ -17,6 +17,7 @@ namespace ARM_Simulator.View
     {
         private readonly SimulatorViewModel _viewModel;
 
+        // initialize MainWindow with data context of SimualtorViewModel
         public MainWindow()
         {
             InitializeComponent();
@@ -24,6 +25,7 @@ namespace ARM_Simulator.View
             _viewModel?.LoadFile("../../Resources/source.S", RichTextBoxEditor.Document);
         }
 
+        // Breakpoints can be removed on double click 
         private void ListViewCode_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var listView = sender as ListView;
@@ -37,6 +39,7 @@ namespace ARM_Simulator.View
 
             _viewModel.CoreVm.ToggleBreakPoint(observableCommand.Address);
         }
+
 
         private void RichTextBoxEditor_OnKeyDown(object sender, [NotNull] KeyEventArgs e)
         {
