@@ -18,7 +18,8 @@
         <ListView x:Name="ShowBp" MouseDoubleClick="ListViewBreakpoint_MouseDoubleClick" ItemsSource="{Binding Path=CoreVm.CommandList}">
             <ListView.Resources>
                 <Style TargetType="ListViewItem">
-                    <Setter Property="Height" Value="20" />
+                    <Setter Property="Height" Value="20"/>
+                    <Setter Property="Foreground" Value="Black"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding Breakpoint}" Value="false">
                             <Setter Property="Visibility" Value="Collapsed"/>

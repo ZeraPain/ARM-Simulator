@@ -48,6 +48,7 @@ namespace ARM_Simulator.ViewModel
             protected set { _debugmode = value; OnPropertyChanged(); }
         }
 
+        //Variable holding the current state wether disyplay numeric type is hexadecimal or decimal
         public bool ShowAsHexadecimal
         {
             get { return StaticShowAsHexadecimal; }
@@ -59,6 +60,7 @@ namespace ARM_Simulator.ViewModel
             }
         }
 
+        //Variable holding the current state wether diayplay numeric type is byte or word
         public bool ShowAsByte
         {
             get { return StaticShowAsByte; }
@@ -71,6 +73,7 @@ namespace ARM_Simulator.ViewModel
             }
         }
 
+        //Variable holding the current state wether display numeric type is signed or unsigned
         public bool ShowAsSigned
         {
             get { return StaticShowAsSigned; }
@@ -128,6 +131,7 @@ namespace ARM_Simulator.ViewModel
             ShowAsByte = false;
         }
 
+        //opens a blank document
         private void NewFile(object parameter)
         {
             var document = parameter as FlowDocument;
@@ -136,6 +140,7 @@ namespace ARM_Simulator.ViewModel
             File = null;
             document.Blocks.Clear();
         }
+
 
         private void LoadFileDialog(object parameter)
         {
@@ -295,6 +300,7 @@ namespace ARM_Simulator.ViewModel
 
             try
             {
+                // gets the current content of the document
                 var content = new TextRange(document.ContentStart, document.ContentEnd).Text
                     .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
 
@@ -329,7 +335,8 @@ namespace ARM_Simulator.ViewModel
         private void ShowBreakpoints(object parameter)
         {
             if (_subWindow == null || !_subWindow.IsVisible)
-            {
+            {    
+                // opens a subwindow with all breakpoints of the current data context   
                 _subWindow = new ShowBreakpoints { DataContext = this };
                 _subWindow.Show();
             }
