@@ -5,6 +5,7 @@ using ARM_Simulator.Annotations;
 
 namespace ARM_Simulator.ViewModel.Converters
 {
+    // Converter used to invert a given bool value
     internal class BoolInverter : IValueConverter
     {
         [CanBeNull]

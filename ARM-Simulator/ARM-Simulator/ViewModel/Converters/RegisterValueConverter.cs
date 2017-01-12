@@ -6,6 +6,9 @@ using ARM_Simulator.Model;
 
 namespace ARM_Simulator.ViewModel.Converters
 {
+    /* Converter that is used for displaying the numeric type depening on the user selection for the register view
+     * and manages the editing of register values
+     */
     internal class RegisterValueConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

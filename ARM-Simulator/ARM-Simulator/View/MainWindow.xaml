@@ -40,7 +40,7 @@
                     <RibbonApplicationMenuItem Header="New File" ToolTip="Open a new File"  ImageSource="/Resources/Images/new.png" Command="{Binding Path=NewFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                     <RibbonApplicationMenuItem Header="Open File" ToolTip="Open an existing File" ImageSource="/Resources/Images/open.png" Command="{Binding Path=LoadFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                     <RibbonApplicationMenuItem Header="Save File" ToolTip="Save the current File" ImageSource="/Resources/Images/save.png" Command="{Binding Path=SaveFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
-                    <RibbonApplicationMenuItem Header="Save As" ToolTip="Save the current File" ImageSource="/Resources/Images/save.png" Command="{Binding Path=SaveFileAsCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
+                    <RibbonApplicationMenuItem Header="Save As" ToolTip="Save the current File As" ImageSource="/Resources/Images/save.png" Command="{Binding Path=SaveFileAsCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                     <RibbonApplicationMenuItem Header="Exit" ToolTip="Exit ARM-Simulator" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>

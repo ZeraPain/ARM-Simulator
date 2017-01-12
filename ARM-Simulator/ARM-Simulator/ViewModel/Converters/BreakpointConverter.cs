@@ -5,6 +5,7 @@ using ARM_Simulator.Annotations;
 
 namespace ARM_Simulator.ViewModel.Converters
 {
+    // Converter that sets breakpoint symbol in the debugger ListView
     internal class BreakpointConverter : IValueConverter
     {
         [NotNull]

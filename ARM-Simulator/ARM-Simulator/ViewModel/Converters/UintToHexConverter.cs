@@ -4,6 +4,7 @@ using System.Windows.Data;
 
 namespace ARM_Simulator.ViewModel.Converters
 {
+    // converting unsigned integer to hexadecimal string
     internal class UintToHexConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

@@ -6,6 +6,7 @@ using ARM_Simulator.Annotations;
 
 namespace ARM_Simulator.ViewModel.Converters
 {
+    // Converting the visibility depending on debugger mode on or off
     internal class VisibilityConverter : IValueConverter
     {
         [CanBeNull]

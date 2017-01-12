@@ -5,6 +5,7 @@ using ARM_Simulator.Annotations;
 
 namespace ARM_Simulator.ViewModel.Converters
 {
+    // Converter that is used for the StatusBar to visualize the debugger status with a picture
    internal class StatusConverter : IValueConverter
     {
         [CanBeNull]
