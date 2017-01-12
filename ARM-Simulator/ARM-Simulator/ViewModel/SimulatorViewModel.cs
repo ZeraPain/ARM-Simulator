@@ -318,7 +318,7 @@ namespace ARM_Simulator.ViewModel
 
             try
             {
-                // gets the current content of the document
+                // gets the current content of the editor
                 var content = new TextRange(document.ContentStart, document.ContentEnd).Text
                     .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
 
