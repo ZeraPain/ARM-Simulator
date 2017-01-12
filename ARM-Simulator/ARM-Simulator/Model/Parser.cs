@@ -31,7 +31,7 @@ namespace ARM_Simulator.Model
         public Parser()
         {
             Align = 2;
-            EntryFunction = null;
+            EntryFunction = "main";
 
             CommandTable = new Dictionary<string, int>();
             CommandList = new List<string>();

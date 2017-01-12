@@ -86,5 +86,12 @@ namespace ARM_Simulator.View
                 MessageBox.Show(ex.Message, ex.Source);
             }
         }
+
+        private void RibbonWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            var border = RibbonApplicationMenuEdit.Template.FindName("MainPaneBorder", RibbonApplicationMenuEdit) as Border;
+            var grid = border?.Parent as Grid;
+            if (grid != null) grid.ColumnDefinitions[2].Width = new GridLength(0);
+        }
     }
 }

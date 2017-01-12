@@ -10,6 +10,7 @@ xptr:
 	.asciiz "Hello, World!"
 	mov r0, #4
 main:
+	push {r1, r2, r3}
 	mov r1, #0xFF00
 	mov r2, #12
 	mov r3, #3
@@ -23,6 +24,7 @@ main:
 	sub r6, r6, #1
 	str r6, [r5]
 	.ascii "\0"
+	pop {r1, r2, r3}
 
 L1:	add r2, r2, r1
 	sub r3, r3, r1

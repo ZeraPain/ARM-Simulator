@@ -91,6 +91,7 @@ namespace ARM_Simulator.ViewModel
 
         public ICommand NewFileCommand { get; protected set; }
         public ICommand SaveFileCommand { get; protected set; }
+        public ICommand SaveFileAsCommand { get; protected set; }
         public ICommand LoadFileCommand { get; protected set; }
 
         public ICommand RunCommand { get; protected set; }
@@ -113,6 +114,7 @@ namespace ARM_Simulator.ViewModel
 
             NewFileCommand = new DelegateCommand(NewFile);
             SaveFileCommand = new DelegateCommand(SaveFile);
+            SaveFileAsCommand = new DelegateCommand(SaveFileAs);
             LoadFileCommand = new DelegateCommand(LoadFileDialog);
             StopCommand = new DelegateCommand(Stop);
             RunCommand = new DelegateCommand(Run);
@@ -136,11 +138,10 @@ namespace ARM_Simulator.ViewModel
         {
             var document = parameter as FlowDocument;
             if (document == null) return;
-            
+
             File = null;
             document.Blocks.Clear();
         }
-
 
         private void LoadFileDialog(object parameter)
         {
@@ -169,12 +170,31 @@ namespace ARM_Simulator.ViewModel
             fStream.Close();
         }
 
+        private void SaveFileAs(object parameter)
+        {
+            var document = parameter as FlowDocument;
+            if (document == null) return;
+
+            var content = new TextRange(document.ContentStart, document.ContentEnd).Text
+                    .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
+
+            Save(content, true);
+        }
+
         public void SaveFile(object parameter)
         {
             var document = parameter as FlowDocument;
             if (document == null) return;
 
-            if (string.IsNullOrEmpty(File))
+            var content = new TextRange(document.ContentStart, document.ContentEnd).Text
+                    .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
+
+            Save(content);
+        }
+
+        private void Save(string[] lines, bool newFile = false)
+        {
+            if (string.IsNullOrEmpty(File) || newFile)
             {
                 var saveFile = new SaveFileDialog
                 {
@@ -187,9 +207,7 @@ namespace ARM_Simulator.ViewModel
                 File = saveFile.FileName;
             }
 
-            var content = new TextRange(document.ContentStart, document.ContentEnd).Text
-                    .TrimEnd(' ', '\r', '\n', '\t').Replace("\r\n", "\n").Split('\n');
-            System.IO.File.WriteAllLines(File, content);
+            System.IO.File.WriteAllLines(File, lines);
         }
 
         private void Start()

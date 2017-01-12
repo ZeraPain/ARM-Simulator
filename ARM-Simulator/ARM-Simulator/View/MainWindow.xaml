@@ -12,6 +12,7 @@
         Height="700"
         ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen"
+        Loaded="RibbonWindow_Loaded"
         Icon="/Resources/Images/Icon.png">
     
     <i:Interaction.Triggers>
@@ -35,18 +36,12 @@
         <Ribbon Grid.Row="0" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}, ConverterParameter='invert'}">
             <!-- Application Menu -->
             <Ribbon.ApplicationMenu>
-                <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
-                    <RibbonApplicationMenu.Resources>
-                        <Style TargetType="Popup">
-                            <Setter Property="Placement" Value="Right" />
-                        </Style>
-                    </RibbonApplicationMenu.Resources>
+                <RibbonApplicationMenu x:Name="RibbonApplicationMenuEdit" SmallImageSource="/Resources/Images/ApplicationMenu.png">
                     <RibbonApplicationMenuItem Header="New File" ToolTip="Open a new File"  ImageSource="/Resources/Images/new.png" Command="{Binding Path=NewFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                     <RibbonApplicationMenuItem Header="Open File" ToolTip="Open an existing File" ImageSource="/Resources/Images/open.png" Command="{Binding Path=LoadFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                     <RibbonApplicationMenuItem Header="Save File" ToolTip="Save the current File" ImageSource="/Resources/Images/save.png" Command="{Binding Path=SaveFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
-                  <RibbonApplicationMenu.FooterPaneContent>
-                        <RibbonButton Label="Exit" LargeImageSource="/Resources/Images/exit.png" HorizontalAlignment="Right" Command="{Binding Path=ExitCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
-                    </RibbonApplicationMenu.FooterPaneContent>
+                    <RibbonApplicationMenuItem Header="Save As" ToolTip="Save the current File" ImageSource="/Resources/Images/save.png" Command="{Binding Path=SaveFileAsCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
+                    <RibbonApplicationMenuItem Header="Exit" ToolTip="Exit ARM-Simulator" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
 
@@ -69,15 +64,8 @@
         <Ribbon Grid.Row="0" Visibility="{Binding Path=DebugMode, Converter={StaticResource VisibilityConverter}}">
             <!-- Application Menu -->
             <Ribbon.ApplicationMenu>
-                <RibbonApplicationMenu SmallImageSource="/Resources/Images/ApplicationMenu.png">
-                    <RibbonApplicationMenu.Resources>
-                        <Style TargetType="Popup">
-                            <Setter Property="Placement" Value="Right" />
-                        </Style>
-                    </RibbonApplicationMenu.Resources>
-                    <RibbonApplicationMenu.FooterPaneContent>
-                        <RibbonButton Label="Exit" LargeImageSource="/Resources/Images/exit.png" HorizontalAlignment="Right" Command="{Binding Path=ExitCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
-                    </RibbonApplicationMenu.FooterPaneContent>
+                <RibbonApplicationMenu x:Name="RibbonApplicationMenuDebug" SmallImageSource="/Resources/Images/ApplicationMenu.png" >
+                    <RibbonApplicationMenuItem Header="Exit" ToolTip="Exit ARM-Simulator" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
             <RibbonTab Header="Debugger">

@@ -44,6 +44,7 @@ namespace ARM_Simulator.Model
 
         private void UpdateCommandTable(string entryFunction)
         {
+            var realCommandTable = new Dictionary<string, int>();
             var offset = 0;
 
             for (var i = 0; i < CommandList.Count; i++)
@@ -53,13 +54,15 @@ namespace ARM_Simulator.Model
                     var label = CommandTable.ElementAt(k);
                     if (label.Value == i)
                     {
-                        CommandTable[label.Key] = offset;
+                        realCommandTable.Add(label.Key, offset);
                         if (label.Key == entryFunction) EntryPoint = offset;
                     }
                 }
 
                 offset += Parser.ParseLine(CommandList[i]).GetCommandSize(_align);
             }
+
+            CommandTable = realCommandTable;
         }
 
         [NotNull]
