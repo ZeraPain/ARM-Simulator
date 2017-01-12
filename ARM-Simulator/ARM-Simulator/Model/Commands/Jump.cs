@@ -111,6 +111,6 @@ namespace ARM_Simulator.Model.Commands
             Linked = true;
         }
 
-        public int GetCommandSize(int align) => (int) Math.Pow(2, align);
+        public int GetCommandSize(int align) => align * 1;
     }
 }

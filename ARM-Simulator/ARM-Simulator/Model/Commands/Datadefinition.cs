@@ -83,10 +83,10 @@ namespace ARM_Simulator.Model.Commands
 
         public int GetCommandSize(int align)
         {
-            if (Value.Length % (2 * align) == 0)
+            if (Value.Length % align == 0)
                 return Value.Length;
 
-            return Value.Length + ((int)Math.Pow(2, align) - Value.Length % (int)Math.Pow(2, align));
+            return Value.Length + (align - Value.Length % align);
         }
     }
 }

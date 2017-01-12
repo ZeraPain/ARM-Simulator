@@ -96,7 +96,7 @@ namespace ARM_Simulator.Model
                         var split = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                         if (split.Length != 2) throw new ArgumentException();
 
-                        Align = int.Parse(split[1]);
+                        ParseAlign(split[1]);
                         continue;
                     }
 
@@ -141,6 +141,24 @@ namespace ARM_Simulator.Model
                         throw new ArgumentOutOfRangeException();
                 }
             }
+        }
+
+        private void ParseAlign([NotNull] string line)
+        {
+            var align = int.Parse(line);
+
+            for (var i = 0; i < 31; i++)
+            {
+                if ((int) Math.Pow(2, i) != align)
+                    continue;
+
+                if (align < 4) throw new Exception("Thumb mode is not supported (Align should be >= 4)");
+
+                Align = align;
+                return;
+            }
+
+            throw new Exception("Invalid Align Size (Should be a numeric expression evaluating to any power of 2)");
         }
 
         private void ParseTextSection(string line)
