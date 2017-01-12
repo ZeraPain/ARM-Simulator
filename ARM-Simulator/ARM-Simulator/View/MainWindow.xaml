@@ -41,11 +41,12 @@
                             <Setter Property="Placement" Value="Right" />
                         </Style>
                     </RibbonApplicationMenu.Resources>
-                    
-                    <RibbonApplicationMenuItem Header="New File" ImageSource="/Resources/Images/new.png" Command="{Binding Path=NewFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
-                    <RibbonApplicationMenuItem Header="Open File" ImageSource="/Resources/Images/open.png" Command="{Binding Path=LoadFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
-                    <RibbonApplicationMenuItem Header="Save File" ImageSource="/Resources/Images/save.png" Command="{Binding Path=SaveFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
-                    <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
+                    <RibbonApplicationMenuItem Header="New File" ToolTip="Open a new File"  ImageSource="/Resources/Images/new.png" Command="{Binding Path=NewFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
+                    <RibbonApplicationMenuItem Header="Open File" ToolTip="Open an existing File" ImageSource="/Resources/Images/open.png" Command="{Binding Path=LoadFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
+                    <RibbonApplicationMenuItem Header="Save File" ToolTip="Save the current File" ImageSource="/Resources/Images/save.png" Command="{Binding Path=SaveFileCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
+                  <RibbonApplicationMenu.FooterPaneContent>
+                        <RibbonButton Label="Exit" LargeImageSource="/Resources/Images/exit.png" HorizontalAlignment="Right" Command="{Binding Path=ExitCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
+                    </RibbonApplicationMenu.FooterPaneContent>
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
 
@@ -74,8 +75,9 @@
                             <Setter Property="Placement" Value="Right" />
                         </Style>
                     </RibbonApplicationMenu.Resources>
-
-                    <RibbonApplicationMenuItem Header="Exit" ImageSource="/Resources/Images/exit.png" Command="{Binding Path=ExitCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
+                    <RibbonApplicationMenu.FooterPaneContent>
+                        <RibbonButton Label="Exit" LargeImageSource="/Resources/Images/exit.png" HorizontalAlignment="Right" Command="{Binding Path=ExitCommand}" CommandParameter="{Binding ElementName=RichTextBoxEditor, Path=Document}" />
+                    </RibbonApplicationMenu.FooterPaneContent>
                 </RibbonApplicationMenu>
             </Ribbon.ApplicationMenu>
             <RibbonTab Header="Debugger">
@@ -113,18 +115,18 @@
                 </RibbonGroup>
                 <RibbonGroup Header="Display Numeric Type">
                     <StackPanel Orientation="Vertical">
-                        <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
                             <StackPanel Orientation="Vertical" Margin="0,0,5,0" Width="50">
-                                <RadioButton GroupName="NumberStyleMemory" Content="Dec" FontSize="11"  IsChecked="{Binding Path=ShowAsHexadecimal, Converter={StaticResource BoolInverter}}"/>
-                                <RadioButton GroupName="NumberStyleMemory" Content="Hex"  FontSize="11"  IsChecked="{Binding Path=ShowAsHexadecimal}" />
+                                <RadioButton GroupName="NumberStyleMemory" Content="Dec" FontSize="12"  IsChecked="{Binding Path=ShowAsHexadecimal, Converter={StaticResource BoolInverter}}"/>
+                                <RadioButton GroupName="NumberStyleMemory" Content="Hex"  FontSize="12"  IsChecked="{Binding Path=ShowAsHexadecimal}" />
                             </StackPanel>
                             <StackPanel Orientation="Vertical" Margin="0,0,5,0" Width="60">
-                                <RadioButton GroupName="DataTypeMemory" Content="Word"  FontSize="11" IsChecked="{Binding Path=ShowAsByte, Converter={StaticResource BoolInverter}}" />
-                                <RadioButton GroupName="DataTypeMemory" Content="Byte" FontSize="11" IsChecked="{Binding Path=ShowAsByte}" />
+                                <RadioButton GroupName="DataTypeMemory" Content="Word"  FontSize="12" IsChecked="{Binding Path=ShowAsByte, Converter={StaticResource BoolInverter}}" />
+                                <RadioButton GroupName="DataTypeMemory" Content="Byte" FontSize="12" IsChecked="{Binding Path=ShowAsByte}" />
                             </StackPanel>
                             <StackPanel Orientation="Vertical" Width="70">
-                                <RadioButton GroupName="SignedMemory" Content="Unsigned" FontSize="11"  IsChecked="{Binding Path=ShowAsSigned, Converter={StaticResource BoolInverter}}" />
-                                <RadioButton GroupName="SignedMemory" Content="Signed" FontSize="11" IsChecked="{Binding Path=ShowAsSigned}" />
+                                <RadioButton GroupName="SignedMemory" Content="Unsigned" FontSize="12"  IsChecked="{Binding Path=ShowAsSigned, Converter={StaticResource BoolInverter}}" />
+                                <RadioButton GroupName="SignedMemory" Content="Signed" FontSize="12" IsChecked="{Binding Path=ShowAsSigned}" />
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -177,6 +179,7 @@
                         <Setter Property="FontSize" Value="14"/>
                         <Setter Property="Background" Value="DarkOrange" />
                         <Setter Property="BorderBrush" Value="OrangeRed"/>
+                        <Setter Property="Foreground" Value="Black"/>
                     </Style>
                 </ListView.Resources>
                 <ListView.View>
@@ -213,6 +216,7 @@
                                 <Setter Property="Background" Value="OrangeRed" />
                             </DataTrigger>
                         </Style.Triggers>
+                        <Setter Property="Foreground" Value="Black"/>
                     </Style>
                 </ListView.ItemContainerStyle>
                 <ListView.View>
