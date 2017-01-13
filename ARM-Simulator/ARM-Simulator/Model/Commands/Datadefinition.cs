@@ -41,13 +41,13 @@ namespace ARM_Simulator.Model.Commands
                     Value = BitConverter.GetBytes(byteValue);
                     break;
                 case EDataSize.Ascii:
-                    if (!parameterString.StartsWith("\"") || !parameterString.EndsWith("\"")) throw new ArgumentException();
+                    if (!parameterString.StartsWith("\"", StringComparison.Ordinal) || !parameterString.EndsWith("\"", StringComparison.Ordinal)) throw new ArgumentException();
 
                     Value = Encoding.UTF8.GetBytes(Regex.Unescape(parameterString.Substring(1, parameterString.Length - 2)));
                     Linked = true;
                     break;
                 case EDataSize.Asciiz:
-                    if (!parameterString.StartsWith("\"") || !parameterString.EndsWith("\"")) throw new ArgumentException();
+                    if (!parameterString.StartsWith("\"", StringComparison.Ordinal) || !parameterString.EndsWith("\"", StringComparison.Ordinal)) throw new ArgumentException();
 
                     var value = Encoding.ASCII.GetBytes(parameterString.Substring(1, parameterString.Length - 2));
                     Value = new byte[value.Length + 1];
@@ -83,6 +83,7 @@ namespace ARM_Simulator.Model.Commands
 
         public int GetCommandSize(int align)
         {
+            // Calculate size of value and add missing size so it fits into 2^x
             if (Value.Length % align == 0)
                 return Value.Length;
 

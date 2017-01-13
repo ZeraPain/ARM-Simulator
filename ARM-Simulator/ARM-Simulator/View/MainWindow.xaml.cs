@@ -43,6 +43,7 @@ namespace ARM_Simulator.View
 
         private void RichTextBoxEditor_OnKeyDown(object sender, [NotNull] KeyEventArgs e)
         {
+            // User can save the file by hitting CTRL + S
             if ((e.Key == Key.S) && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
                 _viewModel.SaveFile(RichTextBoxEditor.Document);
@@ -60,10 +61,12 @@ namespace ARM_Simulator.View
             try
             {
                 var index = e.Column.DisplayIndex;
+                // Calculate the modifies address
                 var address = (uint) (row.BaseAddress + (index - 1) * 4);
 
                 if (_viewModel.ShowAsByte)
                 {
+                    // Split the string by the bytes and add them in order
                     var newValue = new byte[4];
                     var split = cell.Text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                     if (split.Length > 4) throw new ArgumentException();
@@ -75,12 +78,13 @@ namespace ARM_Simulator.View
                         else
                             newValue[i] = unchecked((byte) long.Parse(split[i]));
                     }
-                        
+
 
                     _viewModel.ArmSimulator.Memory.Write(address, newValue);
                 }
                 else
                 {
+                    // User entered and word value, no matter if its hex (0x) or dec
                     var newValue = unchecked((int)Parser.ParseImmediate<long>(cell.Text));
                     _viewModel.ArmSimulator.Memory.WriteInt(address, newValue);
                 }

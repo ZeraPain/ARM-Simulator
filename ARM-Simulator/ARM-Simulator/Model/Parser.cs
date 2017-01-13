@@ -234,7 +234,7 @@ namespace ARM_Simulator.Model
 
             try
             {
-                if ((index == -1) || (commandLine.Length < index + 1) || commandLine.EndsWith(",")) throw new TargetParameterCountException();
+                if ((index == -1) || (commandLine.Length < index + 1) || commandLine.EndsWith(",", StringComparison.Ordinal)) throw new TargetParameterCountException();
 
                 var commandString = commandLine.Substring(0, index);
                 var parameterString = commandLine.Substring(index).Trim(' ', '\t');

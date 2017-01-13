@@ -83,14 +83,17 @@ namespace ARM_Simulator.Model.Commands
 
         private EOperand2 ParseOperand2([NotNull] string operand2, [CanBeNull] string shiftValue)
         {
-            if (operand2.StartsWith("#", StringComparison.Ordinal)) // use immediate
+            // User wants to use an immediate value
+            if (operand2.StartsWith("#", StringComparison.Ordinal))
             {
                 var value = Parser.ParseImmediate<uint>(operand2);
                 Immediate = (byte) value;
                 ShiftCount = 0;
 
+                // If its higher than 255 try to fix it by rotating left
                 if (value >= 256)
                 {
+                    // User added custom shift value so we cannot rotate
                     if (!string.IsNullOrEmpty(shiftValue)) throw new ArgumentOutOfRangeException();
 
                     for (var i = 2; i < 32; i += 2)
@@ -100,15 +103,17 @@ namespace ARM_Simulator.Model.Commands
                             continue;
 
                         Immediate = (byte)tryValue;
-                        Rotate = (byte)(i / 2);
+                        Rotate = (byte)(i / 2); // divided by 2 because there are only 4 bits rotate value
                         return EOperand2.RotateImmediate;
                     }
 
+                    // Value cannot be rotatet
                     throw new ArgumentOutOfRangeException();
                 }
 
                 if (string.IsNullOrEmpty(shiftValue)) return EOperand2.RotateImmediate;
 
+                // parse custom rotate value
                 Rotate = Parser.ParseImmediate<byte>(shiftValue);
                 if (Rotate >= 16) throw new ArgumentOutOfRangeException();
 
@@ -222,46 +227,46 @@ namespace ARM_Simulator.Model.Commands
             var result = 0;
             switch (Opcode)
             {
-                case EOpcode.Add:
+                case EOpcode.Add: // Addition
                     result = armCore.GetRegValue(Rn) + value;
                     armCore.SetRegValue(Rd, result);
                     break;
-                case EOpcode.Sub:
+                case EOpcode.Sub: // Substraction
                     result = armCore.GetRegValue(Rn) - value;
                     armCore.SetRegValue(Rd, result);
                     break;
-                case EOpcode.Rsb:
+                case EOpcode.Rsb: // Reverse Substraction
                     result = value - armCore.GetRegValue(Rn);
                     armCore.SetRegValue(Rd, result);
                     break;
-                case EOpcode.Mov:
+                case EOpcode.Mov: // Move
                     result = value;
                     armCore.SetRegValue(Rd, result);
                     break;
-                case EOpcode.Mvn:
+                case EOpcode.Mvn: // Move Not
                     result = value ^ -1;
                     armCore.SetRegValue(Rd, result);
                     break;
-                case EOpcode.And:
+                case EOpcode.And: // And
                     result = armCore.GetRegValue(Rn) & value;
                     armCore.SetRegValue(Rd, result);
                     break;
-                case EOpcode.Eor:
+                case EOpcode.Eor: // Xor
                     result = armCore.GetRegValue(Rn) ^ value;
                     armCore.SetRegValue(Rd, result);
                     break;
-                case EOpcode.Orr:
+                case EOpcode.Orr: // Or
                     result = armCore.GetRegValue(Rn) | value;
                     armCore.SetRegValue(Rd, result);
                     break;
-                case EOpcode.Bic:
+                case EOpcode.Bic: // Clear bits
                     result = armCore.GetRegValue(Rn) & ~value;
                     armCore.SetRegValue(Rd, result);
                     break;
-                case EOpcode.Tst:
+                case EOpcode.Tst: // Test
                     result = armCore.GetRegValue(Rn) & value;
                     break;
-                case EOpcode.Teq:
+                case EOpcode.Teq: // Test equal
                     result = armCore.GetRegValue(Rn) ^ value;
                     break;
             }

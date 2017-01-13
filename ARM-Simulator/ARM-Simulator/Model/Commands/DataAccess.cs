@@ -80,6 +80,7 @@ namespace ARM_Simulator.Model.Commands
             Linked = true;
         }
 
+        // Preindex!
         private void ParseSource([NotNull] string sourceString)
         {
             var source = sourceString.Split(',');
@@ -88,6 +89,7 @@ namespace ARM_Simulator.Model.Commands
             Rn = Parser.ParseRegister(source[0]);
             if (source.Length == 1) return;
 
+            // User wants to use an immediate offset
             if (source[1].StartsWith("#", StringComparison.Ordinal))
             {
                 Immediate = Parser.ParseImmediate<short>(source[1]);
@@ -101,6 +103,7 @@ namespace ARM_Simulator.Model.Commands
 
                 Offset = EOffset.Immediate;
             }
+            // User wants to use a register value offset
             else
             {
                 Rm = Parser.ParseRegister(source[1]);
@@ -112,6 +115,7 @@ namespace ARM_Simulator.Model.Commands
 
         private void ParseLabelAccess([NotNull] string parameterString)
         {
+            // Load value at label
             var parameters = Parser.ParseParameters(parameterString, new[] { ',' });
             if (parameters.Length != 2) throw new TargetParameterCountException();
 
@@ -133,7 +137,7 @@ namespace ARM_Simulator.Model.Commands
 
             var parameters = Parser.ParseParameters(parameterString, new[] {'[', ']'});
             if ((parameters.Length != 2) && (parameters.Length != 3)) throw new TargetParameterCountException();
-            if (!parameters[0].EndsWith(",")) throw new ArgumentException();
+            if (!parameters[0].EndsWith(",", StringComparison.Ordinal)) throw new ArgumentException();
 
             Rd = Parser.ParseRegister(parameters[0].Substring(0, parameters[0].Length - 1));
 

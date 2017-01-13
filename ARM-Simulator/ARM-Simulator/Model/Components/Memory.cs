@@ -7,9 +7,12 @@ namespace ARM_Simulator.Model.Components
 {
     public class Memory : INotifyPropertyChanged
     {
-        public byte[] Ram { get; protected set; }
-        public uint DataSectionStart { get; protected set; }
         private bool _textSectionLoaded;
+        // Hold all bytes of the Ram
+        public byte[] Ram { get; protected set; }
+        // defines the end of the code section / start of datasection
+        public uint DataSectionStart { get; protected set; }
+        // allow unsafe code so that a user can edit the code section
         public bool AllowUnsafeCode { get; set; }
 
         public Memory(uint ramSize, uint codeSectionEnd)
@@ -43,10 +46,8 @@ namespace ARM_Simulator.Model.Components
         }
 
         public void WriteDataSection(byte[] data) => Write(DataSectionStart, data);
-
         public void WriteInt(uint address, int data) => Write(address, BitConverter.GetBytes(data));
         public void WriteUint(uint address, uint data) => Write(address, BitConverter.GetBytes(data));
-
         public void WriteByte(uint address, byte data) => Write(address, BitConverter.GetBytes(data));
 
         public void Write(uint address, [CanBeNull] byte[] data)
@@ -60,7 +61,6 @@ namespace ARM_Simulator.Model.Components
         }
 
         public int ReadInt(uint address) => BitConverter.ToInt32(Read(address, 4), 0);
-
         public byte ReadByte(uint address) => Read(address, 1)[0];
 
         [NotNull]
@@ -75,7 +75,6 @@ namespace ARM_Simulator.Model.Components
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
         [NotifyPropertyChangedInvocator]
         protected void OnPropertyChanged([CanBeNull] [CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

@@ -14,9 +14,11 @@ namespace ARM_Simulator.Model.Components
 {
     public class Core : INotifyPropertyChanged
     {
+        // Holds the status of the pipeline (Status, Program Address)
         public Dictionary<EPipeline, int> PipelineStatus { get; protected set; }
+        // We are using an Observable here because a Viewmodel is not required. Furthermore we can use it to easy write back values by user edits!
         public ObservableCollection<ObservableRegister> RegisterList { get; protected set; }
-
+        // Reference to Ram to fetch program code
         internal Memory Ram { get; }
 
         private int? _fetch;

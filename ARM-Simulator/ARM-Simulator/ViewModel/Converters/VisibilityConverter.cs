@@ -2,14 +2,12 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using ARM_Simulator.Annotations;
 
 namespace ARM_Simulator.ViewModel.Converters
 {
     // Converting the visibility depending on debugger mode on or off
     internal class VisibilityConverter : IValueConverter
     {
-        [CanBeNull]
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var bValue = value as bool?;
@@ -33,7 +31,7 @@ namespace ARM_Simulator.ViewModel.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 }

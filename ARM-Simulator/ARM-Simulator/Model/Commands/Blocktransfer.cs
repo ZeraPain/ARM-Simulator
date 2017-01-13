@@ -42,14 +42,16 @@ namespace ARM_Simulator.Model.Commands
         {
             if (Decoded) throw new InvalidOperationException();
 
+            // split parameters 
             var parameters = Parser.ParseParameters(parameterString, new[] { '{', '}' });
 
             if (parameters.Length != 2) throw new TargetParameterCountException();
-            if (!parameters[0].EndsWith(",")) throw new ArgumentException();
+            if (!parameters[0].EndsWith(",", StringComparison.Ordinal)) throw new ArgumentException();
 
+            // clear the ,
             parameters[0] = parameters[0].Substring(0, parameters[0].Length - 1);
 
-            if (parameters[0].EndsWith("!"))
+            if (parameters[0].EndsWith("!", StringComparison.Ordinal))
             {
                 parameters[0] = parameters[0].Substring(0, parameters[0].Length - 1);
                 WriteBack = true;
@@ -64,11 +66,11 @@ namespace ARM_Simulator.Model.Commands
             {
                 switch (regRange.Length)
                 {
-                    case 1:
+                    case 1: // use single register e.g. r1
                         var register = Parser.ParseRegister(regRange[0]);
                         RegisterList |= 1 << (int)register;
                         break;
-                    case 2:
+                    case 2: // use register range e.g. r1-r3
                         var startReg = Parser.ParseRegister(regRange[0]);
                         var endReg = Parser.ParseRegister(regRange[1]);
                         if (endReg < startReg) throw new ArgumentException();
@@ -115,6 +117,7 @@ namespace ARM_Simulator.Model.Commands
 
             if (Load)
             {
+                // lowest to highest
                 for (var i = 0; i < 16; i++)
                 {
                     if ((RegisterList & (1 << i)) == 0)
@@ -127,6 +130,7 @@ namespace ARM_Simulator.Model.Commands
             }
             else
             {
+                // highest to lowest
                 for (var i = 15; i >= 0; i--)
                 {
                     if ((RegisterList & (1 << i)) == 0)

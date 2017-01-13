@@ -19,25 +19,25 @@ namespace ARM_Simulator.ViewModel.Converters
 
             string valueString;
 
-            if (SimulatorViewModel.StaticShowAsHexadecimal)
+            if (SimulatorViewModel.StaticShowAsHexadecimal) // HEX
             {
                 valueString = SimulatorViewModel.StaticShowAsByte
-                    ? "0x" + ((byte)regValue).ToString("X")
-                    : "0x" + ((int)regValue).ToString("X");
+                    ? "0x" + ((byte)regValue).ToString("X") // HEX BYTE
+                    : "0x" + ((int)regValue).ToString("X"); // HEX WORD
             }
-            else
+            else // DEC
             {
                 if (SimulatorViewModel.StaticShowAsByte)
                 {
                     valueString = SimulatorViewModel.StaticShowAsSigned
-                        ? ((sbyte)regValue).ToString()
-                        : ((byte)regValue).ToString();
+                        ? ((sbyte)regValue).ToString() // DEC SIGNED BYTE
+                        : ((byte)regValue).ToString(); // DEC UNSIGNED BYTE
                 }
                 else
                 {
                     valueString = SimulatorViewModel.StaticShowAsSigned
-                        ? ((int)regValue).ToString()
-                        : ((uint)regValue).ToString();
+                        ? ((int)regValue).ToString() // DEC SIGNED WORD
+                        : ((uint)regValue).ToString(); // DEC UNSIGNED WORD
                 }
             }
 
@@ -52,6 +52,7 @@ namespace ARM_Simulator.ViewModel.Converters
 
             try
             {
+                // User can enter any kind of calue, doesnt matter if its signed, hex (0x) or dec. Register will be automatically updated
                 return unchecked((int)Parser.ParseImmediate<long>(newValue));
             }
             catch (Exception ex)

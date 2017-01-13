@@ -25,25 +25,25 @@ namespace ARM_Simulator.ViewModel.Converters
 
             string valueString;
 
-            if (SimulatorViewModel.StaticShowAsHexadecimal)
+            if (SimulatorViewModel.StaticShowAsHexadecimal) // HEX
             {
                 valueString = SimulatorViewModel.StaticShowAsByte
-                    ? BitConverter.ToString(memoryDataBytes).Replace("-", " ")
-                    : "0x" + BitConverter.ToUInt32(memoryDataBytes, 0).ToString("X8");
+                    ? BitConverter.ToString(memoryDataBytes).Replace("-", " ") // HEX BYTE
+                    : "0x" + BitConverter.ToUInt32(memoryDataBytes, 0).ToString("X8"); // HEX WORD
             }
-            else
+            else // DEC
             {
                 if (SimulatorViewModel.StaticShowAsByte)
                 {
                     valueString = SimulatorViewModel.StaticShowAsSigned
-                        ? memoryDataBytes.Aggregate("", (current, memoryDataByte) => current + ((sbyte) memoryDataByte).ToString() + " ")
-                        : memoryDataBytes.Aggregate("", (current, memoryDataByte) => current + memoryDataByte.ToString() + " ");
+                        ? memoryDataBytes.Aggregate("", (current, memoryDataByte) => current + ((sbyte) memoryDataByte).ToString() + " ") // DEC SIGNED BYTE
+                        : memoryDataBytes.Aggregate("", (current, memoryDataByte) => current + memoryDataByte.ToString() + " "); // DEC UNSIGNED BYTE
                 }
                 else
                 {
                     valueString = SimulatorViewModel.StaticShowAsSigned
-                        ? BitConverter.ToInt32(memoryDataBytes, 0).ToString()
-                        : BitConverter.ToUInt32(memoryDataBytes, 0).ToString();
+                        ? BitConverter.ToInt32(memoryDataBytes, 0).ToString() // DEC SIGNED WORD
+                        : BitConverter.ToUInt32(memoryDataBytes, 0).ToString(); // DEC UNSIGNED WORD
                 }
             }
 

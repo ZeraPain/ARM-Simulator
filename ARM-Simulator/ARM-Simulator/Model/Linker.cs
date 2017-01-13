@@ -35,6 +35,7 @@ namespace ARM_Simulator.Model
 
         private void UpdateDataTable()
         {
+            // Add the datasection offset to all values, offsets are already correctly calculated!
             var offset = (int)Ram.DataSectionStart;
 
             var keys = DataTable.Keys.ToList();
@@ -47,16 +48,17 @@ namespace ARM_Simulator.Model
             var realCommandTable = new Dictionary<string, int>();
             var offset = 0;
 
+            // Calculate real offsets by the commandnumber
             for (var i = 0; i < CommandList.Count; i++)
             {
                 for (var k = 0; k < CommandTable.Count; k++)
                 {
                     var label = CommandTable.ElementAt(k);
-                    if (label.Value == i)
-                    {
-                        realCommandTable.Add(label.Key, offset);
-                        if (label.Key == entryFunction) EntryPoint = offset;
-                    }
+                    if (label.Value != i)
+                        continue;
+
+                    realCommandTable.Add(label.Key, offset);
+                    if (label.Key == entryFunction) EntryPoint = offset;
                 }
 
                 offset += Parser.ParseLine(CommandList[i]).GetCommandSize(_align);

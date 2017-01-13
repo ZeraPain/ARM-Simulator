@@ -19,19 +19,25 @@ namespace ARM_Simulator.Model
         [NotNull]
         public List<ObservableCommand> LoadFile(string[] hLines)
         {
+            // Reset out components
             ArmCore.Reset();
             Memory.Initialise();
 
+            // Parse the program code
             var parser = new Parser();
             parser.ParseFile(hLines);
-            var linker = new Linker(Memory, parser);
 
+            // Compile and Link 
+            var linker = new Linker(Memory, parser);
             var commandList = linker.CompileAndLink();
+
             ArmCore.SetEntryPoint(linker.EntryPoint);
 
+            // Return commandlist to our ViewModel
             return commandList;
         }
 
+        // Only necessary for unit tests
         public void TestCommand([NotNull] string commandLine)
         {
             var command = Parser.ParseLine(commandLine);

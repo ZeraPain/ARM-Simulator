@@ -1,7 +1,7 @@
 @@testfile	
 .text
 
-.align 8
+.align 4
 .global main
 
 xptr:
