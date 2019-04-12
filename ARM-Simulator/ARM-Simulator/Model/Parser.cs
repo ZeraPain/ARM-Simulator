@@ -30,7 +30,7 @@ namespace ARM_Simulator.Model
 
         public Parser()
         {
-            Align = 2;
+            Align = 4;
             EntryFunction = "main";
 
             CommandTable = new Dictionary<string, int>();
